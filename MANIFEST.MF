@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Plugin-Name: Vimish
+Plugin-Author: Nick Pizzigati
+OmegaT-Plugins: org.omegat.plugins.vimish.Vimish
+Plugin-Description: Vim keys for OmegaT
+Plugin-Version: 0.1
+Plugin-Link: https://github.com/npizzigati/Vimish
