@@ -35,6 +35,9 @@ import org.omegat.util.Java8Compat;
 import org.omegat.util.gui.Styles;
 import org.omegat.util.Log;
 
+// TODO: options: integrate system and vim clipboards
+//                where the cursor is when entering insert mode
+//                (whether to adjust position by one)
 public class Vimish {
   static boolean isEditingSetupCompleted = false;
   static JTextComponent editingArea;
@@ -61,7 +64,7 @@ public class Vimish {
       public void onNewFile(String activeFileName) {
         if (isEditingSetupCompleted) return;
 
-        setUpEditingArea();
+        setUpCaret();
         installKeyEventDispatcher();
       };
 
@@ -71,7 +74,7 @@ public class Vimish {
     });
   }
 
-  private static void setUpEditingArea() {
+  private static void setUpCaret() {
     editingArea = getEditingArea();
     if (editingArea != null) {
       VimishCaret c = new VimishCaret();
@@ -105,14 +108,15 @@ public class Vimish {
       @Override
       public boolean dispatchKeyEvent(KeyEvent event) {
 
-        // Don't consume action key keyPressed events
+        // Don't consume action-key keyPressed events
         if (event.isActionKey() && event.getID() == KeyEvent.KEY_PRESSED) {
           return false;
         }
 
-        // Consume event if not a keyTyped event
+        // Consume other non-keyTyped events, except backspace in insert mode
         if (!(event.getID() == KeyEvent.KEY_TYPED)) {
-          if (event.getID() == KeyEvent.KEY_PRESSED && event.getKeyCode() == 8
+          if (event.getID() == KeyEvent.KEY_PRESSED
+              && event.getKeyCode() == KeyEvent.VK_BACK_SPACE
               && !normalMode) {
             return false;
           } else {
@@ -120,34 +124,50 @@ public class Vimish {
           }
         }
 
+        // Consume keys entered outside main editing area
         if (isOutsideMainEditingArea(event)) {
-          JOptionPane.showMessageDialog(null, "key outside area");
           return true;
         }
 
-        // try {
-          if (!normalMode) {
-            if ((int)event.getKeyChar() == 27) {
-              normalMode = true;
-              processCaret();
-              return true;
-            } else {
-              return false;
-            }
-          } else {
-            if (event.getKeyChar() == 'i') {
-              normalMode = false;
-              processCaret();
-            } 
+        KeySequence sequence = KeySequence.getKeySequence();
+        String keyString = determineKeyString(event);
+
+        sequence.applyKey(keyString);
+
+        if (!normalMode) {
+          if ((int)event.getKeyChar() == 27) {
+            normalMode = true;
+            sequence.resetSequence();
+            processCaret();
             return true;
+          } else {
+            return false;
           }
-        // } finally {
-        // }
+        } else {
+          // Normal mode
+          if (event.getKeyChar() == 'i') {
+            normalMode = false;
+            processCaret();
+          } 
+          return true;
+        }
       }
     });
   }
 
-  protected static void processCaret() {
+  static String determineKeyString(KeyEvent event) {
+    String keyString = null;
+    char keyChar = event.getKeyChar();
+    // Do I also have to determine the key code for enter?
+    if ((int)keyChar == KeyEvent.VK_ESCAPE) {
+      keyString = "ESC";
+    } else {
+      keyString = String.valueOf(keyChar);
+    }
+    return keyString;
+  } 
+
+  static void processCaret() {
     // Invoking modelToView on the event dispatch thread, as
     // recommended by Java documentation for DefaultCaret
 
