@@ -4,16 +4,13 @@ import javax.swing.text.DefaultCaret;
 import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
-import javax.swing.JOptionPane;
 
 import java.awt.FontMetrics;
 import java.awt.Rectangle;
 import java.awt.Graphics;
-import java.awt.Rectangle;
 
 import org.omegat.core.Core;
 import org.omegat.gui.editor.EditorController;
-import org.omegat.gui.editor.EditorTextArea3;
 import org.omegat.util.gui.Styles;
 import org.omegat.util.Java8Compat;
 import org.omegat.util.Log;

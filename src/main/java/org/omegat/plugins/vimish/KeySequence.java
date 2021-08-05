@@ -25,8 +25,6 @@ class KeySequence {
 
       // Handle h/l motions (character left and right)
       // with no operator or with d/c/y operators
-      int length = sequence.length();
-      
       Matcher match = Pattern.compile("^(\\d*)([dcy]?)(\\d*)([hl])$").matcher(sequence);
       match.find();
       String countString1 = match.group(1);

@@ -2,3 +2,7 @@ build
 nbproject
 .gradle
 .nb-gradle
+/.classpath
+/.project
+/.settings/
+/bin/
