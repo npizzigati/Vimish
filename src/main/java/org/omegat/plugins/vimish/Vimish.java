@@ -8,16 +8,12 @@
 package org.omegat.plugins.vimish;
 
 import javax.swing.JOptionPane;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.JTextComponent;
 import javax.swing.SwingUtilities;
 
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.FontMetrics;
-import java.awt.Rectangle;
 
 // These are the imports I used in the groovy script
 import org.omegat.gui.editor.IEditor;
@@ -31,7 +27,6 @@ import org.omegat.core.CoreEvents;
 import org.omegat.core.events.*;
 import org.omegat.core.data.SourceTextEntry;
 import org.omegat.util.Preferences;
-import org.omegat.util.Java8Compat;
 import org.omegat.util.gui.Styles;
 import org.omegat.util.Log;
 
@@ -39,8 +34,7 @@ import org.omegat.util.Log;
 //                where the cursor is when entering insert mode
 //                (whether to adjust position by one)
 public class Vimish {
-  static boolean isEditingSetupCompleted = false;
-  static JTextComponent editingArea;
+  static boolean isFirstLoad = true;
   static boolean normalMode = true;
   /**
    * Plugin loader
@@ -62,44 +56,17 @@ public class Vimish {
     CoreEvents.registerEntryEventListener(new IEntryEventListener() {
       @Override
       public void onNewFile(String activeFileName) {
-        if (isEditingSetupCompleted) return;
-
-        setUpCaret();
-        installKeyEventDispatcher();
+        if (isFirstLoad) {
+          VimishCaret.setUpCaret();
+          installKeyEventDispatcher();
+          isFirstLoad = false;
+        }
       };
 
       @Override
       public void onEntryActivated(SourceTextEntry newEntry) {
       }
     });
-  }
-
-  private static void setUpCaret() {
-    editingArea = getEditingArea();
-    if (editingArea != null) {
-      VimishCaret c = new VimishCaret();
-      c.setBlinkRate(editingArea.getCaret().getBlinkRate());
-      editingArea.setCaret(c);
-      processCaret();
-    } else {
-      Log.log("Unable to set Vimish modal caret.");
-    }
-    isEditingSetupCompleted = true;
-  }
-
-  private static JTextComponent getEditingArea() {
-    EditorController editor = (EditorController) Core.getEditor();
-    JTextComponent area = null;
-    try {
-        java.lang.reflect.Field protectedField = EditorController.class.getDeclaredField("editor");
-        protectedField.setAccessible(true);
-        area = (JTextComponent) protectedField.get(editor);
-    } catch(NoSuchFieldException nsfe) {
-        Log.log(nsfe);
-    } catch(IllegalAccessException iae) {
-        Log.log(iae);
-    }
-    return area;
   }
 
   private static void installKeyEventDispatcher() {
@@ -138,7 +105,7 @@ public class Vimish {
           if ((int)event.getKeyChar() == 27) {
             normalMode = true;
             sequence.resetSequence();
-            processCaret();
+            VimishCaret.processCaret();
             return true;
           } else {
             return false;
@@ -147,7 +114,7 @@ public class Vimish {
           // Normal mode
           if (event.getKeyChar() == 'i') {
             normalMode = false;
-            processCaret();
+            VimishCaret.processCaret();
           } 
           return true;
         }
@@ -166,52 +133,6 @@ public class Vimish {
     }
     return keyString;
   } 
-
-  static void processCaret() {
-    // Invoking modelToView on the event dispatch thread, as
-    // recommended by Java documentation for DefaultCaret
-
-    // Do nothing if editingArea not accessible (e.g., if access
-    // attempted to protected EditorTextArea3 member was denied)
-    if (editingArea == null) return;
-
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        if (normalMode) {
-          // Change the caret shape, width and color
-          editingArea.setCaretColor(Styles.EditorColor.COLOR_BACKGROUND.getColor());
-          editingArea.putClientProperty("caretWidth", getCaretWidth());
-
-          // We need to force the caret damage to have the rectangle to correctly show up,
-          // otherwise half of the caret is shown.
-          try {
-              VimishCaret caret = (VimishCaret) editingArea.getCaret(); 
-              Rectangle r = Java8Compat.modelToView(editingArea, caret.getDot());
-              caret.damage(r);
-          } catch (BadLocationException e) {
-              e.printStackTrace();
-          }
-        } else {
-          // reset to default insertMode caret
-          editingArea.setCaretColor(Styles.EditorColor.COLOR_FOREGROUND.getColor());
-          editingArea.putClientProperty("caretWidth", 1);
-        }
-      }
-    });
-  }
-
-  /** Get the caret width from the size of the current letter. */
-  public static int getCaretWidth() {
-      FontMetrics fm = editingArea.getFontMetrics(editingArea.getFont());
-      int carWidth = 1;
-      try {
-          carWidth = fm.stringWidth(editingArea.getText(editingArea.getCaretPosition(), 1));
-      } catch (BadLocationException e) {
-        JOptionPane.showMessageDialog(null, "caret width could not be determined");
-          /* empty */
-      }
-      return carWidth;
-  }
 
   // private static boolean isKeyTyped(KeyEvent event) {
   //   // Key location will be unknown for KeyTyped events
