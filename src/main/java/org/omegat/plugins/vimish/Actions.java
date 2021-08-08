@@ -19,6 +19,17 @@ class Actions {
     editor.remarkOneMarker(VimishVisualMarker.class.getName());
   }
 
+  static void visualDelete() {
+    // Delete all visually selected text
+    Integer startIndex = VimishVisualMarker.getMarkStart();
+    Integer endIndex = VimishVisualMarker.getMarkEnd();
+    SwingUtilities.invokeLater(new Runnable() {
+      public void run() {
+        editor.replacePartOfText("", startIndex, endIndex);
+      }
+    });
+  }
+
   static void visualBackwardChar(int count) {
     int currentIndex = getCaretIndex();
     int newIndex = (currentIndex >= count) ? currentIndex - count : 0;

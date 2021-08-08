@@ -56,6 +56,18 @@ class KeySequence {
       // I can also combine these cases in a single if statement
       Mode.NORMAL.activate();
       resetSequence();
+    } else if (sequence.equals("d") || sequence.equals("x")) {
+      Actions.visualDelete();
+      Mode.NORMAL.activate();
+      resetSequence();
+    } else if (sequence.equals("c")) {
+      Actions.visualDelete();
+      Mode.INSERT.activate();
+      resetSequence();
+    // } else if (sequence.equals("y")) {
+    //   Actions.visualYank();
+    //   Mode.NORMAL.activate();
+    //   resetSequence();
     } else if (sequence.matches("^\\d*[hl]$")) {
       // Handle h/l motions (character left and right)
       Matcher match = Pattern.compile("^(\\d*)([hl])$").matcher(sequence);
