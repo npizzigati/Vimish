@@ -18,11 +18,94 @@ class KeySequence {
     return instance;
   }
 
-  void applyKey(String keyString) {
+  void apply(String keyString) {
     sequence += keyString;
+    if (Mode.NORMAL.isActive()) {
+      evaluateNormalSequence();
+    } else if (Mode.INSERT.isActive()) {
+      evaluateInsertSequence();
+    } else if (Mode.VISUAL.isActive()) {
+      evaluateVisualSequence();
+    }
+  }
 
-    if (sequence.matches("^\\d*[dcy]?\\d*[hl]$")) {
+  void evaluateVisualSequence(String sequence) {
+    // Handle case where a number is entered before the v
+    // (to switch from normal into visual mode),
+    // entering into visual mode with a count
+    Matcher match = Pattern.compile("(\\d+)v").matcher(sequence);
+    match.find();
+    String countString = match.group(1);
+    int count = Integer.parseInt(countString, 10);
 
+    Actions.visualForwardChar(count - 1);
+    resetSequence();
+  }
+
+  void evaluateVisualSequence() {
+    // This regex does not account for the fact that an escape
+    // will not always take you to normal mode (e.g.
+    // it can also escape from another operation, like in the vase of
+    // aESC or iESC
+    if (sequence.matches(".*ESC")) {
+      Mode.NORMAL.activate();
+      resetSequence();
+    } else if (sequence.matches("\\d+v")) {
+      // What other key combinations should make us escape back
+      // to normal mode?
+      // I can also combine these cases in a single if statement
+      Mode.NORMAL.activate();
+      resetSequence();
+    } else if (sequence.matches("^\\d*[hl]$")) {
+      // Handle h/l motions (character left and right)
+      Matcher match = Pattern.compile("^(\\d*)([hl])$").matcher(sequence);
+      match.find();
+      String countString = match.group(1);
+      String motion = match.group(2);
+
+      int count = (countString.equals("")) ? 1 : Integer.parseInt(countString, 10);
+
+      if (motion.equals("h")) {
+        Actions.visualBackwardChar(count);
+      } else if (motion.equals("l")) {
+        Actions.visualForwardChar(count);
+      }
+
+      // We are currently ignoring motion keys j/k and uppercase
+      // H/L/J/K, since these are not particularly useful for
+      // translation segments (which contain no newlines)
+      // NOTE: H/M/L (high/middle/low) may be useful for long segments
+      resetSequence();
+    }
+  }
+
+  void evaluateInsertSequence() {
+    if (sequence.equals("ESC")) {
+      Mode.NORMAL.activate();
+      resetSequence();
+    }
+  }
+
+  void evaluateNormalSequence() {
+    if (sequence.matches("[^fFTt?/]*i")) {
+      Mode.INSERT.activate();
+      resetSequence();
+    } else if (sequence.matches("[^fFTt?/]*u")) {
+      Actions.undo();
+      resetSequence();
+    } else if (sequence.matches("^\\d+v")) {
+      // If a number is entered followed by a "v", change to visual mode
+      // without resetting sequence, so as to evaluate that
+      // sequence (preceding number is a count)
+      Mode.VISUAL.activate();
+      evaluateVisualSequence(sequence);
+    } else if (sequence.matches("^[^fFTt?/]*v")) {
+      // If just a "v" is entered with no preceding number,
+      // change to visual mode without resetting sequence, so as
+      // to mark character that caret is on (count is implicitly 1)
+      Mode.VISUAL.activate();
+      evaluateVisualSequence("1v");
+    } else if (sequence.matches("^\\d*[dcy]?\\d*[hl]$")) {
       // Handle h/l motions (character left and right)
       // with no operator or with d/c/y operators
       Matcher match = Pattern.compile("^(\\d*)([dcy]?)(\\d*)([hl])$").matcher(sequence);
@@ -35,9 +118,9 @@ class KeySequence {
       int totalCount = determineTotalCount(countString1, countString2);
 
       if (motion.equals("h")) {
-        Actions.backwordChar(operator, totalCount);
+        Actions.normalBackwordChar(operator, totalCount);
       } else if (motion.equals("l")) {
-        Actions.forwardChar(operator, totalCount);
+        Actions.normalForwardChar(operator, totalCount);
       }
 
       // We are currently ignoring motion keys j/k and uppercase
@@ -45,9 +128,7 @@ class KeySequence {
       // translation segments (which contain no newlines)
       // NOTE: H/M/L (high/middle/low) may be useful for long segments
       resetSequence();
-    }
-    // TODO: Need to handle u and c-r (undo and redo)
-    if (sequence.matches("^\\d*[ftFT].$")) {
+    } else if (sequence.matches("^\\d*[ftFT].$")) {
       // Handle "to" (F/f) and "till" (T/t)
       // Matcher matches = Pattern.compile("^(\\d*)[ftFT].$").matcher(sequence);
       int length = sequence.length();

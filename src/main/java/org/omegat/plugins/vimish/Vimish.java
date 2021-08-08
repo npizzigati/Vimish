@@ -14,7 +14,7 @@ import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
 
 import org.omegat.gui.editor.EditorTextArea3;
-
+import org.omegat.core.Core;
 import org.omegat.core.CoreEvents;
 import org.omegat.core.events.*;
 import org.omegat.core.data.SourceTextEntry;
@@ -29,6 +29,7 @@ public class Vimish {
    * Plugin loader
    */
   public static void loadPlugins() {
+    Core.registerMarkerClass(VimishVisualMarker.class);
     CoreEvents.registerApplicationEventListener(new IApplicationEventListener() {
       @Override
       public void onApplicationStartup() {
@@ -63,7 +64,6 @@ public class Vimish {
     manager.addKeyEventDispatcher(new KeyEventDispatcher() {
       @Override
       public boolean dispatchKeyEvent(KeyEvent event) {
-
         // Don't consume action-key keyPressed events
         if (event.isActionKey() && event.getID() == KeyEvent.KEY_PRESSED) {
           return false;
@@ -85,28 +85,22 @@ public class Vimish {
           return true;
         }
 
+        // In insert mode, pass keypress through to editing area
+        // mode unless escape pressed
+        // TODO: Change this so that it also sends Ctrl- sequences
+        // to KeySequence#apply() for processing
+        if (Mode.INSERT.isActive() &&
+            (int)event.getKeyChar() != KeyEvent.VK_ESCAPE) {
+          return false;
+        }
+
         KeySequence keySequence = KeySequence.getKeySequence();
         String keyString = determineKeyString(event);
+        keySequence.apply(keyString);
 
-        keySequence.applyKey(keyString);
+        // Consume keypress
+        return true;
 
-        if (Mode.INSERT.isActive()) {
-          if ((int)event.getKeyChar() == 27) {
-            Mode.NORMAL.activate();
-            keySequence.resetSequence();
-            VimishCaret.processCaret();
-            return true;
-          } else {
-            return false;
-          }
-        } else {
-          // Normal mode
-          if (event.getKeyChar() == 'i') {
-            Mode.INSERT.activate();
-            VimishCaret.processCaret();
-          } 
-          return true;
-        }
       }
     });
   }

@@ -11,10 +11,21 @@ enum Mode {
   }
 
   void activate() {
+    // First deactivate all modes before activating correct one
     for (Mode mode : Mode.values()) {
-      mode.active = false;
+      // Remove any highlighting created by visual mode
+      switch (mode) {
+      case VISUAL:
+        if (mode.active) {
+          Actions.clearVisualMarks();
+        }
+      default:
+        mode.active = false;
+      }
     }
+
     this.active = true;
+    VimishCaret.processCaret();
   }
 
   boolean isActive() {
