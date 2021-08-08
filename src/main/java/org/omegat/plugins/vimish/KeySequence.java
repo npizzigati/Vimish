@@ -8,8 +8,7 @@ class KeySequence {
   private static KeySequence instance = null;
   private String sequence = "";
 
-  private KeySequence() {
-  }
+  private KeySequence() {}
 
   static KeySequence getKeySequence() {
     if (instance == null) {
@@ -64,10 +63,10 @@ class KeySequence {
       Actions.visualDelete();
       Mode.INSERT.activate();
       resetSequence();
-    // } else if (sequence.equals("y")) {
-    //   Actions.visualYank();
-    //   Mode.NORMAL.activate();
-    //   resetSequence();
+    } else if (sequence.equals("y")) {
+      Actions.visualYank();
+      Mode.NORMAL.activate();
+      resetSequence();
     } else if (sequence.matches("^\\d*[hl]$")) {
       // Handle h/l motions (character left and right)
       Matcher match = Pattern.compile("^(\\d*)([hl])$").matcher(sequence);
@@ -117,6 +116,12 @@ class KeySequence {
       // to mark character that caret is on (count is implicitly 1)
       Mode.VISUAL.activate();
       evaluateVisualSequence("1v");
+    } else if (sequence.matches("^[^fFTt?/]*p")) {
+      Actions.normalPut("after");
+      resetSequence();
+    } else if (sequence.matches("^[^fFTt?/]*P")) {
+      Actions.normalPut("before");
+      resetSequence();
     } else if (sequence.matches("^\\d*[dcy]?\\d*[hl]$")) {
       // Handle h/l motions (character left and right)
       // with no operator or with d/c/y operators
@@ -130,7 +135,7 @@ class KeySequence {
       int totalCount = determineTotalCount(countString1, countString2);
 
       if (motion.equals("h")) {
-        Actions.normalBackwordChar(operator, totalCount);
+        Actions.normalBackwardChar(operator, totalCount);
       } else if (motion.equals("l")) {
         Actions.normalForwardChar(operator, totalCount);
       }

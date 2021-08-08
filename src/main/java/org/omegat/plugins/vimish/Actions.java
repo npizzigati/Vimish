@@ -19,6 +19,16 @@ class Actions {
     editor.remarkOneMarker(VimishVisualMarker.class.getName());
   }
 
+  static void visualYank() {
+    Integer startIndex = VimishVisualMarker.getMarkStart();
+    Integer endIndex = VimishVisualMarker.getMarkEnd();
+    String currentTranslation = editor.getCurrentTranslation();
+    String yankedText = currentTranslation.substring(startIndex, endIndex);
+    Registers registers = Registers.getRegisters();
+    registers.store(yankedText);
+    setCaretIndex(startIndex);
+  }
+
   static void visualDelete() {
     // Delete all visually selected text
     Integer startIndex = VimishVisualMarker.getMarkStart();
@@ -85,6 +95,22 @@ class Actions {
     setCaretIndex(newIndex);
   }
 
+  static void normalPut(String position) {
+    Registers registers = Registers.getRegisters();
+    String text = registers.retrieve("0");
+    int index = getCaretIndex();
+    SwingUtilities.invokeLater(new Runnable() {
+      public void run() {
+        if (position.equals("before")) {
+          insertTextAtIndex(text, index);
+        } else {
+          insertTextAtIndex(text, index + 1);
+        }
+        normalBackwardChar(1);
+      }
+    });
+  }
+
   static void normalForwardChar(String operator, int count) {
     int currentIndex = getCaretIndex();
     int length = editor.getCurrentTranslation().length();
@@ -101,7 +127,11 @@ class Actions {
     }
   }
 
-  static void normalBackwordChar(String operator, int count) {
+  static void normalBackwardChar(int count) {
+    normalBackwardChar("", count);
+  }
+
+  static void normalBackwardChar(String operator, int count) {
     int currentIndex = getCaretIndex();
     int newIndex = (currentIndex >= count) ? currentIndex - count : 0;
 
@@ -116,6 +146,10 @@ class Actions {
     }
   }
 
+  private static void insertTextAtIndex(String text, int index) {
+    setCaretIndex(index);
+    editor.insertText(text);
+  }
 
   /**
    * Set caret position through OmegaT API
