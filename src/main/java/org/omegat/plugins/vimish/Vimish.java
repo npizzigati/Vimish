@@ -22,6 +22,8 @@ import org.omegat.core.data.SourceTextEntry;
 //                  (whether to adjust position by one)
 //                - key or chord for escape
 public class Vimish {
+  static Actions actions;
+  static KeySequence keySequence;
   static boolean isFirstLoad = true;
   /**
    * Plugin loader
@@ -31,6 +33,8 @@ public class Vimish {
     CoreEvents.registerApplicationEventListener(new IApplicationEventListener() {
       @Override
       public void onApplicationStartup() {
+        actions = new Actions();
+        keySequence = new KeySequence(actions);
         installEntryListener();
       }
 
@@ -92,7 +96,7 @@ public class Vimish {
           return false;
         }
 
-        KeySequence keySequence = KeySequence.getKeySequence();
+        // KeySequence keySequence = KeySequence.getKeySequence(actions);
         String keyString = determineKeyString(event);
         keySequence.apply(keyString);
 

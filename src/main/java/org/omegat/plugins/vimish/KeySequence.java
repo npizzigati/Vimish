@@ -5,18 +5,20 @@ import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 
 class KeySequence {
-  private static KeySequence instance = null;
+  // private static KeySequence instance = null;
   private String sequence = "";
-  private Actions actions = Actions.getActions();
+  private Actions actions;
   
-  private KeySequence() {}
-
-  static KeySequence getKeySequence() {
-    if (instance == null) {
-      instance = new KeySequence();
-    } 
-    return instance;
+  KeySequence(Actions actions) {
+    this.actions = actions;
   }
+
+  // static KeySequence getKeySequence(Actions actions) {
+  //   if (instance == null) {
+  //     instance = new KeySequence(actions);
+  //   } 
+  //   return instance;
+  // }
 
   void apply(String keyString) {
     sequence += keyString;
@@ -29,7 +31,7 @@ class KeySequence {
     }
   }
 
-  void evaluateVisualSequence(String sequence) {
+  private void evaluateVisualSequence(String sequence) {
     // Handle case where a number is entered before the v
     // (to switch from normal into visual mode),
     // entering into visual mode with a count
@@ -42,7 +44,7 @@ class KeySequence {
     resetSequence();
   }
 
-  void evaluateVisualSequence() {
+  private void evaluateVisualSequence() {
     // This regex does not account for the fact that an escape
     // will not always take you to normal mode (e.g.
     // it can also escape from another operation, like in the vase of
@@ -96,14 +98,14 @@ class KeySequence {
     }
   }
 
-  void evaluateInsertSequence() {
+  private void evaluateInsertSequence() {
     if (sequence.equals("ESC")) {
       Mode.NORMAL.activate();
       resetSequence();
     }
   }
 
-  void evaluateNormalSequence() {
+  private void evaluateNormalSequence() {
     /* 
      * Handle to/till (f/t) and forward and backword search.
      * This regex section must come first, since the following
@@ -232,6 +234,6 @@ class KeySequence {
   }
 
   void resetSequence() {
-    instance = null;
+    sequence = "";
   }
 }

@@ -8,16 +8,16 @@ import org.omegat.gui.editor.IEditor.CaretPosition;
 import javax.swing.SwingUtilities;
 
 class Actions {
-  private static Actions instance;
+  // private static Actions instance;
 
-  private Actions() {}
+  // private Actions() {}
 
-  static Actions getActions() {
-    if (instance == null) {
-      instance = new Actions();
-    }
-    return instance;
-  }
+  // static Actions getActions() {
+  //   if (instance == null) {
+  //     instance = new Actions();
+  //   }
+  //   return instance;
+  // }
 
   EditorController editor = (EditorController) Core.getEditor(); 
 
