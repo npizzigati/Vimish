@@ -10,8 +10,8 @@ plugins {
 version = '0.1'
 
 compileJava   {
-  sourceCompatibility = '8'
-  targetCompatibility = '8'
+    sourceCompatibility = '8'
+    targetCompatibility = '8'
 }
 
 repositories {
@@ -20,8 +20,12 @@ repositories {
 
 dependencies {
     implementation files("./lib/OmegaT.jar")
-    testImplementation 'junit:junit:4.12'
-    testImplementation 'xmlunit:xmlunit:1.6'
+    testImplementation('org.junit.jupiter:junit-jupiter-api:5.4.2')
+    testRuntime('org.junit.jupiter:junit-jupiter-engine:5.4.2')
+}
+
+test {
+    useJUnitPlatform()
 }
 
 jar {

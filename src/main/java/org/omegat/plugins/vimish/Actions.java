@@ -3,9 +3,9 @@ package org.omegat.plugins.vimish;
 import org.omegat.gui.editor.EditorController;
 import org.omegat.core.Core;
 import org.omegat.gui.editor.IEditor.CaretPosition;
+// import org.omegat.util.Log;
 
 import javax.swing.SwingUtilities;
-import javax.swing.JOptionPane;
 
 class Actions {
   static EditorController editor = (EditorController) Core.getEditor(); 
@@ -25,7 +25,8 @@ class Actions {
     String currentTranslation = editor.getCurrentTranslation();
     String yankedText = currentTranslation.substring(startIndex, endIndex);
     Registers registers = Registers.getRegisters();
-    registers.store(yankedText);
+
+    registers.storeYankedText(yankedText);
     setCaretIndex(startIndex);
   }
 
@@ -33,6 +34,19 @@ class Actions {
     // Delete all visually selected text
     Integer startIndex = VimishVisualMarker.getMarkStart();
     Integer endIndex = VimishVisualMarker.getMarkEnd();
+    String currentTranslation = editor.getCurrentTranslation();
+    String deletedText = currentTranslation.substring(startIndex, endIndex);
+
+    Registers registers = Registers.getRegisters();
+    // If text is less than one line, store it in "small delete" register
+    // (currentTranslation is assumed to be a maximum of 1 line long)
+    if (currentTranslation.equals(deletedText)) {
+      registers.storeBigDeletion(deletedText);
+    } else {
+      registers.storeSmallDeletion(deletedText);
+    }
+
+    // Delete text
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
         editor.replacePartOfText("", startIndex, endIndex);
@@ -95,9 +109,19 @@ class Actions {
     setCaretIndex(newIndex);
   }
 
-  static void normalPut(String position) {
+  static void normalPutSpecificRegister(String registerKey, String position) {
     Registers registers = Registers.getRegisters();
-    String text = registers.retrieve("0");
+    String text = registers.retrieve(registerKey);
+    normalPut(text, position);
+  }
+
+  static void normalPutUnnamedRegister(String position) {
+    Registers registers = Registers.getRegisters();
+    String text = registers.retrieve("unnamed");
+    normalPut(text, position);
+  }
+
+  static void normalPut(String text, String position) {
     int index = getCaretIndex();
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {

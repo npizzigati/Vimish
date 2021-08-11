@@ -7,8 +7,6 @@
 
 package org.omegat.plugins.vimish;
 
-import javax.swing.JOptionPane;
-
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
@@ -64,6 +62,11 @@ public class Vimish {
     manager.addKeyEventDispatcher(new KeyEventDispatcher() {
       @Override
       public boolean dispatchKeyEvent(KeyEvent event) {
+        // Don't consume keys entered outside main editing area
+        if (isOutsideMainEditingArea(event)) {
+          return false;
+        }
+
         // Don't consume action-key keyPressed events
         if (event.isActionKey() && event.getID() == KeyEvent.KEY_PRESSED) {
           return false;
@@ -78,11 +81,6 @@ public class Vimish {
           } else {
             return true;
           }
-        }
-
-        // Consume keys entered outside main editing area
-        if (isOutsideMainEditingArea(event)) {
-          return true;
         }
 
         // In insert mode, pass keypress through to editing area

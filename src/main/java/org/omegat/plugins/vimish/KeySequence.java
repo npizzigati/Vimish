@@ -98,34 +98,66 @@ class KeySequence {
   }
 
   void evaluateNormalSequence() {
-    if (sequence.matches("[^fFTt?/]*i")) {
+    /* 
+     * Handle to/till (f/t) and forward and backword search.
+     * This regex section must come first, since the following
+     * sections assume that is has already been processed.
+     *
+     * The order of subsequent regexes shouldn't matter    
+     **/
+    if (sequence.matches("^([fFTt].|[?/].+)")) {
+      // Need to fill this in
+      resetSequence();
+    }
+
+    else if (sequence.matches("^.*i")) {
       Mode.INSERT.activate();
       resetSequence();
-    } else if (sequence.matches("[^fFTt?/]*u")) {
+    }
+
+    else if (sequence.matches("^.*u")) {
       Actions.undo();
       resetSequence();
-    } else if (sequence.matches("^\\d+v")) {
+    }
+
+    else if (sequence.matches("^\\d+v")) {
       // If a number is entered followed by a "v", change to visual mode
       // without resetting sequence, so as to evaluate that
       // sequence (preceding number is a count)
       Mode.VISUAL.activate();
       evaluateVisualSequence(sequence);
-    } else if (sequence.matches("^[^fFTt?/]*v")) {
+    } else if (sequence.matches("^.*v")) {
       // If just a "v" is entered with no preceding number,
       // change to visual mode without resetting sequence, so as
       // to mark character that caret is on (count is implicitly 1)
       Mode.VISUAL.activate();
       evaluateVisualSequence("1v");
-    } else if (sequence.matches("^[^fFTt?/]*p")) {
-      Actions.normalPut("after");
+    }
+
+    /*
+     * Put
+     **/
+    else if (sequence.matches("^.*\"[0-9a-zA-Z-]p")) {
+      Matcher match = Pattern.compile("^.*\"([0-9a-zA-Z-])p")
+                             .matcher(sequence);
+      match.find();
+      String registerKey = match.group(1);
+      String position = "after";
+      Actions.normalPutSpecificRegister(registerKey, position);
       resetSequence();
-    } else if (sequence.matches("^[^fFTt?/]*P")) {
-      Actions.normalPut("before");
+    } else if (sequence.matches("^(.*p|.*\"\"p)")) {
+      Actions.normalPutUnnamedRegister("after");
       resetSequence();
-    } else if (sequence.matches("^\\d*[dcy]?\\d*[hl]$")) {
+    } else if (sequence.matches("^(.*P|.*\"\"P)")) {
+      Actions.normalPutUnnamedRegister("before");
+      resetSequence();
+    }
+
+    else if (sequence.matches("^\\d*[dcy]?\\d*[hl]$")) {
       // Handle h/l motions (character left and right)
       // with no operator or with d/c/y operators
-      Matcher match = Pattern.compile("^(\\d*)([dcy]?)(\\d*)([hl])$").matcher(sequence);
+      Matcher match = Pattern.compile("^(\\d*)([dcy]?)(\\d*)([hl])$")
+                             .matcher(sequence);
       match.find();
       String countString1 = match.group(1);
       String operator = match.group(2);
