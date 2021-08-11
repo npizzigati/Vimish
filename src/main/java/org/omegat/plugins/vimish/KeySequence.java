@@ -7,7 +7,8 @@ import javax.swing.JOptionPane;
 class KeySequence {
   private static KeySequence instance = null;
   private String sequence = "";
-
+  private Actions actions = Actions.getActions();
+  
   private KeySequence() {}
 
   static KeySequence getKeySequence() {
@@ -37,7 +38,7 @@ class KeySequence {
     String countString = match.group(1);
     int count = Integer.parseInt(countString, 10);
 
-    Actions.visualForwardChar(count - 1);
+    actions.visualForwardChar(count - 1);
     resetSequence();
   }
 
@@ -48,23 +49,28 @@ class KeySequence {
     // aESC or iESC
     if (sequence.matches(".*ESC")) {
       Mode.NORMAL.activate();
+      actions.clearVisualMarks();
       resetSequence();
     } else if (sequence.matches("\\d+v")) {
       // What other key combinations should make us escape back
       // to normal mode?
       // I can also combine these cases in a single if statement
       Mode.NORMAL.activate();
+      actions.clearVisualMarks();
       resetSequence();
     } else if (sequence.equals("d") || sequence.equals("x")) {
-      Actions.visualDelete();
+      actions.visualDelete();
+      actions.clearVisualMarks();
       Mode.NORMAL.activate();
       resetSequence();
     } else if (sequence.equals("c")) {
-      Actions.visualDelete();
+      actions.visualDelete();
+      actions.clearVisualMarks();
       Mode.INSERT.activate();
       resetSequence();
     } else if (sequence.equals("y")) {
-      Actions.visualYank();
+      actions.visualYank();
+      actions.clearVisualMarks();
       Mode.NORMAL.activate();
       resetSequence();
     } else if (sequence.matches("^\\d*[hl]$")) {
@@ -77,9 +83,9 @@ class KeySequence {
       int count = (countString.equals("")) ? 1 : Integer.parseInt(countString, 10);
 
       if (motion.equals("h")) {
-        Actions.visualBackwardChar(count);
+        actions.visualBackwardChar(count);
       } else if (motion.equals("l")) {
-        Actions.visualForwardChar(count);
+        actions.visualForwardChar(count);
       }
 
       // We are currently ignoring motion keys j/k and uppercase
@@ -116,7 +122,7 @@ class KeySequence {
     }
 
     else if (sequence.matches("^.*u")) {
-      Actions.undo();
+      actions.undo();
       resetSequence();
     }
 
@@ -143,13 +149,13 @@ class KeySequence {
       match.find();
       String registerKey = match.group(1);
       String position = "after";
-      Actions.normalPutSpecificRegister(registerKey, position);
+      actions.normalPutSpecificRegister(registerKey, position);
       resetSequence();
     } else if (sequence.matches("^(.*p|.*\"\"p)")) {
-      Actions.normalPutUnnamedRegister("after");
+      actions.normalPutUnnamedRegister("after");
       resetSequence();
     } else if (sequence.matches("^(.*P|.*\"\"P)")) {
-      Actions.normalPutUnnamedRegister("before");
+      actions.normalPutUnnamedRegister("before");
       resetSequence();
     }
 
@@ -167,9 +173,9 @@ class KeySequence {
       int totalCount = determineTotalCount(countString1, countString2);
 
       if (motion.equals("h")) {
-        Actions.normalBackwardChar(operator, totalCount);
+        actions.normalBackwardChar(operator, totalCount);
       } else if (motion.equals("l")) {
-        Actions.normalForwardChar(operator, totalCount);
+        actions.normalForwardChar(operator, totalCount);
       }
 
       // We are currently ignoring motion keys j/k and uppercase

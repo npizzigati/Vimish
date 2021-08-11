@@ -6,6 +6,7 @@ enum Mode {
   VISUAL (false);
 
   private boolean active;
+
   Mode(boolean active) {
     this.active = active;
   }
@@ -13,15 +14,7 @@ enum Mode {
   void activate() {
     // First deactivate all modes before activating correct one
     for (Mode mode : Mode.values()) {
-      // Remove any highlighting created by visual mode
-      switch (mode) {
-      case VISUAL:
-        if (mode.active) {
-          Actions.clearVisualMarks();
-        }
-      default:
-        mode.active = false;
-      }
+      mode.active = false;
     }
 
     this.active = true;

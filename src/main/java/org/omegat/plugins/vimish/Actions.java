@@ -8,18 +8,29 @@ import org.omegat.gui.editor.IEditor.CaretPosition;
 import javax.swing.SwingUtilities;
 
 class Actions {
-  static EditorController editor = (EditorController) Core.getEditor(); 
+  private static Actions instance;
 
-  static void undo() {
+  private Actions() {}
+
+  static Actions getActions() {
+    if (instance == null) {
+      instance = new Actions();
+    }
+    return instance;
+  }
+
+  EditorController editor = (EditorController) Core.getEditor(); 
+
+  void undo() {
     editor.undo();
   }
 
-  static void clearVisualMarks() {
+  void clearVisualMarks() {
     VimishVisualMarker.resetMarks();
     editor.remarkOneMarker(VimishVisualMarker.class.getName());
   }
 
-  static void visualYank() {
+  void visualYank() {
     Integer startIndex = VimishVisualMarker.getMarkStart();
     Integer endIndex = VimishVisualMarker.getMarkEnd();
     String currentTranslation = editor.getCurrentTranslation();
@@ -30,7 +41,7 @@ class Actions {
     setCaretIndex(startIndex);
   }
 
-  static void visualDelete() {
+  void visualDelete() {
     // Delete all visually selected text
     Integer startIndex = VimishVisualMarker.getMarkStart();
     Integer endIndex = VimishVisualMarker.getMarkEnd();
@@ -54,7 +65,7 @@ class Actions {
     });
   }
 
-  static void visualBackwardChar(int count) {
+  void visualBackwardChar(int count) {
     int currentIndex = getCaretIndex();
     int newIndex = (currentIndex >= count) ? currentIndex - count : 0;
 
@@ -81,7 +92,7 @@ class Actions {
     setCaretIndex(newIndex);
   }
 
-  static void visualForwardChar(int count) {
+  void visualForwardChar(int count) {
     int currentIndex = getCaretIndex();
     int length = editor.getCurrentTranslation().length();
     int newIndex = (length - currentIndex >= count) ? currentIndex + count : length;
@@ -109,19 +120,19 @@ class Actions {
     setCaretIndex(newIndex);
   }
 
-  static void normalPutSpecificRegister(String registerKey, String position) {
+  void normalPutSpecificRegister(String registerKey, String position) {
     Registers registers = Registers.getRegisters();
     String text = registers.retrieve(registerKey);
     normalPut(text, position);
   }
 
-  static void normalPutUnnamedRegister(String position) {
+  void normalPutUnnamedRegister(String position) {
     Registers registers = Registers.getRegisters();
     String text = registers.retrieve("unnamed");
     normalPut(text, position);
   }
 
-  static void normalPut(String text, String position) {
+  void normalPut(String text, String position) {
     int index = getCaretIndex();
     SwingUtilities.invokeLater(new Runnable() {
       public void run() {
@@ -135,7 +146,7 @@ class Actions {
     });
   }
 
-  static void normalForwardChar(String operator, int count) {
+  void normalForwardChar(String operator, int count) {
     int currentIndex = getCaretIndex();
     int length = editor.getCurrentTranslation().length();
     int newIndex = (length - currentIndex >= count) ? currentIndex + count : length;
@@ -151,11 +162,11 @@ class Actions {
     }
   }
 
-  static void normalBackwardChar(int count) {
+  void normalBackwardChar(int count) {
     normalBackwardChar("", count);
   }
 
-  static void normalBackwardChar(String operator, int count) {
+  void normalBackwardChar(String operator, int count) {
     int currentIndex = getCaretIndex();
     int newIndex = (currentIndex >= count) ? currentIndex - count : 0;
 
@@ -170,7 +181,7 @@ class Actions {
     }
   }
 
-  private static void insertTextAtIndex(String text, int index) {
+  private void insertTextAtIndex(String text, int index) {
     setCaretIndex(index);
     editor.insertText(text);
   }
@@ -178,7 +189,7 @@ class Actions {
   /**
    * Set caret position through OmegaT API
    */
-  private static void setCaretIndex(int index) {
+  private void setCaretIndex(int index) {
     CaretPosition newCaretPosition = new CaretPosition(index);
     editor.setCaretPosition(newCaretPosition);
   }
@@ -186,7 +197,7 @@ class Actions {
   /**
    * Get caret position from OmegaT API
    */
-  private static int getCaretIndex() {
+  private int getCaretIndex() {
     return editor.getCurrentPositionInEntryTranslation();
   }
 }
