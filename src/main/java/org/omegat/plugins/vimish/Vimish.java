@@ -11,6 +11,7 @@ import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
 
+import org.omegat.gui.editor.EditorController;
 import org.omegat.gui.editor.EditorTextArea3;
 import org.omegat.core.Core;
 import org.omegat.core.CoreEvents;
@@ -22,7 +23,6 @@ import org.omegat.core.data.SourceTextEntry;
 //                  (whether to adjust position by one)
 //                - key or chord for escape
 public class Vimish {
-  static Actions actions;
   static KeySequence keySequence;
   static boolean isFirstLoad = true;
   /**
@@ -33,7 +33,8 @@ public class Vimish {
     CoreEvents.registerApplicationEventListener(new IApplicationEventListener() {
       @Override
       public void onApplicationStartup() {
-        actions = new Actions();
+        EditorController editor = (EditorController) Core.getEditor();
+        Actions actions = new Actions(editor);
         keySequence = new KeySequence(actions);
         installEntryListener();
       }

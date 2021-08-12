@@ -1,25 +1,17 @@
 package org.omegat.plugins.vimish;
 
 import org.omegat.gui.editor.EditorController;
-import org.omegat.core.Core;
 import org.omegat.gui.editor.IEditor.CaretPosition;
 // import org.omegat.util.Log;
 
 import javax.swing.SwingUtilities;
 
 class Actions {
-  // private static Actions instance;
+  private EditorController editor;
 
-  // private Actions() {}
-
-  // static Actions getActions() {
-  //   if (instance == null) {
-  //     instance = new Actions();
-  //   }
-  //   return instance;
-  // }
-
-  EditorController editor = (EditorController) Core.getEditor(); 
+  Actions(EditorController editor) {
+    this.editor = editor;
+  }
 
   void undo() {
     editor.undo();
@@ -189,7 +181,7 @@ class Actions {
   /**
    * Set caret position through OmegaT API
    */
-  private void setCaretIndex(int index) {
+  void setCaretIndex(int index) {
     CaretPosition newCaretPosition = new CaretPosition(index);
     editor.setCaretPosition(newCaretPosition);
   }
@@ -197,7 +189,7 @@ class Actions {
   /**
    * Get caret position from OmegaT API
    */
-  private int getCaretIndex() {
+  int getCaretIndex() {
     return editor.getCurrentPositionInEntryTranslation();
   }
 }
