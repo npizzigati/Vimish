@@ -3,6 +3,7 @@ package org.omegat.plugins.vimish;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
+import org.omegat.util.Log;
 
 class KeySequence {
   // private static KeySequence instance = null;
@@ -35,6 +36,7 @@ class KeySequence {
     // Handle case where a number is entered before the v
     // (to switch from normal into visual mode),
     // entering into visual mode with a count
+    Log.log("EVALUATING VISUAL SEQUENCE");
     Matcher match = Pattern.compile("(\\d+)v").matcher(sequence);
     match.find();
     String countString = match.group(1);
