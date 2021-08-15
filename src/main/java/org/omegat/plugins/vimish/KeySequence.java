@@ -2,27 +2,27 @@ package org.omegat.plugins.vimish;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.swing.JOptionPane;
 import org.omegat.util.Log;
 
 class KeySequence {
-  // private static KeySequence instance = null;
   private String sequence = "";
   private Actions actions;
+  private int actionsCount = 0;
   
   KeySequence(Actions actions) {
     this.actions = actions;
   }
 
-  // static KeySequence getKeySequence(Actions actions) {
-  //   if (instance == null) {
-  //     instance = new KeySequence(actions);
-  //   } 
-  //   return instance;
-  // }
-
   void apply(String keyString) {
     sequence += keyString;
+    actionsCount += 1;
+
+    // Count number of actions applied to prevent runaway
+    if (sequence.equals("") || actionsCount > 10) {
+      actionsCount = 0;
+      return;
+    }
+
     if (Mode.NORMAL.isActive()) {
       evaluateNormalSequence();
     } else if (Mode.INSERT.isActive()) {
@@ -30,6 +30,14 @@ class KeySequence {
     } else if (Mode.VISUAL.isActive()) {
       evaluateVisualSequence();
     }
+
+    // Recursively call apply on rest of sequence
+    // with no additional keyString
+    keyString = "";
+    apply(keyString);
+    // TODO: Extract the evaluation part of this
+    // method (and the recursive calls) to an
+    // "evaluate" method
   }
 
   private void evaluateVisualSequence(String sequence) {
@@ -37,7 +45,7 @@ class KeySequence {
     // (to switch from normal into visual mode),
     // entering into visual mode with a count
     Log.log("EVALUATING VISUAL SEQUENCE");
-    Matcher match = Pattern.compile("(\\d+)v").matcher(sequence);
+    Matcher match = Pattern.compile("^(\\d+)v").matcher(sequence);
     match.find();
     String countString = match.group(1);
     int count = Integer.parseInt(countString, 10);
@@ -51,35 +59,35 @@ class KeySequence {
     // will not always take you to normal mode (e.g.
     // it can also escape from another operation, like in the vase of
     // aESC or iESC
-    if (sequence.matches(".*ESC")) {
+    if (sequence.matches("^ESC")) {
       Mode.NORMAL.activate();
       actions.clearVisualMarks();
       resetSequence();
-    } else if (sequence.matches("\\d+v")) {
+    } else if (sequence.matches("^\\d+v")) {
       // What other key combinations should make us escape back
       // to normal mode?
       // I can also combine these cases in a single if statement
       Mode.NORMAL.activate();
       actions.clearVisualMarks();
       resetSequence();
-    } else if (sequence.equals("d") || sequence.equals("x")) {
+    } else if (sequence.matches("^[dx]")) {
       actions.visualDelete();
       actions.clearVisualMarks();
       Mode.NORMAL.activate();
       resetSequence();
-    } else if (sequence.equals("c")) {
+    } else if (sequence.matches("^c")) {
       actions.visualDelete();
       actions.clearVisualMarks();
       Mode.INSERT.activate();
       resetSequence();
-    } else if (sequence.equals("y")) {
+    } else if (sequence.matches("^y")) {
       actions.visualYank();
       actions.clearVisualMarks();
       Mode.NORMAL.activate();
       resetSequence();
-    } else if (sequence.matches("^\\d*[hl]$")) {
+    } else if (sequence.matches("^\\d*[hl]")) {
       // Handle h/l motions (character left and right)
-      Matcher match = Pattern.compile("^(\\d*)([hl])$").matcher(sequence);
+      Matcher match = Pattern.compile("^(\\d*)([hl])").matcher(sequence);
       match.find();
       String countString = match.group(1);
       String motion = match.group(2);
@@ -101,7 +109,7 @@ class KeySequence {
   }
 
   private void evaluateInsertSequence() {
-    if (sequence.equals("ESC")) {
+    if (sequence.matches("^ESC")) {
       Mode.NORMAL.activate();
       resetSequence();
     }
@@ -115,6 +123,7 @@ class KeySequence {
      *
      * The order of subsequent regexes shouldn't matter    
      **/
+    // To or till or search
     if (sequence.matches("^([fFTt].|[?/].+)")) {
       // Need to fill this in
       resetSequence();
@@ -163,12 +172,14 @@ class KeySequence {
       resetSequence();
     }
 
-    else if (sequence.matches("^\\d*[dcy]?\\d*[hl]$")) {
+    else if (sequence.matches("^\\d*[dcy]?\\d*[hl].*")) {
+
       // Handle h/l motions (character left and right)
       // with no operator or with d/c/y operators
-      Matcher match = Pattern.compile("^(\\d*)([dcy]?)(\\d*)([hl])$")
+      Matcher match = Pattern.compile("^(\\d*)([dcy]?)(\\d*)([hl])")
                              .matcher(sequence);
       match.find();
+      String entireMatchString = match.group(0);
       String countString1 = match.group(1);
       String operator = match.group(2);
       String countString2 = match.group(3);
@@ -186,10 +197,16 @@ class KeySequence {
       // H/L/J/K, since these are not particularly useful for
       // translation segments (which contain no newlines)
       // NOTE: H/M/L (high/middle/low) may be useful for long segments
-      resetSequence();
-    } else if (sequence.matches("^\\d*[ftFT].$")) {
+
+      // Remove match from beginning of sequence and evaluate
+      // rest of sequence
+      Log.log("entireMatchString: '" + entireMatchString + "'");
+      // sequence = "";
+      sequence = sequence.replaceFirst(entireMatchString, "");
+
+    } else if (sequence.matches("^\\d*[ftFT].")) {
       // Handle "to" (F/f) and "till" (T/t)
-      // Matcher matches = Pattern.compile("^(\\d*)[ftFT].$").matcher(sequence);
+      // Matcher matches = Pattern.compile("^(\\d*)[ftFT].").matcher(sequence);
       int length = sequence.length();
 
       int number = 1;
@@ -199,22 +216,21 @@ class KeySequence {
       String searchChar = String.valueOf(sequence.charAt(length - 1));
 
       resetSequence();
-    } else if (sequence.matches("^b$")) {
+    } else if (sequence.matches("^b")) {
       // Execute backward char
       resetSequence();
-    } else if (sequence.matches("^w$")) {
+    } else if (sequence.matches("^w")) {
       // Execute forward word
       resetSequence();
-    } else if (sequence.matches("^\\d+w$")) {
+    } else if (sequence.matches("^\\d+w")) {
       int number = Integer.parseInt(sequence.substring(0, sequence.length() - 1), 10);
       resetSequence();
       // Execute forward word with number as argument
-      JOptionPane.showMessageDialog(null, number);
       resetSequence();
     } else if (sequence.length() > 15) {
       resetSequence();
     }
-    // } else if (sequence.matches("^.+[^hl0$^]$")) {
+    // } else if (sequence.matches("^.+[^hl0$^]")) {
     //   // reset sequence if it ends with a non-motion character
     //   // that is not preceded by "f" or "t" ("f" and "t" checked
     //   // for in earlier case)

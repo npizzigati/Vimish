@@ -4,8 +4,6 @@ import org.omegat.gui.editor.EditorController;
 import org.omegat.gui.editor.IEditor.CaretPosition;
 import org.omegat.util.Log;
 
-import javax.swing.SwingUtilities;
-
 class Actions {
   private EditorController editor;
 
@@ -50,11 +48,7 @@ class Actions {
     }
 
     // Delete text
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        editor.replacePartOfText("", startIndex, endIndex);
-      }
-    });
+    editor.replacePartOfText("", startIndex, endIndex);
   }
 
   void visualBackwardChar(int count) {
@@ -144,16 +138,12 @@ class Actions {
 
   void normalPut(String text, String position) {
     int index = getCaretIndex();
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        if (position.equals("before")) {
-          insertTextAtIndex(text, index);
-        } else {
-          insertTextAtIndex(text, index + 1);
-        }
-        normalBackwardChar(1);
-      }
-    });
+    if (position.equals("before")) {
+      insertTextAtIndex(text, index);
+    } else {
+      insertTextAtIndex(text, index + 1);
+    }
+    normalBackwardChar(1);
   }
 
   void normalForwardChar(String operator, int count) {
@@ -161,14 +151,13 @@ class Actions {
     int length = editor.getCurrentTranslation().length();
     int newIndex = (length - currentIndex >= count) ? currentIndex + count : length;
 
+    Log.log("In normalForwardChar");
     if (operator.equals("")) {
+      Log.log("About to set new caret index");
       setCaretIndex(newIndex);
+      Log.log("Should have now set new caret index");
     } else if (operator.equals("d")) {
-      SwingUtilities.invokeLater(new Runnable() {
-        public void run() {
-          editor.replacePartOfText("", currentIndex, newIndex);
-        }
-      });
+      editor.replacePartOfText("", currentIndex, newIndex);
     }
   }
 
@@ -183,11 +172,7 @@ class Actions {
     if (operator.equals("")) {
       setCaretIndex(newIndex);
     } else if (operator.equals("d")) {
-      SwingUtilities.invokeLater(new Runnable() {
-        public void run() {
-          editor.replacePartOfText("", newIndex, currentIndex);
-        }
-      });
+      editor.replacePartOfText("", newIndex, currentIndex);
     }
   }
 
@@ -201,7 +186,7 @@ class Actions {
    */
   void setCaretIndex(int index) {
     CaretPosition newCaretPosition = new CaretPosition(index);
-    editor.setCaretPosition(newCaretPosition);
+      editor.setCaretPosition(newCaretPosition);
   }
 
   /**

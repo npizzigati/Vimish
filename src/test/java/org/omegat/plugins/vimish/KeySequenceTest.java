@@ -12,56 +12,56 @@ class KeySequenceTest {
   Actions mockActions;
   KeySequence keySequence;
 
-  @Test
-  void keySequence_h() {
-    keySequence.apply("h");
-    verify(mockActions).normalBackwardChar("", 1);
-    assertThat(Mode.NORMAL.isActive()).as("In normal mode").isTrue();   
-  }
+  // @Test
+  // void keySequence_h() {
+  //   keySequence.apply("h");
+  //   verify(mockActions).normalBackwardChar("", 1);
+  //   assertThat(Mode.NORMAL.isActive()).as("In normal mode").isTrue();   
+  // }
 
-  @Test
-  void keySequence_5h() {
-    keySequence.apply("5h");
-    verify(mockActions).normalBackwardChar("", 5);
-    assertThat(Mode.NORMAL.isActive()).as("In normal mode now").isTrue();   
-    assertThat(keySequenceResetToEmpty())
-      .as("keySequence reset to empty").isTrue();
-  }
+  // @Test
+  // void keySequence_5h() {
+  //   keySequence.apply("5h");
+  //   verify(mockActions).normalBackwardChar("", 5);
+  //   assertThat(Mode.NORMAL.isActive()).as("In normal mode now").isTrue();   
+  //   assertThat(keySequenceResetToEmpty())
+  //     .as("keySequence reset to empty").isTrue();
+  // }
 
-  @Test
-  void keySequence_l() {
-    keySequence.apply("l");
-    verify(mockActions).normalForwardChar("", 1);
-    assertThat(Mode.NORMAL.isActive()).as("In normal mode now").isTrue();   
-    assertThat(keySequenceResetToEmpty())
-      .as("keySequence reset to empty").isTrue();
-  }
+  // @Test
+  // void keySequence_l() {
+  //   keySequence.apply("l");
+  //   verify(mockActions).normalForwardChar("", 1);
+  //   assertThat(Mode.NORMAL.isActive()).as("In normal mode now").isTrue();   
+  //   assertThat(keySequenceResetToEmpty())
+  //     .as("keySequence reset to empty").isTrue();
+  // }
 
-  @Test
-  void keySequence_5l() {
-    keySequence.apply("5l");
-    verify(mockActions).normalForwardChar("", 5);
-    assertThat(Mode.NORMAL.isActive()).as("In normal mode now").isTrue();   
-    assertThat(keySequenceResetToEmpty())
-      .as("keySequence reset to empty").isTrue();
-  }
+  // @Test
+  // void keySequence_5l() {
+  //   keySequence.apply("5l");
+  //   verify(mockActions).normalForwardChar("", 5);
+  //   assertThat(Mode.NORMAL.isActive()).as("In normal mode now").isTrue();   
+  //   assertThat(keySequenceResetToEmpty())
+  //     .as("keySequence reset to empty").isTrue();
+  // }
 
-  @Test
-  void keySequence_i() {
-    keySequence.apply("i");
-    assertThat(Mode.INSERT.isActive()).as("In insert mode now").isTrue();   
-    assertThat(keySequenceResetToEmpty())
-      .as("keySequence reset to empty").isTrue();
-  }
+  // @Test
+  // void keySequence_i() {
+  //   keySequence.apply("i");
+  //   assertThat(Mode.INSERT.isActive()).as("In insert mode now").isTrue();   
+  //   assertThat(keySequenceResetToEmpty())
+  //     .as("keySequence reset to empty").isTrue();
+  // }
 
-  @Test
-  void keySequence_ESC() {
-    Mode.INSERT.activate();
-    keySequence.apply("ESC");
-    assertThat(Mode.NORMAL.isActive()).as("In normal mode now").isTrue();   
-    assertThat(keySequenceResetToEmpty())
-      .as("keySequence reset to empty").isTrue();
-  }
+  // @Test
+  // void keySequence_ESC() {
+  //   Mode.INSERT.activate();
+  //   keySequence.apply("ESC");
+  //   assertThat(Mode.NORMAL.isActive()).as("In normal mode now").isTrue();   
+  //   assertThat(keySequenceResetToEmpty())
+  //     .as("keySequence reset to empty").isTrue();
+  // }
 
   @BeforeEach
   void setUp() {
