@@ -20,7 +20,7 @@ class Actions {
     editor.remarkOneMarker(VimishVisualMarker.class.getName());
   }
 
-  void visualYank() {
+  void visualModeYank() {
     Integer startIndex = VimishVisualMarker.getMarkStart();
     Integer endIndex = VimishVisualMarker.getMarkEnd();
     String currentTranslation = editor.getCurrentTranslation();
@@ -31,7 +31,7 @@ class Actions {
     setCaretIndex(startIndex);
   }
 
-  void visualDelete() {
+  void visualModeDelete() {
     // Delete all visually selected text
     Integer startIndex = VimishVisualMarker.getMarkStart();
     Integer endIndex = VimishVisualMarker.getMarkEnd();
@@ -51,7 +51,7 @@ class Actions {
     editor.replacePartOfText("", startIndex, endIndex);
   }
 
-  void visualBackwardChar(int count) {
+  void visualModeBackwardChar(int count) {
     Integer markStart = VimishVisualMarker.getMarkStart();
     Integer markEnd = VimishVisualMarker.getMarkEnd();
     String markOrientation = VimishVisualMarker.getMarkOrientation();
@@ -82,7 +82,7 @@ class Actions {
     setCaretIndex(newIndex);
   }
 
-  void visualForwardChar(int count) {
+  void visualModeForwardChar(int count) {
     Integer markStart = VimishVisualMarker.getMarkStart();
     Integer markEnd = VimishVisualMarker.getMarkEnd();
     String markOrientation = VimishVisualMarker.getMarkOrientation();
@@ -124,29 +124,29 @@ class Actions {
     setCaretIndex(newIndex);
   }
 
-  void normalPutSpecificRegister(String registerKey, String position) {
+  void normalModePutSpecificRegister(String registerKey, String position) {
     Registers registers = Registers.getRegisters();
     String text = registers.retrieve(registerKey);
-    normalPut(text, position);
+    normalModePut(text, position);
   }
 
-  void normalPutUnnamedRegister(String position) {
+  void normalModePutUnnamedRegister(String position) {
     Registers registers = Registers.getRegisters();
     String text = registers.retrieve("unnamed");
-    normalPut(text, position);
+    normalModePut(text, position);
   }
 
-  void normalPut(String text, String position) {
+  void normalModePut(String text, String position) {
     int index = getCaretIndex();
     if (position.equals("before")) {
       insertTextAtIndex(text, index);
     } else {
       insertTextAtIndex(text, index + 1);
     }
-    normalBackwardChar(1);
+    normalModeBackwardChar(1);
   }
 
-  void normalForwardChar(String operator, int count) {
+  void normalModeForwardChar(String operator, int count) {
     int currentIndex = getCaretIndex();
     int length = editor.getCurrentTranslation().length();
     int newIndex = (length - currentIndex >= count) ? currentIndex + count : length;
@@ -161,7 +161,7 @@ class Actions {
     }
   }
 
-  void normalBackwardChar(int count) {
+  void normalModeBackwardChar(int count) {
     normalBackwardChar("", count);
   }
 
@@ -174,6 +174,41 @@ class Actions {
     } else if (operator.equals("d")) {
       editor.replacePartOfText("", newIndex, currentIndex);
     }
+  }
+
+  void normalModeTab() {
+    if (editor.getSettings().isUseTabForAdvance() == true) {
+      editor.nextEntry();
+    }
+  }
+
+  void insertModeInsertText(String text) {
+    editor.insertText(text);
+  }
+
+  void insertModeBackspace() {
+    int currentIndex = getCaretIndex();
+    if (currentIndex == 0) {
+      return;
+    }
+    editor.replacePartOfText("", currentIndex - 1, currentIndex);
+  }
+
+  void insertModeDelete() {
+    int currentIndex = getCaretIndex();
+    int length = editor.getCurrentTranslation().length();
+    if (currentIndex == length) {
+      return;
+    }
+    editor.replacePartOfText("", currentIndex, currentIndex + 1);
+  }
+
+  void insertModeEnter() {
+    editor.insertText("\n");
+  }
+
+  void insertModeTab() {
+    editor.insertText("\t");
   }
 
   private void insertTextAtIndex(String text, int index) {

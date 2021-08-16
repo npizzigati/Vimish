@@ -17,6 +17,7 @@ import org.omegat.core.Core;
 import org.omegat.core.CoreEvents;
 import org.omegat.core.events.*;
 import org.omegat.core.data.SourceTextEntry;
+import org.omegat.util.Log;
 
 // TODO: options: - integrate system and vim clipboards
 //                - position of cursor on entering insert mode
@@ -38,6 +39,7 @@ public class Vimish {
         Actions actions = new Actions(editor);
         keySequence = new KeySequence(actions);
         keyChords = new KeyChords(keySequence);
+        Log.log("VIMISH PLUGIN LOADED");
         installEntryListener();
       }
 
@@ -47,19 +49,25 @@ public class Vimish {
     });
   }
 
+  public static void unloadPlugins() {
+  }
+
   private static void installEntryListener() {
     CoreEvents.registerEntryEventListener(new IEntryEventListener() {
       @Override
       public void onNewFile(String activeFileName) {
+      };
+
+      @Override
+      public void onEntryActivated(SourceTextEntry newEntry) {
+        // It seems to be more reliable to do this setup here
+        // than in the onNewFile method above (on startup, the
+        // onNewFile method appears not to trigger in some cases.)
         if (isFirstLoad) {
           VimishCaret.setUpCaret();
           installKeyEventDispatcher();
           isFirstLoad = false;
         }
-      };
-
-      @Override
-      public void onEntryActivated(SourceTextEntry newEntry) {
       }
     });
   }
@@ -70,6 +78,7 @@ public class Vimish {
 
       @Override
       public boolean dispatchKeyEvent(KeyEvent event) {
+
         // Don't consume keys entered outside main editing area
         if (isOutsideMainEditingArea(event)) {
           return false;
@@ -80,25 +89,28 @@ public class Vimish {
           return false;
         }
 
-        // Consume other non-keyTyped events, except backspace in insert mode
         if (!(event.getID() == KeyEvent.KEY_TYPED)) {
-          if (event.getID() == KeyEvent.KEY_PRESSED
-              && event.getKeyCode() == KeyEvent.VK_BACK_SPACE
-              && Mode.INSERT.isActive()) {
-            return false;
-          } else {
-            return true;
-          }
+          return true;
         }
+        // Consume other non-keyTyped events, except backspace in insert mode
+        // if (!(event.getID() == KeyEvent.KEY_TYPED)) {
+        //   if (event.getID() == KeyEvent.KEY_PRESSED
+        //       && event.getKeyCode() == KeyEvent.VK_BACK_SPACE
+        //       && Mode.INSERT.isActive()) {
+        //     return false;
+        //   } else {
+        //     return true;
+        //   }
+        // }
 
         // In insert mode, pass keypress through to editing area
         // mode unless escape pressed
         // TODO: Change this so that it also sends Ctrl- sequences
         // to KeySequence#apply() for processing
-        if (Mode.INSERT.isActive() &&
-            (int)event.getKeyChar() != KeyEvent.VK_ESCAPE) {
-          return false;
-        }
+        // if (Mode.INSERT.isActive() &&
+        //     (int)event.getKeyChar() != KeyEvent.VK_ESCAPE) {
+        //   return false;
+        // }
 
         String keyString = determineKeyString(event);
 
@@ -123,12 +135,36 @@ public class Vimish {
   private static String determineKeyString(KeyEvent event) {
     String keyString = null;
     char keyChar = event.getKeyChar();
-    // Do I also have to determine the key code for enter?
-    if ((int)keyChar == KeyEvent.VK_ESCAPE) {
-      keyString = "ESC";
-    } else {
-      keyString = String.valueOf(keyChar);
+
+    // Temporary logging
+    if (event.getID() == KeyEvent.KEY_TYPED) {
+      Log.log("Key typed event char: " + event.getKeyChar()
+              + "(int)char: " + (int)event.getKeyChar() + " code: " + event.getKeyCode());
+    } else if (event.getID() == KeyEvent.KEY_PRESSED) {
+      Log.log("Key pressed event: " + event.getKeyCode());
     }
+
+    switch((int)keyChar) {
+    case KeyEvent.VK_ESCAPE:
+      keyString = "<ESC>";
+      break;
+    case KeyEvent.VK_BACK_SPACE:
+      keyString = "<BACKSPACE>";
+      break;
+    case KeyEvent.VK_ENTER:
+      keyString = "<ENTER>";
+      break;
+    case KeyEvent.VK_TAB:
+      keyString = "<TAB>";
+      break;
+    case KeyEvent.VK_DELETE:
+      keyString = "<DEL>";
+      break;
+    default:
+      keyString = String.valueOf(keyChar);
+      break;
+    }
+
     return keyString;
   } 
 

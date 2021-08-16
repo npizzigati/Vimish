@@ -85,7 +85,7 @@ class KeyChords {
 
   private static HashMap<String, String> getKeyChordsHash() {
     HashMap<String, String> keyChordsHash = new HashMap<String, String>();
-    keyChordsHash.put("ie", "l");
+    keyChordsHash.put("ie", "<ESC>");
     keyChordsHash.put("ah", "h");
     keyChordsHash.put("lt", "l");
     return keyChordsHash;

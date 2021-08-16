@@ -20,24 +20,24 @@ class ActionsTest {
   }
 
   @Test
-  void testNormalForwardChar() {
+  void testNormalModeForwardChar() {
     when(mockEditor.getCurrentPositionInEntryTranslation()).thenReturn(5);
     when(mockEditor.getCurrentTranslation()).thenReturn("This is a test");
 
     Actions actionsSpy = spy(actions); 
-    actionsSpy.normalForwardChar("", 1);
+    actionsSpy.normalModeForwardChar("", 1);
 
     verify(actionsSpy).setCaretIndex(6);
   }
 
   @Test
-  void testNormalForwardCharNearEndOfSegment() {
+  void testNormalModeForwardCharNearEndOfSegment() {
     // Must not set character index beyond end of segment
     when(mockEditor.getCurrentPositionInEntryTranslation()).thenReturn(10);
     when(mockEditor.getCurrentTranslation()).thenReturn("This is a test");
 
     Actions actionsSpy = spy(actions); 
-    actionsSpy.normalForwardChar("", 6);
+    actionsSpy.normalModeForwardChar("", 6);
 
     verify(actionsSpy).setCaretIndex(14);
   }

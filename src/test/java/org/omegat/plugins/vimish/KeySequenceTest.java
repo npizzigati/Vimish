@@ -57,7 +57,7 @@ class KeySequenceTest {
   // @Test
   // void keySequence_ESC() {
   //   Mode.INSERT.activate();
-  //   keySequence.apply("ESC");
+  //   keySequence.apply("<ESC>");
   //   assertThat(Mode.NORMAL.isActive()).as("In normal mode now").isTrue();   
   //   assertThat(keySequenceResetToEmpty())
   //     .as("keySequence reset to empty").isTrue();

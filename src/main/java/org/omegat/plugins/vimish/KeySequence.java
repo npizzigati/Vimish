@@ -50,7 +50,7 @@ class KeySequence {
     String countString = match.group(1);
     int count = Integer.parseInt(countString, 10);
 
-    actions.visualForwardChar(count - 1);
+    actions.visualModeForwardChar(count - 1);
     resetSequence();
   }
 
@@ -58,8 +58,8 @@ class KeySequence {
     // This regex does not account for the fact that an escape
     // will not always take you to normal mode (e.g.
     // it can also escape from another operation, like in the vase of
-    // aESC or iESC
-    if (sequence.matches("^ESC")) {
+    // a<ESC> or i<ESC>
+    if (sequence.matches("^<ESC>")) {
       Mode.NORMAL.activate();
       actions.clearVisualMarks();
       resetSequence();
@@ -71,17 +71,17 @@ class KeySequence {
       actions.clearVisualMarks();
       resetSequence();
     } else if (sequence.matches("^[dx]")) {
-      actions.visualDelete();
+      actions.visualModeDelete();
       actions.clearVisualMarks();
       Mode.NORMAL.activate();
       resetSequence();
     } else if (sequence.matches("^c")) {
-      actions.visualDelete();
+      actions.visualModeDelete();
       actions.clearVisualMarks();
       Mode.INSERT.activate();
       resetSequence();
     } else if (sequence.matches("^y")) {
-      actions.visualYank();
+      actions.visualModeYank();
       actions.clearVisualMarks();
       Mode.NORMAL.activate();
       resetSequence();
@@ -95,9 +95,9 @@ class KeySequence {
       int count = (countString.equals("")) ? 1 : Integer.parseInt(countString, 10);
 
       if (motion.equals("h")) {
-        actions.visualBackwardChar(count);
+        actions.visualModeBackwardChar(count);
       } else if (motion.equals("l")) {
-        actions.visualForwardChar(count);
+        actions.visualModeForwardChar(count);
       }
 
       // We are currently ignoring motion keys j/k and uppercase
@@ -109,10 +109,42 @@ class KeySequence {
   }
 
   private void evaluateInsertSequence() {
-    if (sequence.matches("^ESC")) {
-      Mode.NORMAL.activate();
-      resetSequence();
+    if (sequence.matches("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<ENTER>).*")) {
+      Matcher match = Pattern.compile("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<ENTER>)")
+                             .matcher(sequence);
+      match.find();
+      String entireMatchString = match.group(0);
+      switch (entireMatchString) {
+        case "<ESC>":
+          Log.log("Escape evaluated");
+          Mode.NORMAL.activate();
+          break;
+        case "<BACKSPACE>":
+          actions.insertModeBackspace();
+          Log.log("Backspace evaluated");
+          break;
+        case "<TAB>":
+          actions.insertModeTab();
+          Log.log("Tab evaluated");
+          break;
+        case "<ENTER>":
+          actions.insertModeEnter();
+          Log.log("Enter evaluated");
+          break;
+        case "<DEL>":
+          actions.insertModeDelete();
+          Log.log("Delete evaluated");
+          break;
+      }
+      sequence = removeEvaluatedPart(sequence, entireMatchString);
+    } else {
+      actions.insertModeInsertText(sequence);
+      sequence = "";
     }
+  }
+
+  private String removeEvaluatedPart(String sequence, String entireMatchString) {
+    return sequence.replaceFirst(entireMatchString, "");
   }
 
   private void evaluateNormalSequence() {
@@ -124,7 +156,7 @@ class KeySequence {
      * The order of subsequent regexes shouldn't matter    
      **/
     // To or till or search
-    if (sequence.matches("^([fFTt].|[?/].+)")) {
+    if (sequence.matches("^([fFTt].|[?/]..*)")) {
       // Need to fill this in
       resetSequence();
     }
@@ -162,13 +194,13 @@ class KeySequence {
       match.find();
       String registerKey = match.group(1);
       String position = "after";
-      actions.normalPutSpecificRegister(registerKey, position);
+      actions.normalModePutSpecificRegister(registerKey, position);
       resetSequence();
     } else if (sequence.matches("^(.*p|.*\"\"p)")) {
-      actions.normalPutUnnamedRegister("after");
+      actions.normalModePutUnnamedRegister("after");
       resetSequence();
     } else if (sequence.matches("^(.*P|.*\"\"P)")) {
-      actions.normalPutUnnamedRegister("before");
+      actions.normalModePutUnnamedRegister("before");
       resetSequence();
     }
 
@@ -190,7 +222,7 @@ class KeySequence {
       if (motion.equals("h")) {
         actions.normalBackwardChar(operator, totalCount);
       } else if (motion.equals("l")) {
-        actions.normalForwardChar(operator, totalCount);
+        actions.normalModeForwardChar(operator, totalCount);
       }
 
       // We are currently ignoring motion keys j/k and uppercase
@@ -201,21 +233,15 @@ class KeySequence {
       // Remove match from beginning of sequence and evaluate
       // rest of sequence
       Log.log("entireMatchString: '" + entireMatchString + "'");
-      // sequence = "";
       sequence = sequence.replaceFirst(entireMatchString, "");
-
-    } else if (sequence.matches("^\\d*[ftFT].")) {
-      // Handle "to" (F/f) and "till" (T/t)
-      // Matcher matches = Pattern.compile("^(\\d*)[ftFT].").matcher(sequence);
-      int length = sequence.length();
-
-      int number = 1;
-      if (length > 2) number = Integer.parseInt(sequence.substring(0, length - 2), 10); 
-
-      String letter = String.valueOf(sequence.charAt(length - 2));
-      String searchChar = String.valueOf(sequence.charAt(length - 1));
-
-      resetSequence();
+    } else if (sequence.matches("^<TAB>.*")) {
+      Matcher match = Pattern.compile("^(<TAB>).*")
+                             .matcher(sequence);
+      match.find();
+      String tabMatchString = match.group(1);
+      sequence = removeEvaluatedPart(sequence, tabMatchString);
+      actions.normalModeTab();
+      // TODO: Need to fix up the cases below
     } else if (sequence.matches("^b")) {
       // Execute backward char
       resetSequence();
