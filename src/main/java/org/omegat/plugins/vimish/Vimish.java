@@ -79,38 +79,29 @@ public class Vimish {
       @Override
       public boolean dispatchKeyEvent(KeyEvent event) {
 
+        // Temporary logging
+        if (event.getID() == KeyEvent.KEY_TYPED) {
+          Log.log("Key typed event char: " + event.getKeyChar()
+                  + "(int)char: " + (int)event.getKeyChar() + " code: " + event.getKeyCode());
+        } else if (event.getID() == KeyEvent.KEY_PRESSED) {
+          Log.log("Key pressed event: " + event.getKeyCode());
+        }
+
         // Don't consume keys entered outside main editing area
         if (isOutsideMainEditingArea(event)) {
           return false;
         }
 
-        // Don't consume action-key keyPressed events
-        if (event.isActionKey() && event.getID() == KeyEvent.KEY_PRESSED) {
+        // Don't consume action-key keyPressed events, except for INSERT key
+        if (event.isActionKey() && event.getID() == KeyEvent.KEY_PRESSED
+            && event.getKeyCode() != KeyEvent.VK_INSERT) {
           return false;
         }
 
+        // Consume other non-keyTyped events
         if (!(event.getID() == KeyEvent.KEY_TYPED)) {
           return true;
         }
-        // Consume other non-keyTyped events, except backspace in insert mode
-        // if (!(event.getID() == KeyEvent.KEY_TYPED)) {
-        //   if (event.getID() == KeyEvent.KEY_PRESSED
-        //       && event.getKeyCode() == KeyEvent.VK_BACK_SPACE
-        //       && Mode.INSERT.isActive()) {
-        //     return false;
-        //   } else {
-        //     return true;
-        //   }
-        // }
-
-        // In insert mode, pass keypress through to editing area
-        // mode unless escape pressed
-        // TODO: Change this so that it also sends Ctrl- sequences
-        // to KeySequence#apply() for processing
-        // if (Mode.INSERT.isActive() &&
-        //     (int)event.getKeyChar() != KeyEvent.VK_ESCAPE) {
-        //   return false;
-        // }
 
         String keyString = determineKeyString(event);
 
@@ -120,10 +111,6 @@ public class Vimish {
           keySequence.apply(keyString);
         }
         
-        // This next line should be applied for each case as
-        // appropriate in keyChord section, or uncommented if
-        // keyChord section is not implemented.
-
         // Consume keypress
         return true;
 
@@ -135,14 +122,6 @@ public class Vimish {
   private static String determineKeyString(KeyEvent event) {
     String keyString = null;
     char keyChar = event.getKeyChar();
-
-    // Temporary logging
-    if (event.getID() == KeyEvent.KEY_TYPED) {
-      Log.log("Key typed event char: " + event.getKeyChar()
-              + "(int)char: " + (int)event.getKeyChar() + " code: " + event.getKeyCode());
-    } else if (event.getID() == KeyEvent.KEY_PRESSED) {
-      Log.log("Key pressed event: " + event.getKeyCode());
-    }
 
     switch((int)keyChar) {
     case KeyEvent.VK_ESCAPE:
