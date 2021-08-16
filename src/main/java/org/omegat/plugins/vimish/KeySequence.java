@@ -233,13 +233,15 @@ class KeySequence {
       // Remove match from beginning of sequence and evaluate
       // rest of sequence
       Log.log("entireMatchString: '" + entireMatchString + "'");
-      sequence = sequence.replaceFirst(entireMatchString, "");
+      sequence = removeEvaluatedPart(sequence, entireMatchString);
+      // sequence = sequence.replaceFirst(entireMatchString, "");
     } else if (sequence.matches("^<TAB>.*")) {
-      Matcher match = Pattern.compile("^(<TAB>).*")
+      Matcher match = Pattern.compile("^<TAB>")
                              .matcher(sequence);
       match.find();
-      String tabMatchString = match.group(1);
-      sequence = removeEvaluatedPart(sequence, tabMatchString);
+      String entireMatchString = match.group(0);
+      sequence = removeEvaluatedPart(sequence, entireMatchString);
+      // TODO: Need to implement shift-tab to go to previous tab
       actions.normalModeTab();
       // TODO: Need to fix up the cases below
     } else if (sequence.matches("^b")) {

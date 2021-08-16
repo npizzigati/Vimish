@@ -118,7 +118,6 @@ public class Vimish {
     });
   }
 
-
   private static String determineKeyString(KeyEvent event) {
     String keyString = null;
     char keyChar = event.getKeyChar();
