@@ -9,15 +9,15 @@ import org.omegat.gui.editor.EditorTextArea3;
 import org.omegat.core.Core;
 import org.omegat.util.Log;
 
-class Dispatch {
+class Dispatcher {
   private EditorController editor = (EditorController) Core.getEditor();
   private KeySequence keySequence;
-  private KeyChords keyChords;
+  private KeyChordProcessor keyChordProcessor;
 
-  Dispatch() {
+  Dispatcher() {
     Actions actions = new Actions(editor);
     keySequence = new KeySequence(actions);
-    keyChords = new KeyChords(this);
+    keyChordProcessor = new KeyChordProcessor(this);
   }
 
   void installKeyEventDispatcher() {
@@ -57,7 +57,7 @@ class Dispatch {
 
         String keyString = determineKeyString(event);
 
-        keyChords.process(keyString);
+        keyChordProcessor.process(keyString);
 
         // consume key event
         return true;

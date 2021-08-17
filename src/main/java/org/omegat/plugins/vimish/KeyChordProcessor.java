@@ -9,14 +9,14 @@ import java.util.ArrayList;
 
 import org.omegat.util.Log;
 
-class KeyChords {
+class KeyChordProcessor {
   private List<String> keyChordUnderway = new ArrayList<String>();
   private HashMap<String, String> keyChordsHash = getKeyChordsHash();
   private Timer timer;
-  private Dispatch dispatch;
+  private Dispatcher dispatcher;
 
-  KeyChords(Dispatch dispatch) {
-    this.dispatch = dispatch; 
+  KeyChordProcessor(Dispatcher dispatcher) {
+    this.dispatcher = dispatcher; 
   }
 
   Boolean thereAreNoKeyChords() {
@@ -36,14 +36,14 @@ class KeyChords {
         timer.stop();
         // keySequence.apply(String.join("", keyChordUnderway));
         String result = String.join("", keyChordUnderway);
-        dispatch.sendToKeyMapper(result);
+        dispatcher.sendToKeyMapper(result);
         reset();
       } else {
         timer.stop();
         String keyChordTranslation = keyChordsHash.get(keyChordMatch);
         // keySequence.apply(keyChordTranslation);
         String result = keyChordTranslation;
-        dispatch.sendToKeyMapper(result);
+        dispatcher.sendToKeyMapper(result);
         reset();
       }
     } else {
@@ -52,7 +52,7 @@ class KeyChords {
         ActionListener taskPerformer = new ActionListener() {
           public void actionPerformed(ActionEvent _event) {
             String result = String.join("", keyChordUnderway);
-            dispatch.sendToKeyMapper(result);
+            dispatcher.sendToKeyMapper(result);
             reset();
             Log.log("Took too long");
           }
@@ -65,7 +65,7 @@ class KeyChords {
       } else {
         Log.log("single character no in key chord");
         String result = keyChordUnderway.get(0);
-        dispatch.sendToKeyMapper(result);
+        dispatcher.sendToKeyMapper(result);
         reset();
       }
     }

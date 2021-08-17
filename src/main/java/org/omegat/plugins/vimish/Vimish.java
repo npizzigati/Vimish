@@ -53,8 +53,8 @@ public class Vimish {
         // onNewFile method appears not to trigger in some cases.)
         if (isFirstLoad) {
           VimishCaret.setUpCaret();
-          Dispatch dispatch = new Dispatch();
-          dispatch.installKeyEventDispatcher();
+          Dispatcher dispatcher = new Dispatcher();
+          dispatcher.installKeyEventDispatcher();
           isFirstLoad = false;
         }
       }
