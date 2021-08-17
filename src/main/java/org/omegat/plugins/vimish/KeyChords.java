@@ -13,34 +13,21 @@ class KeyChords {
   private List<String> keyChordUnderway = new ArrayList<String>();
   private HashMap<String, String> keyChordsHash = getKeyChordsHash();
   private Timer timer;
-  private Boolean isUnderway = true;
-  private String result;
+  private Dispatch dispatch;
 
-  KeyChords() {
+  KeyChords(Dispatch dispatch) {
+    this.dispatch = dispatch; 
   }
 
   Boolean thereAreNoKeyChords() {
     return keyChordsHash.isEmpty();
   }
 
-  Boolean isUnderway() {
-    return isUnderway;
-  }
-
-  String getResult() {
-    return result;
-  }
-
   void reset() {
-    result = "";
     keyChordUnderway.clear();
-    isUnderway = true;
   }
 
   void process(String keyString) {
-    if (thereAreNoKeyChords()) {
-      isUnderway = false;
-    }
     keyChordUnderway.add(keyString);
     if (keyChordUnderway.size() == 2) {
       String keyChordMatch = retrieveMatchingKeyChord(keyChordUnderway, keyChordsHash.keySet());
@@ -48,23 +35,26 @@ class KeyChords {
       if (keyChordMatch == null || keyChordUnderway.get(0) == keyChordUnderway.get(1)) {
         timer.stop();
         // keySequence.apply(String.join("", keyChordUnderway));
-        result = String.join("", keyChordUnderway);
-        isUnderway = false;
+        String result = String.join("", keyChordUnderway);
+        dispatch.sendToKeyMapper(result);
+        reset();
       } else {
         timer.stop();
         String keyChordTranslation = keyChordsHash.get(keyChordMatch);
         // keySequence.apply(keyChordTranslation);
-        result = keyChordTranslation;
-        isUnderway = false;
+        String result = keyChordTranslation;
+        dispatch.sendToKeyMapper(result);
+        reset();
       }
     } else {
       if (isInOneOfTheKeyChords(keyChordUnderway, keyChordsHash.keySet())) {
         Log.log("First character is in key chord. Setting timer.");
         ActionListener taskPerformer = new ActionListener() {
           public void actionPerformed(ActionEvent _event) {
+            String result = String.join("", keyChordUnderway);
+            dispatch.sendToKeyMapper(result);
+            reset();
             Log.log("Took too long");
-            result = String.join("", keyChordUnderway);
-            isUnderway = false;
           }
         };
 
@@ -72,49 +62,14 @@ class KeyChords {
         timer = new Timer(maxDelayInMilliseconds, taskPerformer);
         timer.setRepeats(false);
         timer.start();
-        isUnderway = true;
       } else {
         Log.log("single character no in key chord");
-        result = keyChordUnderway.get(0);
-        isUnderway = false;
+        String result = keyChordUnderway.get(0);
+        dispatch.sendToKeyMapper(result);
+        reset();
       }
     }
   }
-
-  // void process(String keyString) {
-  //   keyChordUnderway.add(keyString);
-  //   if (keyChordUnderway.size() == 2) {
-  //     String keyChordMatch = retrieveMatchingKeyChord(keyChordUnderway, keyChordsHash.keySet());
-  //     // We also verify that characters in keyChordUnderway are unique
-  //     if (keyChordMatch == null || keyChordUnderway.get(0) == keyChordUnderway.get(1)) {
-  //       timer.stop();
-  //       keySequence.apply(String.join("", keyChordUnderway));
-  //       keyChordUnderway.clear();
-  //     } else {
-  //       timer.stop();
-  //       String keyChordTranslation = keyChordsHash.get(keyChordMatch);
-  //       keySequence.apply(keyChordTranslation);
-  //       keyChordUnderway.clear();
-  //     }
-  //   } else {
-  //     if (isInOneOfTheKeyChords(keyChordUnderway, keyChordsHash.keySet())) {
-  //       ActionListener taskPerformer = new ActionListener() {
-  //         public void actionPerformed(ActionEvent _event) {
-  //           keySequence.apply(String.join("", keyChordUnderway));
-  //           keyChordUnderway.clear();
-  //         }
-  //       };
-
-  //       int maxDelayInMilliseconds = 30;
-  //       timer = new Timer(maxDelayInMilliseconds, taskPerformer);
-  //       timer.setRepeats(false);
-  //       timer.start();
-  //     } else {
-  //       keySequence.apply(keyChordUnderway.get(0));
-  //       keyChordUnderway.clear();
-  //     }
-  //   }
-  // }
 
   private static String retrieveMatchingKeyChord(List<String> keyChordUnderway,
                                       Set<String> keyChords) {
