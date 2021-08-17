@@ -92,13 +92,17 @@ public class Vimish {
           return false;
         }
 
-        // Don't consume action-key keyPressed events, except for INSERT key
+        // Don't consume action-key keyPressed events (e.g. arrow
+        // keys, page up, page down, home, end, etc.), except for
+        // INSERT key (to prevent problems with caret)
         if (event.isActionKey() && event.getID() == KeyEvent.KEY_PRESSED
             && event.getKeyCode() != KeyEvent.VK_INSERT) {
           return false;
         }
 
-        // Consume other non-keyTyped events
+        // Consume other non-keyTyped events, to prevent
+        // duplication of events in the form of keyPressed and
+        // keyReleased events
         if (!(event.getID() == KeyEvent.KEY_TYPED)) {
           return true;
         }
