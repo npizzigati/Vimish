@@ -38,7 +38,7 @@ public class Vimish {
         EditorController editor = (EditorController) Core.getEditor();
         Actions actions = new Actions(editor);
         keySequence = new KeySequence(actions);
-        keyChords = new KeyChords(keySequence);
+        keyChords = new KeyChords();
         Log.log("VIMISH PLUGIN LOADED");
         installEntryListener();
       }
@@ -109,13 +109,23 @@ public class Vimish {
 
         String keyString = determineKeyString(event);
 
-        if (keyChords.isActive()) {
-          keyChords.process(keyString);
-        } else {
-          keySequence.apply(keyString);
+        // if (keyChords.isActive()) {
+        //   keyChords.process(keyString);
+        // } else {
+        //   keySequence.apply(keyString);
+        // }
+
+        keyChords.process(keyString);
+        if (keyChords.isUnderway()) {
+          // Consume key processed by keyChords
+          return true;
         }
-        
-        // Consume keypress
+
+        String intermediateSequence = keyChords.getResult();
+        keyChords.reset();
+        keySequence.apply(intermediateSequence);
+
+         
         return true;
 
       }
