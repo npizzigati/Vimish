@@ -19,10 +19,6 @@ class KeyChordProcessor {
     this.dispatcher = dispatcher; 
   }
 
-  Boolean thereAreNoKeyChords() {
-    return keyChordsHash.isEmpty();
-  }
-
   void reset() {
     keyChordUnderway.clear();
   }
@@ -32,29 +28,31 @@ class KeyChordProcessor {
     if (keyChordUnderway.size() == 2) {
       String keyChordMatch = retrieveMatchingKeyChord(keyChordUnderway, keyChordsHash.keySet());
       // We also verify that characters in keyChordUnderway are unique
+      // since it makes no sence to have a key chord with two
+      // of the same characters
       if (keyChordMatch == null || keyChordUnderway.get(0) == keyChordUnderway.get(1)) {
         timer.stop();
-        // keySequence.apply(String.join("", keyChordUnderway));
-        String result = String.join("", keyChordUnderway);
-        dispatcher.sendToKeyMapper(result);
+        sendMultipleKeysToKeyMapper(keyChordUnderway);
         reset();
       } else {
         timer.stop();
         String keyChordTranslation = keyChordsHash.get(keyChordMatch);
-        // keySequence.apply(keyChordTranslation);
         String result = keyChordTranslation;
-        dispatcher.sendToKeyMapper(result);
+        dispatcher.applyAsKeySequence(result);
         reset();
       }
     } else {
       if (isInOneOfTheKeyChords(keyChordUnderway, keyChordsHash.keySet())) {
-        Log.log("First character is in key chord. Setting timer.");
         ActionListener taskPerformer = new ActionListener() {
           public void actionPerformed(ActionEvent _event) {
-            String result = String.join("", keyChordUnderway);
+            Log.log("Key chord timed out");
+            // This will run if timer times out before chord
+            // completed
+            String result = keyChordUnderway.get(0);
+            // Result in this case will be a single key
+            // since we're limited our total key chord size to 2
             dispatcher.sendToKeyMapper(result);
             reset();
-            Log.log("Took too long");
           }
         };
 
@@ -63,11 +61,18 @@ class KeyChordProcessor {
         timer.setRepeats(false);
         timer.start();
       } else {
-        Log.log("single character no in key chord");
         String result = keyChordUnderway.get(0);
         dispatcher.sendToKeyMapper(result);
         reset();
       }
+    }
+  }
+
+  private void sendMultipleKeysToKeyMapper(List<String> keyChordUnderway) {
+    // Send keys to key mapping processor one at a time, since it
+    // can't handle input of multiple character strings
+    for (String key : keyChordUnderway) {
+      dispatcher.sendToKeyMapper(key);
     }
   }
 

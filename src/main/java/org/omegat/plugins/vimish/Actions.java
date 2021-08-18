@@ -49,6 +49,13 @@ class Actions {
 
     // Delete text
     editor.replacePartOfText("", startIndex, endIndex);
+
+    // If caret ends up on segment marker that is beyond last
+    // index, move it back one
+    int indexAfterDeletion = getCaretIndex();
+    if (indexAfterDeletion == editor.getCurrentTranslation().length()) {
+      setCaretIndex(indexAfterDeletion - 1);
+    }
   }
 
   void visualModeBackwardChar(int count) {
@@ -62,7 +69,13 @@ class Actions {
       currentIndex = markEnd - 1;
     }
 
-    int newIndex = (currentIndex >= count) ? currentIndex - count : 0;
+    // Do nothing if currentIndex is 0
+    if (currentIndex == 0) {
+      return;
+    }
+
+    int newIndex = (currentIndex > count) ? currentIndex - count : 0;
+    Log.log("newIndex: " + newIndex);
     if (markStart <= newIndex) {
       VimishVisualMarker.setMarkEnd(newIndex + 1);
     } else {
@@ -97,9 +110,15 @@ class Actions {
     } else {
       currentIndex = markEnd - 1;
     }
-    
+
     int length = editor.getCurrentTranslation().length();
-    int newIndex = (length - currentIndex >= count) ? currentIndex + count : length;
+
+    // Do nothing if already at last index
+    if (currentIndex == length - 1) {
+      return;
+    }
+    
+    int newIndex = (length - currentIndex >= count) ? currentIndex + count : length - 1;
 
     // If no mark yet
     if (markEnd == null) {
@@ -148,16 +167,33 @@ class Actions {
 
   void normalModeForwardChar(String operator, int count) {
     int currentIndex = getCaretIndex();
-    int length = editor.getCurrentTranslation().length();
+    String currentTranslation = editor.getCurrentTranslation();
+    int length = currentTranslation.length();
     int newIndex = (length - currentIndex >= count) ? currentIndex + count : length;
-
-    Log.log("In normalForwardChar");
     if (operator.equals("")) {
-      Log.log("About to set new caret index");
       setCaretIndex(newIndex);
-      Log.log("Should have now set new caret index");
-    } else if (operator.equals("d")) {
-      editor.replacePartOfText("", currentIndex, newIndex);
+    } else {
+
+      // TODO: make this work for yanks too (text will be stored
+      // in different register). Also need to implement for backward char
+      String deletedText = currentTranslation.substring(currentIndex, newIndex);
+      Registers registers = Registers.getRegisters();
+      // If text is less than one line, store it in "small delete" register
+      // (currentTranslation is assumed to be a maximum of 1 line long)
+      if (currentTranslation.equals(deletedText)) {
+        registers.storeBigDeletion(deletedText);
+      } else {
+        registers.storeSmallDeletion(deletedText);
+      }
+
+      if (operator.equals("d")) {
+        editor.replacePartOfText("", currentIndex, newIndex);
+      }
+    }
+
+    // Move caret back one if it ends up one past last index
+    if (newIndex == length) {
+      setCaretIndex(getCaretIndex() - 1);
     }
   }
 

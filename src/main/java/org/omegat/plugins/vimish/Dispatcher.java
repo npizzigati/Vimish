@@ -13,11 +13,13 @@ class Dispatcher {
   private EditorController editor = (EditorController) Core.getEditor();
   private KeySequence keySequence;
   private KeyChordProcessor keyChordProcessor;
+  private KeyMappingProcessor keyMappingProcessor;
 
   Dispatcher() {
     Actions actions = new Actions(editor);
     keySequence = new KeySequence(actions);
     keyChordProcessor = new KeyChordProcessor(this);
+    keyMappingProcessor = new KeyMappingProcessor(this);
   }
 
   void installKeyEventDispatcher() {
@@ -65,8 +67,13 @@ class Dispatcher {
     });
   }
 
-  public void sendToKeyMapper(String keyChordResult) {
-    keySequence.apply(keyChordResult);
+  public void sendToKeyMapper(String keyString) {
+    keyMappingProcessor.process(keyString);
+    
+  }
+
+  public void applyAsKeySequence(String result) {
+    keySequence.apply(result);
   }
 
   private String determineKeyString(KeyEvent event) {
