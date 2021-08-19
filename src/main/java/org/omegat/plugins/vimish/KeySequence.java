@@ -193,12 +193,23 @@ class KeySequence {
       Matcher match = Pattern.compile("(^[fFTt])(.)(.*)")
                              .matcher(sequence);
       match.find();
-      String key = match.group(2);
-      String remainder = match.group(3);
+      // String key = match.group(2);
+      // String remainder = match.group(3);
 
       // Fill in action
 
-      sequence = remainder;
+      // sequence = remainder;
+    }
+
+    else if (sequence.matches("^[?/].+<ENTER>.*")) {
+      // Need to fill this in
+      Matcher match = Pattern.compile("^([?/])(.+)<ENTER>(.*)")
+                             .matcher(sequence);
+      match.find();
+
+      // // Fill in action
+
+      // sequence = remainder;
     }
 
     else if (sequence.matches("^i.*")) {
@@ -207,6 +218,17 @@ class KeySequence {
       match.find();
       String remainder = match.group(1);
       
+      Mode.INSERT.activate();
+      sequence = remainder;
+    }
+
+    else if (sequence.matches("^a.*")) {
+      Matcher match = Pattern.compile("^a(.*)")
+                             .matcher(sequence);
+      match.find();
+      String remainder = match.group(1);
+      
+      actions.normalModeForwardChar("", 1);
       Mode.INSERT.activate();
       sequence = remainder;
     }
