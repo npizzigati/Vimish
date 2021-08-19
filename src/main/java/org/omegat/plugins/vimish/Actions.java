@@ -198,10 +198,10 @@ class Actions {
   }
 
   void normalModeBackwardChar(int count) {
-    normalBackwardChar("", count);
+    normalModeBackwardChar("", count);
   }
 
-  void normalBackwardChar(String operator, int count) {
+  void normalModeBackwardChar(String operator, int count) {
     int currentIndex = getCaretIndex();
     int newIndex = (currentIndex >= count) ? currentIndex - count : 0;
 
