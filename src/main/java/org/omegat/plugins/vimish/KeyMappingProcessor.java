@@ -2,7 +2,6 @@ package org.omegat.plugins.vimish;
 
 import java.awt.event.*;
 import javax.swing.Timer;
-import java.util.Set;
 import java.util.List;
 import java.util.HashMap;
 import java.util.ArrayList;
@@ -13,12 +12,12 @@ class KeyMappingProcessor {
   private List<String> keyMappingUnderway = new ArrayList<String>();
   private HashMap<String, String> keyMappingsHash;
   private Timer timer;
-  private Dispatcher dispatcher;
+  private KeyConductor keyConductor;
   private Boolean isFirstKey = true;
 
-  KeyMappingProcessor(Dispatcher dispatcher) {
+  KeyMappingProcessor(KeyConductor keyConductor) {
+    this.keyConductor = keyConductor;
     keyMappingsHash = getKeyMappingsHash();
-    this.dispatcher = dispatcher;
   }
 
   private ActionListener createTaskPerformer() {
@@ -27,14 +26,22 @@ class KeyMappingProcessor {
 
         // Upon timeout, pick the longest candidate that also
         // matches keyMappingUnderway and send for evaluation
-        String matchValue = getLongestMatch();
+        String longestMatch = getLongestMatch();
+        String matchValue = keyMappingsHash.get(longestMatch);
         if (matchValue != null) {
-          dispatcher.applyAsKeySequence(matchValue);
+          keyConductor.applyAsKeySequence(matchValue);
+          List<String> remainder = getRemainder(longestMatch);
+          reset();
+
+          // Send the rest of the keys after the match for
+          // reprocessing
+          processMultipleKeys(remainder);
+
         } else {
           // If there is no match, send all keys in keyMappingUnderway
-          dispatcher.applyAsKeySequence(String.join("", keyMappingUnderway));
+          keyConductor.applyAsKeySequence(String.join("", keyMappingUnderway));
+          reset();
         } 
-        reset();
       }
     };
 
@@ -42,20 +49,18 @@ class KeyMappingProcessor {
   }
 
   private String getLongestMatch() {
-    String matchValue = null;
+    String longestMatch = null;
     List<String> candidates = new ArrayList<String>(keyMappingsHash.keySet()); 
     candidates.sort((a, b) -> Integer.compare(b.length(), a.length()));
-    Log.log("Sorted candidates: " + candidates);
 
     String keyMappingUnderwayString = String.join("", keyMappingUnderway); 
     for (String candidate : candidates) {
       if (keyMappingUnderwayString.startsWith(candidate)) {
-        Log.log("Match found!");
-        matchValue = keyMappingsHash.get(candidate);
+        longestMatch = candidate;
       } 
     }
 
-    return matchValue;
+    return longestMatch;
   }
 
   void timerFirstStart() {
@@ -76,6 +81,14 @@ class KeyMappingProcessor {
     isFirstKey = true;
   }
 
+  void processMultipleKeys(List<String> keyList) {
+    // Send keys to be processed one at a time, since #process
+    // can't handle input of multiple keys in a single string
+    for (String key : keyList) {
+      process(key);
+    }
+  }
+
   void process(String keyString) {
     keyMappingUnderway.add(keyString);
     if (isFirstKey == true) {
@@ -91,19 +104,25 @@ class KeyMappingProcessor {
       // If there are no possible candidates in preceding keys
       // (because there has only been one key pressed)
       if (keyMappingUnderway.size() == 1) {
-        dispatcher.applyAsKeySequence(String.join("", keyMappingUnderway));
+        keyConductor.applyAsKeySequence(String.join("", keyMappingUnderway));
         reset();
       } else {
         // If there are possible candidates in preceding keys,
         // find the longest match and apply
-        String matchValue = getLongestMatch();
-        if (matchValue != null) {
-          dispatcher.applyAsKeySequence(matchValue);
+        String longestMatch = getLongestMatch();
+        if (longestMatch != null) {
+          String matchValue = keyMappingsHash.get(longestMatch);
+          keyConductor.applyAsKeySequence(matchValue);
+          List<String> remainder = getRemainder(longestMatch);
+          reset();
+          // Send the rest of the keys after the match for
+          // reprocessing
+          processMultipleKeys(remainder);
         } else {
           // If there is no match, send all keys in keyMappingUnderway
-          dispatcher.applyAsKeySequence(String.join("", keyMappingUnderway));
+          keyConductor.applyAsKeySequence(String.join("", keyMappingUnderway));
+          reset();
         } 
-        reset();
       } 
 
     } else if (numberOfCandidates == 1) {
@@ -112,10 +131,25 @@ class KeyMappingProcessor {
       String candidate = String.join("", keyMappingUnderway);
       String mapValue = keyMappingsHash.get(candidate); 
       if (mapValue != null) {
-        dispatcher.applyAsKeySequence(mapValue);
+        keyConductor.applyAsKeySequence(mapValue);
         reset();
       }
     }
+  }
+
+  private List<String> getRemainder(String longestMatch) {
+    String match = longestMatch;
+    List<String> remainder = new ArrayList<String>();
+    remainder.addAll(keyMappingUnderway);
+    for (String key : keyMappingUnderway) {
+      if (match.startsWith(key)) {
+        match = match.replaceFirst(key, "");
+        remainder.remove(0);
+      } else {
+        break;
+      }
+    }
+    return remainder;
   }
 
   private List<String> getMatchCandidates() {
@@ -132,7 +166,7 @@ class KeyMappingProcessor {
   private static HashMap<String, String> getKeyMappingsHash() {
     HashMap<String, String> keyMappingsHash = new HashMap<String, String>();
     keyMappingsHash.put("hw", "5h");
-    keyMappingsHash.put("hwl", "5l");
+    keyMappingsHash.put("hwllll", "5l");
     return keyMappingsHash;
   }
 }

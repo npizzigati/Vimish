@@ -232,7 +232,6 @@ class KeySequence {
 
       // Remove match from beginning of sequence and evaluate
       // rest of sequence
-      Log.log("entireMatchString: '" + entireMatchString + "'");
       sequence = removeEvaluatedPart(sequence, entireMatchString);
       // sequence = sequence.replaceFirst(entireMatchString, "");
     } else if (sequence.matches("^<TAB>.*")) {

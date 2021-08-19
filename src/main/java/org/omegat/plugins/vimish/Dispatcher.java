@@ -4,22 +4,14 @@ import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
 
-import org.omegat.gui.editor.EditorController;
 import org.omegat.gui.editor.EditorTextArea3;
-import org.omegat.core.Core;
 import org.omegat.util.Log;
 
 class Dispatcher {
-  private EditorController editor = (EditorController) Core.getEditor();
-  private KeySequence keySequence;
-  private KeyChordProcessor keyChordProcessor;
-  private KeyMappingProcessor keyMappingProcessor;
+  private KeyConductor keyConductor;
 
   Dispatcher() {
-    Actions actions = new Actions(editor);
-    keySequence = new KeySequence(actions);
-    keyChordProcessor = new KeyChordProcessor(this);
-    keyMappingProcessor = new KeyMappingProcessor(this);
+    keyConductor = new KeyConductor();
   }
 
   void installKeyEventDispatcher() {
@@ -59,21 +51,13 @@ class Dispatcher {
 
         String keyString = determineKeyString(event);
 
-        keyChordProcessor.process(keyString);
+        // keyChordProcessor.process(keyString);
+        keyConductor.process(keyString);
 
         // consume key event
         return true;
       }
     });
-  }
-
-  public void sendToKeyMapper(String keyString) {
-    keyMappingProcessor.process(keyString);
-    
-  }
-
-  public void applyAsKeySequence(String result) {
-    keySequence.apply(result);
   }
 
   private String determineKeyString(KeyEvent event) {
