@@ -12,21 +12,22 @@ import java.util.HashMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 
 class Configuration {
   private final String CONFIGURATION_FILENAME = "VimishConfig.json";
   public File configurationFile = new File(StaticUtils.getConfigDir(), CONFIGURATION_FILENAME);
-  private ObjectMapper objectMapper = new ObjectMapper();
+  // INDENT_OUTPUT enables json pretty printing
+  private ObjectMapper objectMapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
   private static Configuration instance;
   private ConfigurationData configurationData;
 
   String DESERIALIZATION_ERROR_MESSAGE =
     "Your configuration file (" + configurationFile.getPath() + ") " + 
-    "appears to be corrupted. Default configuration will be loaded. " +
-    "To stop seeing this message, try to fix the file, or delete it so " +
-    "that a new one may be automatically created.";
+    "appears to be corrupted. Default configuration will be loaded.";
 
   String LOAD_ERROR_MESSAGE =
     "Your configuration file (" + configurationFile.getPath() + ") " + 
@@ -63,13 +64,15 @@ class Configuration {
       } catch(JsonMappingException | JsonParseException jpe) {
         Log.log("Unable to deserialize Json configuration file: " + jpe);
         JOptionPane.showMessageDialog(null, DESERIALIZATION_ERROR_MESSAGE);
+        configurationData = getDefaultConfigurationData();
       } catch(IOException ioe) {
         Log.log("Unable to load Json config file: " + ioe);
         JOptionPane.showMessageDialog(null, LOAD_ERROR_MESSAGE);
-      } catch (Exception e) {
         configurationData = getDefaultConfigurationData();
       }
     } else {
+      Log.log("Setting configuration data to default since no configuration file " +
+              "was found.");
       configurationData = getDefaultConfigurationData();
     }
   }
