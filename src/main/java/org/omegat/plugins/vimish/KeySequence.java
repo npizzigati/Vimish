@@ -12,7 +12,7 @@ class KeySequence {
   
   KeySequence(Actions actions) {
     this.actions = actions;
-    configuration = ConfigurationManager.getConfigurationManager().getConfiguration();
+    configuration = Configuration.getConfiguration();
   }
 
   void apply(String keyString) {
@@ -149,7 +149,7 @@ class KeySequence {
         case "<ESC>":
           Log.log("Escape evaluated");
           Mode.NORMAL.activate();
-          if (configuration.moveCursorBack) {
+          if (configuration.getConfigMoveCursorBack()) {
             actions.normalModeBackwardChar(1);
           }
           break;

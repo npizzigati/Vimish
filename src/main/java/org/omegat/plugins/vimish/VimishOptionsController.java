@@ -2,27 +2,14 @@ package org.omegat.plugins.vimish;
 
 import org.omegat.gui.preferences.IPreferencesController;
 import org.omegat.util.Log;
-import org.omegat.util.StaticUtils;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 
 import java.awt.Component;
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 class VimishOptionsController implements IPreferencesController {
   private VimishOptionsPanel panel;
-  private ObjectMapper jsonMapper = new ObjectMapper();
-  private Configuration configuration = ConfigurationManager.getConfigurationManager().getConfiguration();
+  private Configuration configuration = Configuration.getConfiguration();
 
   private final String VIEW_NAME = "Vimish";
-  private final String PREFERENCES_FILENAME = "VimishPrefs.json";
-
-  private File preferencesFile = new File(StaticUtils.getConfigDir(), PREFERENCES_FILENAME);
 
   /**
    * An interface used by observers interested in knowing when a preference has
@@ -55,7 +42,7 @@ class VimishOptionsController implements IPreferencesController {
   }
 
   protected void initFromConfiguration() {
-    boolean moveCursorBack = configuration.moveCursorBack;
+    boolean moveCursorBack = configuration.getConfigMoveCursorBack();
     panel.moveCursorBackCheckBox.setSelected(moveCursorBack); 
   }
 
@@ -109,15 +96,10 @@ class VimishOptionsController implements IPreferencesController {
    */
   @Override
   public void persist() {
-    File configurationFile = ConfigurationManager.getConfigurationManager().configurationFile;
-    configuration.moveCursorBack = panel.moveCursorBackCheckBox.isSelected();
-    try {
-      jsonMapper.writeValue(configurationFile, configuration);
-    } catch(JsonProcessingException jpe) {
-      Log.log("Unable to create JSON: " + jpe);
-    } catch(IOException ioe) {
-      Log.log("Unable to write Vimish preferences file: " + ioe);
-    }
+    ConfigurationData newData = new ConfigurationData();
+    newData.moveCursorBack = panel.moveCursorBackCheckBox.isSelected();
+    Log.log("Data to be persisted: moveCursorBack: " + newData.moveCursorBack);
+    configuration.writeToFile(newData);
   };
 
   /**
