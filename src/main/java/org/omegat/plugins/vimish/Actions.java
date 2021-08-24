@@ -2,13 +2,50 @@ package org.omegat.plugins.vimish;
 
 import org.omegat.gui.editor.EditorController;
 import org.omegat.gui.editor.IEditor.CaretPosition;
+import org.omegat.core.Core;
+import org.omegat.gui.main.IMainWindow;
+import org.omegat.util.Log;
+
+import javax.swing.JOptionPane;
+import javax.swing.text.JTextComponent;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+
+import java.awt.Container;
+
 import org.omegat.util.Log;
 
 class Actions {
   private EditorController editor;
+  private Configuration configuration;
+  Container displayFrame;
 
   Actions(EditorController editor) {
     this.editor = editor;
+    configuration = ConfigurationManager.getConfigurationManager().getConfiguration(); 
+  }
+
+  void displayCommandBar() {
+    // JTextComponent editingArea = Util.getEditingArea();
+    // if (editingArea != null) {
+    //   Log.log("Retrieved editing area frame. Showing Vimish dialogs relative to it.");
+    //   displayFrame = (Container) editingArea;
+    // } else {
+      JFrame mainWindowFrame = Core.getMainWindow().getApplicationFrame();
+      displayFrame = (Container) mainWindowFrame;
+      Log.log("Unable to get editing area frame. Showing Vimish dialogs relative to main window.");
+    // }
+
+    SwingUtilities.invokeLater(new Runnable() {
+        public void run() {
+          JFrame frame = new JFrame("Swing");
+          frame.setSize(100, 50);
+          frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+          frame.setLocation(0,0);
+          frame.setLocationRelativeTo(displayFrame);
+          frame.setVisible(true);
+        }
+      });
   }
 
   void undo() {

@@ -38,7 +38,7 @@ class VimishCaret extends DefaultCaret {
   }
 
   static void setUpCaret() {
-    editingArea = getEditingArea();
+    editingArea = Util.getEditingArea();
     if (editingArea != null) {
       VimishCaret caret = getVimishCaret();
       caret.setBlinkRate(editingArea.getCaret().getBlinkRate());
@@ -54,21 +54,6 @@ class VimishCaret extends DefaultCaret {
       instance = new VimishCaret();
     }
     return instance;
-  }
-
-  private static JTextComponent getEditingArea() {
-    EditorController editor = (EditorController) Core.getEditor();
-    JTextComponent area = null;
-    try {
-        java.lang.reflect.Field protectedField = EditorController.class.getDeclaredField("editor");
-        protectedField.setAccessible(true);
-        area = (JTextComponent) protectedField.get(editor);
-    } catch(NoSuchFieldException nsfe) {
-        Log.log(nsfe);
-    } catch(IllegalAccessException iae) {
-        Log.log(iae);
-    }
-    return area;
   }
 
   static void processCaret() {

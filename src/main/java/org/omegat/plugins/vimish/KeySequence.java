@@ -8,9 +8,11 @@ class KeySequence {
   private String sequence = "";
   private Actions actions;
   private int actionsCount = 0;
+  private Configuration configuration;
   
   KeySequence(Actions actions) {
     this.actions = actions;
+    configuration = ConfigurationManager.getConfigurationManager().getConfiguration();
   }
 
   void apply(String keyString) {
@@ -147,7 +149,9 @@ class KeySequence {
         case "<ESC>":
           Log.log("Escape evaluated");
           Mode.NORMAL.activate();
-          actions.normalModeBackwardChar(1);
+          if (configuration.moveCursorBack) {
+            actions.normalModeBackwardChar(1);
+          }
           break;
         case "<BACKSPACE>":
           actions.insertModeBackspace();
@@ -182,8 +186,8 @@ class KeySequence {
   private void evaluateNormalSequence() {
     /* 
      * Handle to/till (f/t) and forward and backword search.
-     * This regex section must come first, since the following
-     * sections assume that it has already been processed.
+     * These two regex sections must come first, since the following
+     * sections assume that they have already been processed.
      *
      * The order of subsequent regexes shouldn't matter    
      **/

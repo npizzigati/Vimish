@@ -1,57 +1,67 @@
 plugins {
-    id('java')
-    id('jacoco')
-    id('checkstyle')
-    id('distribution')
-    id('maven')
-    id('groovy')
+  id('java')
+  id('jacoco')
+  id('checkstyle')
+  id('distribution')
+  id('maven')
+  id('groovy')
 }
 
 version = '0.1'
 
 compileJava   {
-    sourceCompatibility = '8'
-    targetCompatibility = '8'
+  sourceCompatibility = '8'
+  targetCompatibility = '8'
 }
 
 repositories {
-    mavenCentral()
+  mavenCentral()
+}
+
+configurations {
+  provided
+  implementation.extendsFrom provided
 }
 
 dependencies {
-    implementation files("./lib/OmegaT.jar")
-    testImplementation("org.assertj:assertj-core:3.20.2")
-    testImplementation('org.junit.jupiter:junit-jupiter-api:5.4.2')
-    testImplementation('commons-io:commons-io:2.6')
-    testImplementation('org.bidib.jbidib.com.vldocking:vldocking:3.0.6')
-    testImplementation('javax.xml.bind:jaxb-api:2.3.0')
-    testImplementation('jakarta.xml.bind:jakarta.xml.bind-api:2.3.2')
-    testImplementation('org.mockito:mockito-core:3.+')
-    testImplementation('org.apache.commons:commons-lang3:3.12.0')
-    testRuntime('org.glassfish.jaxb:jaxb-runtime:2.3.2')
-    testRuntime('org.junit.jupiter:junit-jupiter-engine:5.4.2')
+  provided files('./lib/OmegaT.jar')
+  implementation('com.fasterxml.jackson.core:jackson-databind:2.12.4')
+  testImplementation('org.assertj:assertj-core:3.20.2')
+  testImplementation('org.junit.jupiter:junit-jupiter-api:5.4.2')
+  testImplementation('commons-io:commons-io:2.6')
+  testImplementation('org.bidib.jbidib.com.vldocking:vldocking:3.0.6')
+  testImplementation('javax.xml.bind:jaxb-api:2.3.0')
+  testImplementation('jakarta.xml.bind:jakarta.xml.bind-api:2.3.2')
+  testImplementation('org.mockito:mockito-core:3.+')
+  testImplementation('org.apache.commons:commons-lang3:3.12.0')
+  testRuntime('org.glassfish.jaxb:jaxb-runtime:2.3.2')
+  testRuntime('org.junit.jupiter:junit-jupiter-engine:5.4.2')
 }
 
 test {
-    useJUnitPlatform()
+  useJUnitPlatform()
 }
 
 jar {
   manifest {
     from 'MANIFEST.MF'
   }
+  // Create fat jar, excluding provided configuration
+  from {
+    (configurations.runtimeClasspath - configurations.provided).collect { it.isDirectory() ? it : zipTree(it) }
+  }
 }
 
 checkstyle {
-   ignoreFailures = true
-   toolVersion = '7.1'
+  ignoreFailures = true
+  toolVersion = '7.1'
 }
 
 distributions {
-    main {
-        contents {
-            from(jar)
-            from('README.md', 'COPYING', 'CHANGELOG.md')
-        }
+  main {
+    contents {
+      from(jar)
+      from('README.md', 'COPYING', 'CHANGELOG.md')
     }
+  }
 }

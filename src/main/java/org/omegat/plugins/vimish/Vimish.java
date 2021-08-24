@@ -12,6 +12,8 @@ import org.omegat.core.CoreEvents;
 import org.omegat.core.events.*;
 import org.omegat.core.data.SourceTextEntry;
 import org.omegat.util.Log;
+import org.omegat.gui.preferences.PreferencesControllers;
+
 
 // TODO: options: - integrate system and vim clipboards
 //                - position of cursor on entering insert mode
@@ -27,8 +29,9 @@ public class Vimish {
     CoreEvents.registerApplicationEventListener(new IApplicationEventListener() {
       @Override
       public void onApplicationStartup() {
-        Log.log("VIMISH PLUGIN LOADED");
+        PreferencesControllers.addSupplier(VimishOptionsController::new);
         installEntryListener();
+        Log.log("VIMISH PLUGIN LOADED");
       }
 
       @Override
