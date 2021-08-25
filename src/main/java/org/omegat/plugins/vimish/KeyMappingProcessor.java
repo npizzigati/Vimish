@@ -3,14 +3,15 @@ package org.omegat.plugins.vimish;
 import java.awt.event.*;
 import javax.swing.Timer;
 import java.util.List;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.ArrayList;
 
 import org.omegat.util.Log;
 
 class KeyMappingProcessor {
   private List<String> keyMappingUnderway = new ArrayList<String>();
-  private HashMap<String, String> keyMappingsHash;
+  private Map<String, String> keyMappingsHash;
   private Timer timer;
   private KeyConductor keyConductor;
   private Boolean isFirstKey = true;
@@ -163,8 +164,8 @@ class KeyMappingProcessor {
     return candidates;
   }
 
-  private static HashMap<String, String> getKeyMappingsHash() {
-    HashMap<String, String> keyMappingsHash = new HashMap<String, String>();
+  private static Map<String, String> getKeyMappingsHash() {
+    Map<String, String> keyMappingsHash = new LinkedHashMap<String, String>();
     keyMappingsHash.put("hw", "5h");
     keyMappingsHash.put("hwllll", "5l");
     return keyMappingsHash;
