@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-
 class Configuration {
   private final String CONFIGURATION_FILENAME = "VimishConfig.json";
   public File configurationFile = new File(StaticUtils.getConfigDir(), CONFIGURATION_FILENAME);
@@ -35,6 +34,7 @@ class Configuration {
 
   boolean DEFAULT_MOVE_CURSOR_BACK = true;
   Map<String, String> DEFAULT_KEY_MAPPINGS = new HashMap<String, String>();
+  Map<String, String> DEFAULT_KEY_CHORDS = new HashMap<String, String>();
   Map<String, String> DEFAULT_ABBREVIATIONS = new HashMap<String, String>();
                                   
   private Configuration() {
@@ -94,6 +94,7 @@ class Configuration {
     ConfigurationData configurationData = new ConfigurationData();
     configurationData.moveCursorBack = DEFAULT_MOVE_CURSOR_BACK;
     configurationData.keyMappings = DEFAULT_KEY_MAPPINGS;
+    configurationData.keyChords = DEFAULT_KEY_CHORDS;
     configurationData.abbreviations = DEFAULT_ABBREVIATIONS;
     return configurationData;
   }
