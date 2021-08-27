@@ -3,7 +3,6 @@ package org.omegat.plugins.vimish;
 import java.awt.event.*;
 import javax.swing.Timer;
 import java.util.List;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.ArrayList;
 
@@ -15,9 +14,14 @@ class KeyMappingProcessor {
   private Timer timer;
   private KeyConductor keyConductor;
   private Boolean isFirstKey = true;
+  private Configuration configuration = Configuration.getConfiguration();
 
   KeyMappingProcessor(KeyConductor keyConductor) {
     this.keyConductor = keyConductor;
+    keyMappingsHash = getKeyMappingsHash();
+  }
+
+  void refreshKeyMappingsHash() {
     keyMappingsHash = getKeyMappingsHash();
   }
 
@@ -42,7 +46,7 @@ class KeyMappingProcessor {
           // If there is no match, send all keys in keyMappingUnderway
           keyConductor.applyAsKeySequence(String.join("", keyMappingUnderway));
           reset();
-        } 
+        }
       }
     };
 
@@ -51,14 +55,14 @@ class KeyMappingProcessor {
 
   private String getLongestMatch() {
     String longestMatch = null;
-    List<String> candidates = new ArrayList<String>(keyMappingsHash.keySet()); 
+    List<String> candidates = new ArrayList<String>(keyMappingsHash.keySet());
     candidates.sort((a, b) -> Integer.compare(b.length(), a.length()));
 
-    String keyMappingUnderwayString = String.join("", keyMappingUnderway); 
+    String keyMappingUnderwayString = String.join("", keyMappingUnderway);
     for (String candidate : candidates) {
       if (keyMappingUnderwayString.startsWith(candidate)) {
         longestMatch = candidate;
-      } 
+      }
     }
 
     return longestMatch;
@@ -123,14 +127,14 @@ class KeyMappingProcessor {
           // If there is no match, send all keys in keyMappingUnderway
           keyConductor.applyAsKeySequence(String.join("", keyMappingUnderway));
           reset();
-        } 
-      } 
+        }
+      }
 
     } else if (numberOfCandidates == 1) {
       // If only one candidate is found and it's a full match,
       // send on the map value
       String candidate = String.join("", keyMappingUnderway);
-      String mapValue = keyMappingsHash.get(candidate); 
+      String mapValue = keyMappingsHash.get(candidate);
       if (mapValue != null) {
         keyConductor.applyAsKeySequence(mapValue);
         reset();
@@ -164,10 +168,7 @@ class KeyMappingProcessor {
     return candidates;
   }
 
-  private static Map<String, String> getKeyMappingsHash() {
-    Map<String, String> keyMappingsHash = new LinkedHashMap<String, String>();
-    keyMappingsHash.put("hw", "5h");
-    keyMappingsHash.put("hwllll", "5l");
-    return keyMappingsHash;
+  Map<String, String> getKeyMappingsHash() {
+    return configuration.getConfigKeyMappingsHash();
   }
 }

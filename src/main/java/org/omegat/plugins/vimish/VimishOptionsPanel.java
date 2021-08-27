@@ -23,10 +23,10 @@ class VimishOptionsPanel extends JPanel {
   }
 
   private void initComponents() {
-    moveCursorBackCheckBox = new JCheckBox("Move cursor back one position when exiting insert mode"); 
+    moveCursorBackCheckBox = new JCheckBox("Move cursor back one position when exiting insert mode");
     add(moveCursorBackCheckBox);
 
-    keyMappingsTable = new JTable(data, columns);
+    keyMappingsTable = new JTable();
     add(new JScrollPane(keyMappingsTable));
-  } 
+  }
 }

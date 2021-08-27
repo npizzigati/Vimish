@@ -9,7 +9,7 @@ class KeySequence {
   private Actions actions;
   private int actionsCount = 0;
   private Configuration configuration;
-  
+
   KeySequence(Actions actions) {
     this.actions = actions;
     configuration = Configuration.getConfiguration();
@@ -184,12 +184,12 @@ class KeySequence {
   // }
 
   private void evaluateNormalSequence() {
-    /* 
+    /*
      * Handle to/till (f/t) and forward and backword search.
      * These two regex sections must come first, since the following
      * sections assume that they have already been processed.
      *
-     * The order of subsequent regexes shouldn't matter    
+     * The order of subsequent regexes shouldn't matter
      **/
     // To or till or search
     if (sequence.matches("^[fFTt]..*")) {
@@ -221,7 +221,7 @@ class KeySequence {
                              .matcher(sequence);
       match.find();
       String remainder = match.group(1);
-      
+
       Mode.INSERT.activate();
       sequence = remainder;
     }
@@ -231,7 +231,7 @@ class KeySequence {
                              .matcher(sequence);
       match.find();
       String remainder = match.group(1);
-      
+
       actions.normalModeForwardChar("", 1);
       Mode.INSERT.activate();
       sequence = remainder;
@@ -265,7 +265,7 @@ class KeySequence {
       } else {
         actions.visualModeForwardChar(count - 1);
       }
-      sequence = remainder;  
+      sequence = remainder;
     // } else if (sequence.matches("^.*v")) {
     //   // If just a "v" is entered with no preceding number,
     //   // change to visual mode without resetting sequence, so as
@@ -283,7 +283,7 @@ class KeySequence {
       Log.log("Named register put");
       match.find();
       String registerKey = match.group(1);
-      String putLetter = match.group(2); 
+      String putLetter = match.group(2);
       String remainder = match.group(3);
       String position = (putLetter.equals("p")) ? "after" : "before";
 

@@ -16,6 +16,7 @@ class Actions {
   private EditorController editor;
   Container displayFrame;
 
+  Actions(EditorController editor) {
       this.editor = editor;
   }
 

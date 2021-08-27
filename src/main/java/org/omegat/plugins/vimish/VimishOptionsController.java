@@ -4,6 +4,11 @@ import org.omegat.gui.preferences.IPreferencesController;
 import org.omegat.util.Log;
 
 import java.awt.Component;
+import javax.swing.table.TableModel;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.List;
 
 class VimishOptionsController implements IPreferencesController {
   private VimishOptionsPanel panel;
@@ -30,20 +35,30 @@ class VimishOptionsController implements IPreferencesController {
   @Override
   public Component getGui() {
     if (panel == null) {
-      initGui();
-      initFromConfiguration();
+      initPanel();
     }
     return panel;
   };
 
-  private void initGui() {
-    Log.log("Initializing GUI");
+  private void initPanel() {
+    boolean moveCursorBack = configuration.getConfigMoveCursorBack();
+    Map<String, String> keyMappingsHash = configuration.getConfigKeyMappingsHash();
+
     panel = new VimishOptionsPanel();
+    panel.moveCursorBackCheckBox.setSelected(moveCursorBack);
+
+    List<String[]> keyValuePairs = getKeyValuePairs(keyMappingsHash);
+    TableModel tableModel = new VimishTableModel(keyValuePairs);
+    panel.keyMappingsTable.setModel(tableModel);
   }
 
-  protected void initFromConfiguration() {
-    boolean moveCursorBack = configuration.getConfigMoveCursorBack();
-    panel.moveCursorBackCheckBox.setSelected(moveCursorBack); 
+  private List<String[]> getKeyValuePairs(Map<String, String> keyMappingsHash) {
+
+    List<String[]> keyValuePairs = new LinkedList<String[]>();
+    keyMappingsHash.forEach((k, v) -> {
+      keyValuePairs.add(new String[] { k, v });
+    });
+    return keyValuePairs;
   }
 
   @Override
@@ -78,7 +93,7 @@ class VimishOptionsController implements IPreferencesController {
    */
   @Override
   public String toString() {
-    return VIEW_NAME; 
+    return VIEW_NAME;
   };
 
 
@@ -96,10 +111,17 @@ class VimishOptionsController implements IPreferencesController {
    */
   @Override
   public void persist() {
+
+    // Get table data
+    VimishTableModel tableModel = (VimishTableModel) panel.keyMappingsTable.getModel();
+    Map<String, String> keyMappingsHash = tableModel.getKeyMappingsHash();
     ConfigurationData newData = new ConfigurationData();
     newData.moveCursorBack = panel.moveCursorBackCheckBox.isSelected();
-    Log.log("Data to be persisted: moveCursorBack: " + newData.moveCursorBack);
+    newData.keyMappings = keyMappingsHash;
     configuration.writeToFile(newData);
+
+    // Flag key equivalency (chord, mapping, abbreviation) changes
+    configuration.flagKeyEquivalenciesAsChanged();
   };
 
   /**

@@ -23,20 +23,24 @@ class Configuration {
   private ObjectMapper objectMapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
   private static Configuration instance;
   private ConfigurationData configurationData;
+  private boolean keyEquivalenciesChanged = false;
 
   String DESERIALIZATION_ERROR_MESSAGE =
-    "Your configuration file (" + configurationFile.getPath() + ") " + 
+    "Your configuration file (" + configurationFile.getPath() + ") " +
     "appears to be corrupted. Default configuration will be loaded.";
 
   String LOAD_ERROR_MESSAGE =
-    "Your configuration file (" + configurationFile.getPath() + ") " + 
+    "Your configuration file (" + configurationFile.getPath() + ") " +
     "could not be loaded. Default configuration will be used.";
 
   boolean DEFAULT_MOVE_CURSOR_BACK = true;
   Map<String, String> DEFAULT_KEY_MAPPINGS = new HashMap<String, String>();
+  {
+    DEFAULT_KEY_MAPPINGS.put("", "");
+  }
   Map<String, String> DEFAULT_KEY_CHORDS = new HashMap<String, String>();
   Map<String, String> DEFAULT_ABBREVIATIONS = new HashMap<String, String>();
-                                  
+
   private Configuration() {
     readFromFile();
   }
@@ -46,21 +50,42 @@ class Configuration {
       instance = new Configuration();
     }
     return instance;
-  } 
+  }
 
   void refresh() {
     readFromFile();
   }
 
+  public void flagKeyEquivalenciesAsChanged() {
+    keyEquivalenciesChanged = true;
+  }
+
+  public void flagKeyEquivalenciesAsNotified() {
+    keyEquivalenciesChanged = false;
+  }
+
+  public boolean wereKeyEquivalenciesChanged() {
+    return keyEquivalenciesChanged;
+  }
+
   boolean getConfigMoveCursorBack() {
     return configurationData.moveCursorBack;
-  } 
+  }
+
+  Map<String, String> getConfigKeyMappingsHash() {
+    Map<String, String> keyMappingsHash = configurationData.keyMappings;
+    if (keyMappingsHash == null) {
+      keyMappingsHash = DEFAULT_KEY_MAPPINGS;
+    }
+
+    return keyMappingsHash;
+  }
 
   void readFromFile() {
     Log.log("Reading configuration from file");
     if (configurationFile.exists()) {
       try {
-        configurationData = objectMapper.readValue(configurationFile, ConfigurationData.class); 
+        configurationData = objectMapper.readValue(configurationFile, ConfigurationData.class);
       } catch(JsonMappingException | JsonParseException jpe) {
         Log.log("Unable to deserialize Json configuration file: " + jpe);
         JOptionPane.showMessageDialog(null, DESERIALIZATION_ERROR_MESSAGE);

@@ -12,8 +12,19 @@ class KeyConductor {
   private KeySequence keySequence = new KeySequence(actions);
   private KeyMappingProcessor keyMappingProcessor = new KeyMappingProcessor(this);
   private KeyChordProcessor keyChordProcessor = new KeyChordProcessor(this);
+  private Configuration configuration;
+
+  KeyConductor() {
+    configuration = Configuration.getConfiguration();
+  }
 
   void process(String keyString) {
+    if (configuration.wereKeyEquivalenciesChanged()) {
+      configuration.flagKeyEquivalenciesAsNotified();
+      keyMappingProcessor.refreshKeyMappingsHash();
+      // TODO: refresh data in abbreviation and chord controllers
+    }
+
     keyChordProcessor.process(keyString);
   }
 
