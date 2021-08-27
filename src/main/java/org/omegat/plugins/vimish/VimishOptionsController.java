@@ -4,6 +4,7 @@ import org.omegat.gui.preferences.IPreferencesController;
 import org.omegat.util.Log;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import javax.swing.table.TableModel;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -15,6 +16,7 @@ class VimishOptionsController implements IPreferencesController {
   private Configuration configuration = Configuration.getConfiguration();
 
   private final String VIEW_NAME = "Vimish";
+  private final int MAX_ROW_COUNT = 4;
 
   /**
    * An interface used by observers interested in knowing when a preference has
@@ -50,6 +52,13 @@ class VimishOptionsController implements IPreferencesController {
     List<String[]> keyValuePairs = getKeyValuePairs(keyMappingsHash);
     TableModel tableModel = new VimishTableModel(keyValuePairs);
     panel.keyMappingsTable.setModel(tableModel);
+
+    panel.keyMappingsTable.getColumnModel().getColumn(0).setPreferredWidth(200);
+    panel.keyMappingsTable.getColumnModel().getColumn(1).setPreferredWidth(100);
+
+    Dimension tableSize = panel.keyMappingsTable.getPreferredSize();
+    panel.keyMappingsTable.setPreferredScrollableViewportSize(
+        new Dimension(tableSize.width, panel.keyMappingsTable.getRowHeight() * MAX_ROW_COUNT));
   }
 
   private List<String[]> getKeyValuePairs(Map<String, String> keyMappingsHash) {
