@@ -35,9 +35,6 @@ class Configuration {
 
   boolean DEFAULT_MOVE_CURSOR_BACK = true;
   Map<String, String> DEFAULT_KEY_MAPPINGS = new HashMap<String, String>();
-  {
-    DEFAULT_KEY_MAPPINGS.put("", "");
-  }
   Map<String, String> DEFAULT_KEY_CHORDS = new HashMap<String, String>();
   Map<String, String> DEFAULT_ABBREVIATIONS = new HashMap<String, String>();
 

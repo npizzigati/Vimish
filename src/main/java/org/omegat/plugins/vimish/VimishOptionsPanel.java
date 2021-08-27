@@ -3,6 +3,7 @@ package org.omegat.plugins.vimish;
 import org.omegat.util.Log;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import javax.swing.JTable;
@@ -11,12 +12,15 @@ import javax.swing.SwingConstants;
 import javax.swing.JScrollPane;
 import javax.swing.JCheckBox;
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.border.TitledBorder;
 
 @SuppressWarnings("serial")
 class VimishOptionsPanel extends JPanel {
   JCheckBox moveCursorBackCheckBox;
   JTable keyMappingsTable;
+  JButton keyMappingsAddButton;
+  JButton keyMappingsRemoveButton;
 
   // Headers for key mappings table
   String[] columns = { "Key Sequence", "Mapped To" };
@@ -31,6 +35,7 @@ class VimishOptionsPanel extends JPanel {
   private void initComponents() {
     JPanel generalOptionsPanel = new JPanel();
     JPanel keyMappingsPanel = new JPanel();
+    JPanel keyMappingsButtonBox = new JPanel();
     JPanel abbreviationsPanel = new JPanel();
     JPanel keyChordsPanel = new JPanel();
 
@@ -44,9 +49,21 @@ class VimishOptionsPanel extends JPanel {
     generalOptionsPanel.setBorder(generalOptionsTitle);
     add(generalOptionsPanel, BorderLayout.NORTH);
 
+    // Key mappings table and buttons
     keyMappingsTable = new JTable();
-    keyMappingsPanel.add(new JScrollPane(keyMappingsTable));
     keyMappingsPanel.setBorder(keyMappingsTitle);
+    keyMappingsPanel.setLayout(new BorderLayout());
+    keyMappingsPanel.add(new JScrollPane(keyMappingsTable), BorderLayout.CENTER);
+
+    keyMappingsAddButton = new JButton("Add");
+    keyMappingsAddButton.setPreferredSize(new Dimension(100, 30));
+    keyMappingsRemoveButton = new JButton("Remove");
+    keyMappingsRemoveButton.setPreferredSize(new Dimension(100, 30));
+    keyMappingsButtonBox.setPreferredSize(new Dimension(110, 30));
+    keyMappingsButtonBox.add(keyMappingsAddButton);
+    keyMappingsButtonBox.add(keyMappingsRemoveButton);
+    keyMappingsPanel.add(keyMappingsButtonBox, BorderLayout.EAST);
+
     add(keyMappingsPanel, BorderLayout.CENTER);
   }
 }

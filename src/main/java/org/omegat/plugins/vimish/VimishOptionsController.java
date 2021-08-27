@@ -50,15 +50,23 @@ class VimishOptionsController implements IPreferencesController {
     panel.moveCursorBackCheckBox.setSelected(moveCursorBack);
 
     List<String[]> keyValuePairs = getKeyValuePairs(keyMappingsHash);
-    TableModel tableModel = new VimishTableModel(keyValuePairs);
+    VimishTableModel tableModel = new VimishTableModel(keyValuePairs);
     panel.keyMappingsTable.setModel(tableModel);
 
-    panel.keyMappingsTable.getColumnModel().getColumn(0).setPreferredWidth(200);
-    panel.keyMappingsTable.getColumnModel().getColumn(1).setPreferredWidth(100);
+    panel.keyMappingsTable.getColumnModel().getColumn(0).setPreferredWidth(150);
+    panel.keyMappingsTable.getColumnModel().getColumn(1).setPreferredWidth(150);
 
     Dimension tableSize = panel.keyMappingsTable.getPreferredSize();
     panel.keyMappingsTable.setPreferredScrollableViewportSize(
         new Dimension(tableSize.width, panel.keyMappingsTable.getRowHeight() * MAX_ROW_COUNT));
+
+    panel.keyMappingsAddButton.addActionListener(e -> {
+      tableModel.addRow();
+      panel.keyMappingsTable.changeSelection(panel.keyMappingsTable.getRowCount() - 1, 0, false, false);
+      panel.keyMappingsTable.changeSelection(panel.keyMappingsTable.getRowCount() - 1,
+                                             panel.keyMappingsTable.getColumnCount() - 1, false, true);
+    });
+
   }
 
   private List<String[]> getKeyValuePairs(Map<String, String> keyMappingsHash) {

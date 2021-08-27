@@ -45,6 +45,14 @@ public class VimishTableModel extends AbstractTableModel {
       return 2;
   }
 
+  /** Adds a new empty mapping.*/
+  public int addRow() {
+    int rows = keyValuePairs.size();
+    keyValuePairs.add(new String[] {"", ""});
+    fireTableRowsInserted(rows, rows);
+    return rows;
+  }
+
   public String getColumnName(int column) {
     switch (column) {
       case 0:
