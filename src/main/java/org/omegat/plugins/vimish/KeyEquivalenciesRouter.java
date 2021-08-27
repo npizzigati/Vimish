@@ -11,7 +11,7 @@ class KeyEquivalenciesRouter {
   private Actions actions = new Actions(editor);
   private KeySequence keySequence = new KeySequence(actions);
   private KeyMappingController keyMappingController = new KeyMappingController(this);
-  private KeyChordProcessor keyChordProcessor = new KeyChordProcessor(this);
+  private KeyChordController keyChordController = new KeyChordController(this);
   private Configuration configuration;
 
   KeyEquivalenciesRouter() {
@@ -25,7 +25,7 @@ class KeyEquivalenciesRouter {
       // TODO: refresh data in abbreviation and chord controllers
     }
 
-    keyChordProcessor.process(keyString);
+    keyChordController.process(keyString);
   }
 
   void sendToKeyMapper(String keyString) {

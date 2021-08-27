@@ -51,7 +51,7 @@ class Dispatcher {
 
         String keyString = determineKeyString(event);
 
-        // keyChordProcessor.process(keyString);
+        // keyChordController.process(keyString);
         keyEquivalenciesRouter.process(keyString);
 
         // consume key event

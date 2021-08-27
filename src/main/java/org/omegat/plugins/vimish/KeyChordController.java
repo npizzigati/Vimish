@@ -9,13 +9,13 @@ import java.util.ArrayList;
 
 import org.omegat.util.Log;
 
-class KeyChordProcessor {
+class KeyChordController {
   private List<String> keyChordUnderway = new ArrayList<String>();
   private HashMap<String, String> keyChordsHash;
   private Timer timer;
   private KeyEquivalenciesRouter keyEquivalenciesRouter;
 
-  KeyChordProcessor(KeyEquivalenciesRouter keyEquivalenciesRouter) {
+  KeyChordController(KeyEquivalenciesRouter keyEquivalenciesRouter) {
     this.keyEquivalenciesRouter = keyEquivalenciesRouter;
     this.keyChordsHash = getKeyChordsHash();
   }
