@@ -14,6 +14,7 @@ import java.util.List;
 class VimishOptionsController implements IPreferencesController {
   private VimishOptionsPanel panel;
   private Configuration configuration = Configuration.getConfiguration();
+  VimishTableModel tableModel;
 
   private final String VIEW_NAME = "Vimish";
   private final int MAX_ROW_COUNT = 4;
@@ -50,7 +51,7 @@ class VimishOptionsController implements IPreferencesController {
     panel.moveCursorBackCheckBox.setSelected(moveCursorBack);
 
     List<String[]> keyValuePairs = getKeyValuePairs(keyMappingsHash);
-    VimishTableModel tableModel = new VimishTableModel(keyValuePairs);
+    tableModel = new VimishTableModel(keyValuePairs);
     panel.keyMappingsTable.setModel(tableModel);
 
     panel.keyMappingsTable.getColumnModel().getColumn(0).setPreferredWidth(150);
@@ -130,7 +131,7 @@ class VimishOptionsController implements IPreferencesController {
   public void persist() {
 
     // Get table data
-    VimishTableModel tableModel = (VimishTableModel) panel.keyMappingsTable.getModel();
+    // VimishTableModel tableModel = (VimishTableModel) panel.keyMappingsTable.getModel();
     Map<String, String> keyMappingsHash = tableModel.getKeyMappingsHash();
     ConfigurationData newData = new ConfigurationData();
     newData.moveCursorBack = panel.moveCursorBackCheckBox.isSelected();
