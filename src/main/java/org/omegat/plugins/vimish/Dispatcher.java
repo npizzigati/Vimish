@@ -8,10 +8,10 @@ import org.omegat.gui.editor.EditorTextArea3;
 import org.omegat.util.Log;
 
 class Dispatcher {
-  private KeyConductor keyConductor;
+  private KeyEquivalenciesRouter keyEquivalenciesRouter;
 
   Dispatcher() {
-    keyConductor = new KeyConductor();
+    keyEquivalenciesRouter = new KeyEquivalenciesRouter();
   }
 
   void installKeyEventDispatcher() {
@@ -52,7 +52,7 @@ class Dispatcher {
         String keyString = determineKeyString(event);
 
         // keyChordProcessor.process(keyString);
-        keyConductor.process(keyString);
+        keyEquivalenciesRouter.process(keyString);
 
         // consume key event
         return true;
@@ -86,10 +86,9 @@ class Dispatcher {
     }
 
     return keyString;
-  } 
+  }
 
   private boolean isOutsideMainEditingArea(KeyEvent event) {
     return !(event.getComponent().getClass() == EditorTextArea3.class);
   }
 }
-

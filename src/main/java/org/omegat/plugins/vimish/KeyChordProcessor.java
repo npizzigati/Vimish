@@ -13,10 +13,10 @@ class KeyChordProcessor {
   private List<String> keyChordUnderway = new ArrayList<String>();
   private HashMap<String, String> keyChordsHash;
   private Timer timer;
-  private KeyConductor keyConductor;
+  private KeyEquivalenciesRouter keyEquivalenciesRouter;
 
-  KeyChordProcessor(KeyConductor keyConductor) {
-    this.keyConductor = keyConductor; 
+  KeyChordProcessor(KeyEquivalenciesRouter keyEquivalenciesRouter) {
+    this.keyEquivalenciesRouter = keyEquivalenciesRouter;
     this.keyChordsHash = getKeyChordsHash();
   }
 
@@ -33,13 +33,13 @@ class KeyChordProcessor {
       // of the same characters
       if (keyChordMatch == null || keyChordUnderway.get(0) == keyChordUnderway.get(1)) {
         timer.stop();
-        keyConductor.sendMultipleKeysToKeyMapper(keyChordUnderway);
+        keyEquivalenciesRouter.sendMultipleKeysToKeyMapper(keyChordUnderway);
         reset();
       } else {
         timer.stop();
         String keyChordTranslation = keyChordsHash.get(keyChordMatch);
         String result = keyChordTranslation;
-        keyConductor.applyAsKeySequence(result);
+        keyEquivalenciesRouter.applyAsKeySequence(result);
         reset();
       }
     } else {
@@ -52,7 +52,7 @@ class KeyChordProcessor {
             String result = keyChordUnderway.get(0);
             // Result in this case will be a single key
             // since we're limited our total key chord size to 2
-            keyConductor.sendToKeyMapper(result);
+            keyEquivalenciesRouter.sendToKeyMapper(result);
             reset();
           }
         };
@@ -63,7 +63,7 @@ class KeyChordProcessor {
         timer.start();
       } else {
         String result = keyChordUnderway.get(0);
-        keyConductor.sendToKeyMapper(result);
+        keyEquivalenciesRouter.sendToKeyMapper(result);
         reset();
       }
     }
@@ -83,7 +83,7 @@ class KeyChordProcessor {
     String keysEnteredReverseString = keyChordUnderway.get(1) + keyChordUnderway.get(0);
     if (keysEnteredString.equals(keyChord) || keysEnteredReverseString.equals(keyChord)) {
       return true;
-    } 
+    }
     return false;
   }
 

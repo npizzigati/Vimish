@@ -8,16 +8,16 @@ import java.util.ArrayList;
 
 import org.omegat.util.Log;
 
-class KeyMappingProcessor {
+class KeyMappingController {
   private List<String> keyMappingUnderway = new ArrayList<String>();
   private Map<String, String> keyMappingsHash;
   private Timer timer;
-  private KeyConductor keyConductor;
+  private KeyEquivalenciesRouter keyEquivalenciesRouter;
   private Boolean isFirstKey = true;
   private Configuration configuration = Configuration.getConfiguration();
 
-  KeyMappingProcessor(KeyConductor keyConductor) {
-    this.keyConductor = keyConductor;
+  KeyMappingController(KeyEquivalenciesRouter keyEquivalenciesRouter) {
+    this.keyEquivalenciesRouter = keyEquivalenciesRouter;
     keyMappingsHash = getKeyMappingsHash();
   }
 
@@ -34,7 +34,7 @@ class KeyMappingProcessor {
         String longestMatch = getLongestMatch();
         String matchValue = keyMappingsHash.get(longestMatch);
         if (matchValue != null) {
-          keyConductor.applyAsKeySequence(matchValue);
+          keyEquivalenciesRouter.applyAsKeySequence(matchValue);
           List<String> remainder = getRemainder(longestMatch);
           reset();
 
@@ -44,7 +44,7 @@ class KeyMappingProcessor {
 
         } else {
           // If there is no match, send all keys in keyMappingUnderway
-          keyConductor.applyAsKeySequence(String.join("", keyMappingUnderway));
+          keyEquivalenciesRouter.applyAsKeySequence(String.join("", keyMappingUnderway));
           reset();
         }
       }
@@ -109,7 +109,7 @@ class KeyMappingProcessor {
       // If there are no possible candidates in preceding keys
       // (because there has only been one key pressed)
       if (keyMappingUnderway.size() == 1) {
-        keyConductor.applyAsKeySequence(String.join("", keyMappingUnderway));
+        keyEquivalenciesRouter.applyAsKeySequence(String.join("", keyMappingUnderway));
         reset();
       } else {
         // If there are possible candidates in preceding keys,
@@ -117,7 +117,7 @@ class KeyMappingProcessor {
         String longestMatch = getLongestMatch();
         if (longestMatch != null) {
           String matchValue = keyMappingsHash.get(longestMatch);
-          keyConductor.applyAsKeySequence(matchValue);
+          keyEquivalenciesRouter.applyAsKeySequence(matchValue);
           List<String> remainder = getRemainder(longestMatch);
           reset();
           // Send the rest of the keys after the match for
@@ -125,7 +125,7 @@ class KeyMappingProcessor {
           processMultipleKeys(remainder);
         } else {
           // If there is no match, send all keys in keyMappingUnderway
-          keyConductor.applyAsKeySequence(String.join("", keyMappingUnderway));
+          keyEquivalenciesRouter.applyAsKeySequence(String.join("", keyMappingUnderway));
           reset();
         }
       }
@@ -136,7 +136,7 @@ class KeyMappingProcessor {
       String candidate = String.join("", keyMappingUnderway);
       String mapValue = keyMappingsHash.get(candidate);
       if (mapValue != null) {
-        keyConductor.applyAsKeySequence(mapValue);
+        keyEquivalenciesRouter.applyAsKeySequence(mapValue);
         reset();
       }
     }

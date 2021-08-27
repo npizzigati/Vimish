@@ -6,22 +6,22 @@ import org.omegat.util.Log;
 
 import java.util.List;
 
-class KeyConductor {
+class KeyEquivalenciesRouter {
   private EditorController editor = (EditorController) Core.getEditor();
   private Actions actions = new Actions(editor);
   private KeySequence keySequence = new KeySequence(actions);
-  private KeyMappingProcessor keyMappingProcessor = new KeyMappingProcessor(this);
+  private KeyMappingController keyMappingController = new KeyMappingController(this);
   private KeyChordProcessor keyChordProcessor = new KeyChordProcessor(this);
   private Configuration configuration;
 
-  KeyConductor() {
+  KeyEquivalenciesRouter() {
     configuration = Configuration.getConfiguration();
   }
 
   void process(String keyString) {
     if (configuration.wereKeyEquivalenciesChanged()) {
       configuration.flagKeyEquivalenciesAsNotified();
-      keyMappingProcessor.refreshKeyMappingsHash();
+      keyMappingController.refreshKeyMappingsHash();
       // TODO: refresh data in abbreviation and chord controllers
     }
 
@@ -29,7 +29,7 @@ class KeyConductor {
   }
 
   void sendToKeyMapper(String keyString) {
-    keyMappingProcessor.process(keyString);
+    keyMappingController.process(keyString);
   }
 
   void applyAsKeySequence(String keyString) {
@@ -37,6 +37,6 @@ class KeyConductor {
   }
 
   void sendMultipleKeysToKeyMapper(List<String> keyList) {
-    keyMappingProcessor.processMultipleKeys(keyList);
+    keyMappingController.processMultipleKeys(keyList);
   }
 }
