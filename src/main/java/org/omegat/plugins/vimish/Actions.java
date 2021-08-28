@@ -2,11 +2,7 @@ package org.omegat.plugins.vimish;
 
 import org.omegat.gui.editor.EditorController;
 import org.omegat.gui.editor.IEditor.CaretPosition;
-import org.omegat.core.Core;
 import org.omegat.util.Log;
-
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
 
 import java.awt.Container;
 
