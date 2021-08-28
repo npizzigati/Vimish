@@ -21,70 +21,6 @@ class KeyMappingController {
     keyMappingsHash = getKeyMappingsHash();
   }
 
-  void refreshKeyMappingsHash() {
-    keyMappingsHash = getKeyMappingsHash();
-  }
-
-  private ActionListener createTaskPerformer() {
-    ActionListener taskPerformer = new ActionListener() {
-      public void actionPerformed(ActionEvent _event) {
-
-        // Upon timeout, pick the longest candidate that also
-        // matches keyMappingUnderway and send for evaluation
-        String longestMatch = getLongestMatch();
-        String matchValue = keyMappingsHash.get(longestMatch);
-        if (matchValue != null) {
-          keyEquivalenciesRouter.applyAsKeySequence(matchValue);
-          List<String> remainder = getRemainder(longestMatch);
-          reset();
-
-          // Send the rest of the keys after the match for
-          // reprocessing
-          processMultipleKeys(remainder);
-
-        } else {
-          // If there is no match, send all keys in keyMappingUnderway
-          keyEquivalenciesRouter.applyAsKeySequence(String.join("", keyMappingUnderway));
-          reset();
-        }
-      }
-    };
-
-    return taskPerformer;
-  }
-
-  private String getLongestMatch() {
-    String longestMatch = null;
-    List<String> candidates = new ArrayList<String>(keyMappingsHash.keySet());
-    candidates.sort((a, b) -> Integer.compare(b.length(), a.length()));
-
-    String keyMappingUnderwayString = String.join("", keyMappingUnderway);
-    for (String candidate : candidates) {
-      if (keyMappingUnderwayString.startsWith(candidate)) {
-        longestMatch = candidate;
-      }
-    }
-
-    return longestMatch;
-  }
-
-  void timerFirstStart() {
-    ActionListener taskPerformer = createTaskPerformer();
-
-    int maxDelayInMilliseconds = 1000;
-    timer = new Timer(maxDelayInMilliseconds, taskPerformer);
-    timer.setRepeats(false);
-    timer.start();
-  }
-
-  void reset() {
-    if (timer.isRunning()) {
-      timer.stop();
-    }
-
-    keyMappingUnderway.clear();
-    isFirstKey = true;
-  }
 
   void processMultipleKeys(List<String> keyList) {
     // Send keys to be processed one at a time, since #process
@@ -170,5 +106,70 @@ class KeyMappingController {
 
   Map<String, String> getKeyMappingsHash() {
     return configuration.getConfigKeyMappingsHash();
+  }
+
+  void refreshKeyMappingsHash() {
+    keyMappingsHash = getKeyMappingsHash();
+  }
+
+  private ActionListener createTaskPerformer() {
+    ActionListener taskPerformer = new ActionListener() {
+      public void actionPerformed(ActionEvent _event) {
+
+        // Upon timeout, pick the longest candidate that also
+        // matches keyMappingUnderway and send for evaluation
+        String longestMatch = getLongestMatch();
+        String matchValue = keyMappingsHash.get(longestMatch);
+        if (matchValue != null) {
+          keyEquivalenciesRouter.applyAsKeySequence(matchValue);
+          List<String> remainder = getRemainder(longestMatch);
+          reset();
+
+          // Send the rest of the keys after the match for
+          // reprocessing
+          processMultipleKeys(remainder);
+
+        } else {
+          // If there is no match, send all keys in keyMappingUnderway
+          keyEquivalenciesRouter.applyAsKeySequence(String.join("", keyMappingUnderway));
+          reset();
+        }
+      }
+    };
+
+    return taskPerformer;
+  }
+
+  private String getLongestMatch() {
+    String longestMatch = null;
+    List<String> candidates = new ArrayList<String>(keyMappingsHash.keySet());
+    candidates.sort((a, b) -> Integer.compare(b.length(), a.length()));
+
+    String keyMappingUnderwayString = String.join("", keyMappingUnderway);
+    for (String candidate : candidates) {
+      if (keyMappingUnderwayString.startsWith(candidate)) {
+        longestMatch = candidate;
+      }
+    }
+
+    return longestMatch;
+  }
+
+  void timerFirstStart() {
+    ActionListener taskPerformer = createTaskPerformer();
+
+    int maxDelayInMilliseconds = 1000;
+    timer = new Timer(maxDelayInMilliseconds, taskPerformer);
+    timer.setRepeats(false);
+    timer.start();
+  }
+
+  void reset() {
+    if (timer.isRunning()) {
+      timer.stop();
+    }
+
+    keyMappingUnderway.clear();
+    isFirstKey = true;
   }
 }
