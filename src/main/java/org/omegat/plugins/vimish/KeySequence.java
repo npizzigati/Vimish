@@ -147,9 +147,8 @@ class KeySequence {
       String remainder = match.group(2);
       switch (key) {
         case "<ESC>":
-          Log.log("Escape evaluated");
           Mode.NORMAL.activate();
-          if (configuration.getConfigMoveCursorBack()) {
+          if (configuration.getConfigMoveCursorBack() || actions.isCaretPastLastIndex()) {
             actions.normalModeBackwardChar(1);
           }
           break;

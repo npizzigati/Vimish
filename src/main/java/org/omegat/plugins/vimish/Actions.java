@@ -261,6 +261,13 @@ class Actions {
     editor.insertText(text);
   }
 
+  boolean isCaretPastLastIndex() {
+    int currentIndex = getCaretIndex();
+    int length = editor.getCurrentTranslation().length();
+
+    return currentIndex == length;
+  }
+
   /**
    * Set caret position through OmegaT API
    */
