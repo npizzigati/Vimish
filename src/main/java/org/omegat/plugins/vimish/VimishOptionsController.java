@@ -68,6 +68,10 @@ class VimishOptionsController implements IPreferencesController {
                                              panel.keyMappingsTable.getColumnCount() - 1, false, true);
     });
 
+    panel.keyMappingsRemoveButton.addActionListener(e -> {
+      tableModel.removeRow(panel.keyMappingsTable.getSelectedRow());
+    });
+
   }
 
   private List<String[]> getKeyValuePairs(Map<String, String> keyMappingsHash) {

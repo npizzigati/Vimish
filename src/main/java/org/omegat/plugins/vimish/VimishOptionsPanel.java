@@ -56,10 +56,10 @@ class VimishOptionsPanel extends JPanel {
     keyMappingsPanel.add(new JScrollPane(keyMappingsTable), BorderLayout.CENTER);
 
     keyMappingsAddButton = new JButton("Add");
-    keyMappingsAddButton.setPreferredSize(new Dimension(100, 30));
+    keyMappingsAddButton.setPreferredSize(new Dimension(100, 25));
     keyMappingsRemoveButton = new JButton("Remove");
-    keyMappingsRemoveButton.setPreferredSize(new Dimension(100, 30));
-    keyMappingsButtonBox.setPreferredSize(new Dimension(110, 30));
+    keyMappingsRemoveButton.setPreferredSize(new Dimension(100, 25));
+    keyMappingsButtonBox.setPreferredSize(new Dimension(110, 50));
     keyMappingsButtonBox.add(keyMappingsAddButton);
     keyMappingsButtonBox.add(keyMappingsRemoveButton);
     keyMappingsPanel.add(keyMappingsButtonBox, BorderLayout.EAST);

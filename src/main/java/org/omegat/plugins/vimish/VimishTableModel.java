@@ -53,6 +53,12 @@ public class VimishTableModel extends AbstractTableModel {
     return rows;
   }
 
+  /** Removes a mapping. */
+  public void removeRow(int row) {
+    keyValuePairs.remove(row);
+    fireTableRowsDeleted(row, row);
+  }
+
   public String getColumnName(int column) {
     switch (column) {
       case 0:
