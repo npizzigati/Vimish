@@ -231,7 +231,7 @@ class KeySequence {
       match.find();
       String remainder = match.group(1);
 
-      actions.normalModeForwardChar("", 1);
+      actions.normalModeAppendAfterCursor();
       Mode.INSERT.activate();
       sequence = remainder;
     }

@@ -122,7 +122,7 @@ class Actions {
     if (currentIndex == length - 1) {
       return;
     }
-    
+
     int newIndex = (length - currentIndex >= count) ? currentIndex + count : length - 1;
 
     // If no mark yet
@@ -168,6 +168,11 @@ class Actions {
       insertTextAtIndex(text, index + 1);
     }
     normalModeBackwardChar(1);
+  }
+
+  void normalModeAppendAfterCursor() {
+    int currentIndex = getCaretIndex();
+    setCaretIndex(currentIndex + 1);
   }
 
   void normalModeForwardChar(String operator, int count) {
