@@ -29,6 +29,11 @@ public class VimishTableModel extends AbstractTableModel {
     return this;
   }
 
+  public void refreshWith(List<String[]> keyValuePairs) {
+    this.keyValuePairs = keyValuePairs;
+    fireTableDataChanged();
+  }
+
   public Map<String, String> getKeyMappingsHash() {
     Map<String, String> keyMappingsHash = new LinkedHashMap<String, String>();
     keyValuePairs.forEach(array -> {

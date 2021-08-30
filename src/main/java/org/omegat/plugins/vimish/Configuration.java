@@ -34,7 +34,7 @@ class Configuration {
     "could not be loaded. Default configuration will be used.";
 
   boolean DEFAULT_MOVE_CURSOR_BACK = true;
-  Map<String, String> DEFAULT_KEY_MAPPINGS = new HashMap<String, String>();
+  KeyMappings DEFAULT_KEY_MAPPINGS = new KeyMappings();
   Map<String, String> DEFAULT_KEY_CHORDS = new HashMap<String, String>();
   Map<String, String> DEFAULT_ABBREVIATIONS = new HashMap<String, String>();
 
@@ -69,13 +69,13 @@ class Configuration {
     return configurationData.moveCursorBack;
   }
 
-  Map<String, String> getConfigKeyMappingsHash() {
-    Map<String, String> keyMappingsHash = configurationData.keyMappings;
-    if (keyMappingsHash == null) {
-      keyMappingsHash = DEFAULT_KEY_MAPPINGS;
+  KeyMappings getKeyMappings() {
+    KeyMappings keyMappings = configurationData.keyMappings;
+    if (keyMappings == null) {
+      keyMappings = DEFAULT_KEY_MAPPINGS;
     }
 
-    return keyMappingsHash;
+    return keyMappings;
   }
 
   void readFromFile() {

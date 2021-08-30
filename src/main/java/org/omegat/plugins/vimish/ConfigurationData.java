@@ -1,6 +1,7 @@
 package org.omegat.plugins.vimish;
 
 import java.util.Map;
+import java.util.HashMap;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 // This annotation will prevent the Jackson unmarshaller
@@ -9,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 class ConfigurationData {
   public boolean moveCursorBack;
-  public Map<String, String> keyMappings;
+  public KeyMappings keyMappings;
   public Map<String, String> keyChords;
   public Map<String, String> abbreviations;
 }
