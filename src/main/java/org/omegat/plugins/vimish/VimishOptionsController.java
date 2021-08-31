@@ -161,12 +161,9 @@ class VimishOptionsController implements IPreferencesController {
   @Override
   public void persist() {
 
-    // Get table data
-    // VimishTableModel tableModel = (VimishTableModel) panel.keyMappingsTable.getModel();
     Map<String, String> keyMappingsHash = tableModel.getKeyMappingsHash();
     ConfigurationData newData = new ConfigurationData();
     newData.moveCursorBack = panel.moveCursorBackCheckBox.isSelected();
-    // newData.keyMappings = keyMappingsHash;
     KeyMappings tmpMappings = new KeyMappings();
     tmpMappings.normalModeKeyMappings = keyMappingsHash;
     newData.keyMappings = tmpMappings;
