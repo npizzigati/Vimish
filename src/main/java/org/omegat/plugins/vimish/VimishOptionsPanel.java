@@ -43,9 +43,6 @@ class VimishOptionsPanel extends JPanel {
     JPanel generalOptionsPanel = new JPanel();
 
     TitledBorder generalOptionsTitle = BorderFactory.createTitledBorder("General Options");
-    TitledBorder keyMappingsTitle = BorderFactory.createTitledBorder("Key Mappings");
-    TitledBorder abbreviationsTitle = BorderFactory.createTitledBorder("Abbreviations");
-    TitledBorder keyChordsTitle = BorderFactory.createTitledBorder("Key Chords");
 
     moveCursorBackCheckBox = new JCheckBox("Move cursor back one position when exiting insert mode (Vim default)");
     generalOptionsPanel.add(moveCursorBackCheckBox);
@@ -62,6 +59,7 @@ class VimishOptionsPanel extends JPanel {
     JPanel keyMappingsModeSelectorBox = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
     keyMappingsTable = new JTable();
+    TitledBorder keyMappingsTitle = BorderFactory.createTitledBorder("Key Mappings");
     keyMappingsPanel.setBorder(keyMappingsTitle);
 
     String[] keyMappingsComboBoxOptions = { "Normal", "Visual", "Insert" };
@@ -90,6 +88,7 @@ class VimishOptionsPanel extends JPanel {
     JPanel keyChordsModeSelectorBox = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
     keyChordsTable = new JTable();
+    TitledBorder keyChordsTitle = BorderFactory.createTitledBorder("Key Chords");
     keyChordsPanel.setBorder(keyChordsTitle);
 
     String[] KeyChordsComboBoxOptions = { "Normal", "Visual", "Insert" };
