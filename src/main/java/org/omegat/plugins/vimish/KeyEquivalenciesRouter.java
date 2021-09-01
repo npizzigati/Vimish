@@ -19,7 +19,7 @@ class KeyEquivalenciesRouter {
   }
 
   void process(String keyString) {
-    if (configuration.wereKeyEquivalenciesChanged()) {
+    if (configuration.keyEquivalenciesNeedRefreshing()) {
       configuration.flagKeyEquivalenciesAsNotified();
       keyMappingController.refreshKeyMappingsHash();
       // TODO: refresh data in abbreviation and chord controllers

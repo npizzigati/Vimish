@@ -23,7 +23,7 @@ class Configuration {
   private ObjectMapper objectMapper = new ObjectMapper().enable(SerializationFeature.INDENT_OUTPUT);
   private static Configuration instance;
   private ConfigurationData configurationData;
-  private boolean keyEquivalenciesChanged = false;
+  private boolean keyEquivalenciesNeedRefreshing = false;
 
   String DESERIALIZATION_ERROR_MESSAGE =
     "Your configuration file (" + configurationFile.getPath() + ") " +
@@ -53,16 +53,16 @@ class Configuration {
     readFromFile();
   }
 
-  public void flagKeyEquivalenciesAsChanged() {
-    keyEquivalenciesChanged = true;
+  public void flagKeyEquivalenciesRefreshNeeded() {
+    keyEquivalenciesNeedRefreshing = true;
   }
 
   public void flagKeyEquivalenciesAsNotified() {
-    keyEquivalenciesChanged = false;
+    keyEquivalenciesNeedRefreshing = false;
   }
 
-  public boolean wereKeyEquivalenciesChanged() {
-    return keyEquivalenciesChanged;
+  public boolean keyEquivalenciesNeedRefreshing() {
+    return keyEquivalenciesNeedRefreshing;
   }
 
   boolean getConfigMoveCursorBack() {

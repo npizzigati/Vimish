@@ -20,7 +20,7 @@ class KeySequence {
     actionsCount += 1;
 
     // Count number of actions applied to prevent runaway
-    if (sequence.equals("") || actionsCount > 10) {
+    if (sequence.equals("") || actionsCount > 50) {
       actionsCount = 0;
       return;
     }
@@ -68,6 +68,7 @@ class KeySequence {
       String remainder = match.group(1);
 
       Mode.NORMAL.activate();
+      configuration.flagKeyEquivalenciesRefreshNeeded();
       actions.clearVisualMarks();
       sequence = remainder;
     } else if (sequence.matches("^\\d*v.*")) {
@@ -80,6 +81,7 @@ class KeySequence {
       String remainder = match.group(1);
 
       Mode.NORMAL.activate();
+      configuration.flagKeyEquivalenciesRefreshNeeded();
       actions.clearVisualMarks();
       sequence = remainder;
     } else if (sequence.matches("^[dx].*")) {
@@ -91,6 +93,7 @@ class KeySequence {
       actions.visualModeDelete();
       actions.clearVisualMarks();
       Mode.NORMAL.activate();
+      configuration.flagKeyEquivalenciesRefreshNeeded();
       sequence = remainder;
     } else if (sequence.matches("^c.*")) {
       Matcher match = Pattern.compile("^c(.*)")
@@ -101,6 +104,7 @@ class KeySequence {
       actions.visualModeDelete();
       actions.clearVisualMarks();
       Mode.INSERT.activate();
+      configuration.flagKeyEquivalenciesRefreshNeeded();
       sequence = remainder;
     } else if (sequence.matches("^y.*")) {
       Matcher match = Pattern.compile("^y(.*)")
@@ -111,6 +115,7 @@ class KeySequence {
       actions.visualModeYank();
       actions.clearVisualMarks();
       Mode.NORMAL.activate();
+      configuration.flagKeyEquivalenciesRefreshNeeded();
       sequence = remainder;
     } else if (sequence.matches("^\\d*[hl].*")) {
       // Handle h/l motions (character left and right)
@@ -148,6 +153,7 @@ class KeySequence {
       switch (key) {
         case "<ESC>":
           Mode.NORMAL.activate();
+          configuration.flagKeyEquivalenciesRefreshNeeded();
           if (configuration.getConfigMoveCursorBack() || actions.isCaretPastLastIndex()) {
             actions.normalModeBackwardChar(1);
           }
@@ -222,6 +228,7 @@ class KeySequence {
       String remainder = match.group(1);
 
       Mode.INSERT.activate();
+      configuration.flagKeyEquivalenciesRefreshNeeded();
       sequence = remainder;
     }
 
@@ -233,6 +240,7 @@ class KeySequence {
 
       actions.normalModeAppendAfterCursor();
       Mode.INSERT.activate();
+      configuration.flagKeyEquivalenciesRefreshNeeded();
       sequence = remainder;
     }
 
@@ -258,6 +266,7 @@ class KeySequence {
       String remainder = match.group(2);
 
       Mode.VISUAL.activate();
+      configuration.flagKeyEquivalenciesRefreshNeeded();
       if (count == 0) {
         actions.visualModeForwardChar(1);
         actions.visualModeBackwardChar(1);
@@ -320,6 +329,7 @@ class KeySequence {
       int totalCount = determineTotalCount(countString1, countString2);
 
       if (motion.equals("h")) {
+        Log.log("sending back to action with operator" + operator);
         actions.normalModeBackwardChar(operator, totalCount);
       } else if (motion.equals("l")) {
         actions.normalModeForwardChar(operator, totalCount);

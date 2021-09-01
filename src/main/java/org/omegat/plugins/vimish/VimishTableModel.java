@@ -20,9 +20,10 @@ public class VimishTableModel extends AbstractTableModel {
     return row[columnIndex];
   }
 
-  public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+  public void setValueAt(Object value, int rowIndex, int columnIndex) {
     String[] row = keyValuePairs.get(rowIndex);
-      row[columnIndex] = (String) aValue;
+    row[columnIndex] = (String) value;
+    fireTableDataChanged();
   }
 
   public Object getModel() {
@@ -58,7 +59,6 @@ public class VimishTableModel extends AbstractTableModel {
     return rows;
   }
 
-  /** Removes a mapping. */
   public void removeRow(int row) {
     keyValuePairs.remove(row);
     fireTableRowsDeleted(row, row);

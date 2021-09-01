@@ -7,6 +7,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import javax.swing.table.TableModel;
 import javax.swing.JComboBox;
+import javax.swing.JTable;
+
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -15,11 +17,11 @@ import java.util.List;
 class VimishOptionsController implements IPreferencesController {
   private VimishOptionsPanel panel;
   private Configuration configuration = Configuration.getConfiguration();
+  private KeyMappings keyMappings;
   VimishTableModel tableModel;
 
   private final String VIEW_NAME = "Vimish";
   private final int MAX_ROW_COUNT = 4;
-  private Map<String, String> keyMappingsHash;
 
   /**
    * An interface used by observers interested in knowing when a preference has
@@ -54,30 +56,54 @@ class VimishOptionsController implements IPreferencesController {
 
     // Start combo box at normal mode
     panel.modeSelector.setSelectedIndex(0);
+
     panel.modeSelector.addActionListener(event -> {
       @SuppressWarnings("unchecked")
       JComboBox<String> comboBox = (JComboBox<String>) event.getSource();
       String mode = (String) comboBox.getSelectedItem();
+      Map<String, String> keyMappingsHash = null;
       switch (mode) {
         case "Normal":
-          keyMappingsHash = configuration.getKeyMappings().normalModeKeyMappings;
+          // keyMappingsHash = configuration.getKeyMappings().normalModeKeyMappings;
+          keyMappingsHash = keyMappings.normalModeKeyMappings;
           break;
         case "Visual":
-          keyMappingsHash = configuration.getKeyMappings().visualModeKeyMappings;
+          keyMappingsHash = keyMappings.visualModeKeyMappings;
           break;
         case "Insert":
-          keyMappingsHash = configuration.getKeyMappings().insertModeKeyMappings;
+          keyMappingsHash = keyMappings.insertModeKeyMappings;
           break;
       }
-      tableModel.refreshWith(getKeyValuePairs());
+      tableModel.refreshWith(getKeyValuePairs(keyMappingsHash));
     });
 
-    // Default init setting
-    keyMappingsHash = configuration.getKeyMappings().normalModeKeyMappings;
+    keyMappings = configuration.getKeyMappings();
 
-    List<String[]> keyValuePairs = getKeyValuePairs();
+    // Initial table settings
+    List<String[]> keyValuePairs = getKeyValuePairs(keyMappings.normalModeKeyMappings);
     tableModel = new VimishTableModel(keyValuePairs);
     panel.keyMappingsTable.setModel(tableModel);
+
+    tableModel.addTableModelListener(event -> {
+        Map<String, String> keyMappingsHash = tableModel.getKeyMappingsHash();
+        String mode = (String) panel.modeSelector.getSelectedItem();
+        switch (mode) {
+          case "Normal":
+            keyMappings.normalModeKeyMappings = keyMappingsHash;
+            break;
+          case "Visual":
+            keyMappings.visualModeKeyMappings = keyMappingsHash;
+            break;
+          case "Insert":
+            keyMappings.insertModeKeyMappings = keyMappingsHash;
+            break;
+        }
+      Log.log("current visual: " + keyMappings.visualModeKeyMappings.toString());
+      });
+
+    // Init setting    Map<String, String> normalModeKeyMappingsHash =
+      // configuration.getKeyMappings().normalModeKeyMappings;
+
 
     panel.keyMappingsTable.getColumnModel().getColumn(0).setPreferredWidth(150);
     panel.keyMappingsTable.getColumnModel().getColumn(1).setPreferredWidth(150);
@@ -99,7 +125,7 @@ class VimishOptionsController implements IPreferencesController {
 
   }
 
-  private List<String[]> getKeyValuePairs() {
+  private List<String[]> getKeyValuePairs(Map<String, String> keyMappingsHash) {
     List<String[]> keyValuePairs = new LinkedList<String[]>();
 
     if (keyMappingsHash != null) {
@@ -160,17 +186,13 @@ class VimishOptionsController implements IPreferencesController {
    */
   @Override
   public void persist() {
-
-    Map<String, String> keyMappingsHash = tableModel.getKeyMappingsHash();
     ConfigurationData newData = new ConfigurationData();
+    newData.keyMappings = keyMappings;
     newData.moveCursorBack = panel.moveCursorBackCheckBox.isSelected();
-    KeyMappings tmpMappings = new KeyMappings();
-    tmpMappings.normalModeKeyMappings = keyMappingsHash;
-    newData.keyMappings = tmpMappings;
     configuration.writeToFile(newData);
 
     // Flag key equivalency (chord, mapping, abbreviation) changes
-    configuration.flagKeyEquivalenciesAsChanged();
+    configuration.flagKeyEquivalenciesRefreshNeeded();
   };
 
   /**
