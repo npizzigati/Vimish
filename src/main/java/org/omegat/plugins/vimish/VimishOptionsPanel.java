@@ -4,6 +4,7 @@ import org.omegat.util.Log;
 
 import java.awt.Dimension;
 import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.FlowLayout;
 import javax.swing.JPanel;
 import javax.swing.JTable;
@@ -18,15 +19,20 @@ import javax.swing.border.TitledBorder;
 @SuppressWarnings("serial")
 class VimishOptionsPanel extends JPanel {
   JCheckBox moveCursorBackCheckBox;
+  // key mappings
   JTable keyMappingsTable;
-  JComboBox<String> modeSelector;
+  JComboBox<String> keyMappingsModeSelector;
   JButton keyMappingsAddButton;
   JButton keyMappingsRemoveButton;
 
-  // Headers for key mappings table
-  String[] columns = { "Key Sequence", "Mapped To" };
-  String[][] data = { { "ab", "bc" },
-                      { "cd", "fg" } };
+  // Key chords
+  JTable keyChordsTable;
+  JComboBox<String> keyChordsModeSelector;
+  JButton keyChordsAddButton;
+  JButton keyChordsRemoveButton;
+
+  // Abbreviations
+  JTable abbreviationTable;
 
   VimishOptionsPanel() {
     setLayout(new BorderLayout());
@@ -35,11 +41,6 @@ class VimishOptionsPanel extends JPanel {
 
   private void initComponents() {
     JPanel generalOptionsPanel = new JPanel();
-    JPanel keyMappingsPanel = new JPanel(new BorderLayout());
-    JPanel keyMappingsButtonBox = new JPanel();
-    JPanel modeSelectorBox = new JPanel(new FlowLayout(FlowLayout.LEFT));
-    JPanel abbreviationsPanel = new JPanel(new BorderLayout());
-    JPanel keyChordsPanel = new JPanel(new BorderLayout());
 
     TitledBorder generalOptionsTitle = BorderFactory.createTitledBorder("General Options");
     TitledBorder keyMappingsTitle = BorderFactory.createTitledBorder("Key Mappings");
@@ -51,19 +52,25 @@ class VimishOptionsPanel extends JPanel {
     generalOptionsPanel.setBorder(generalOptionsTitle);
     add(generalOptionsPanel, BorderLayout.NORTH);
 
-    // Key mappings table and buttons
+    // Center panel to hold the tables
+    JPanel allTablesPanel = new JPanel(new GridLayout(0, 1));
+    add(allTablesPanel);
+
+    // Key mappings table, selector and buttons
+    JPanel keyMappingsPanel = new JPanel(new BorderLayout());
+    JPanel keyMappingsButtonBox = new JPanel();
+    JPanel keyMappingsModeSelectorBox = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
     keyMappingsTable = new JTable();
     keyMappingsPanel.setBorder(keyMappingsTitle);
-    // keyMappingsPanel.setLayout(new BorderLayout());
 
-    String[] comboBoxOptions = { "Normal", "Visual", "Insert" };
-    modeSelector = new JComboBox<>(comboBoxOptions);
-    JLabel modeSelectorLabel = new JLabel("Mode:");
+    String[] keyMappingsComboBoxOptions = { "Normal", "Visual", "Insert" };
+    keyMappingsModeSelector = new JComboBox<>(keyMappingsComboBoxOptions);
 
-    modeSelectorBox.add(modeSelectorLabel);
-    modeSelectorBox.add(modeSelector);
+    keyMappingsModeSelectorBox.add(new JLabel("Mode:"));
+    keyMappingsModeSelectorBox.add(keyMappingsModeSelector);
 
-    keyMappingsPanel.add(modeSelectorBox, BorderLayout.NORTH);
+    keyMappingsPanel.add(keyMappingsModeSelectorBox, BorderLayout.NORTH);
     keyMappingsPanel.add(new JScrollPane(keyMappingsTable), BorderLayout.CENTER);
 
     keyMappingsAddButton = new JButton("Add");
@@ -75,6 +82,34 @@ class VimishOptionsPanel extends JPanel {
     keyMappingsButtonBox.add(keyMappingsRemoveButton);
     keyMappingsPanel.add(keyMappingsButtonBox, BorderLayout.EAST);
 
-    add(keyMappingsPanel, BorderLayout.CENTER);
+    allTablesPanel.add(keyMappingsPanel);
+
+    // Key chords table, selector and buttons
+    JPanel keyChordsPanel = new JPanel(new BorderLayout());
+    JPanel keyChordsButtonBox = new JPanel();
+    JPanel keyChordsModeSelectorBox = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+    keyChordsTable = new JTable();
+    keyChordsPanel.setBorder(keyChordsTitle);
+
+    String[] KeyChordsComboBoxOptions = { "Normal", "Visual", "Insert" };
+    keyChordsModeSelector = new JComboBox<>(KeyChordsComboBoxOptions);
+
+    keyChordsModeSelectorBox.add(new JLabel("Mode:"));
+    keyChordsModeSelectorBox.add(keyChordsModeSelector);
+
+    keyChordsPanel.add(keyChordsModeSelectorBox, BorderLayout.NORTH);
+    keyChordsPanel.add(new JScrollPane(keyChordsTable), BorderLayout.CENTER);
+
+    keyChordsAddButton = new JButton("Add");
+    keyChordsAddButton.setPreferredSize(new Dimension(100, 25));
+    keyChordsRemoveButton = new JButton("Remove");
+    keyChordsRemoveButton.setPreferredSize(new Dimension(100, 25));
+    keyChordsButtonBox.setPreferredSize(new Dimension(110, 50));
+    keyChordsButtonBox.add(keyChordsAddButton);
+    keyChordsButtonBox.add(keyChordsRemoveButton);
+    keyChordsPanel.add(keyChordsButtonBox, BorderLayout.EAST);
+
+    allTablesPanel.add(keyChordsPanel);
   }
 }

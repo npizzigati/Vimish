@@ -5,11 +5,8 @@ import org.omegat.util.Log;
 
 import java.awt.Component;
 import java.awt.Dimension;
-import javax.swing.table.TableModel;
 import javax.swing.JComboBox;
-import javax.swing.JTable;
 
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.List;
@@ -18,7 +15,8 @@ class VimishOptionsController implements IPreferencesController {
   private VimishOptionsPanel panel;
   private Configuration configuration = Configuration.getConfiguration();
   private KeyMappings keyMappings;
-  VimishTableModel tableModel;
+  VimishTableModel keyMappingsTableModel;
+  VimishTableModel chordsTableModel;
 
   private final String VIEW_NAME = "Vimish";
   private final int MAX_ROW_COUNT = 4;
@@ -54,10 +52,11 @@ class VimishOptionsController implements IPreferencesController {
     boolean moveCursorBack = configuration.getConfigMoveCursorBack();
     panel.moveCursorBackCheckBox.setSelected(moveCursorBack);
 
-    // Start combo box at normal mode
-    panel.modeSelector.setSelectedIndex(0);
+    // Key Mappings
+    // Start mode selector combo box at normal mode
+    panel.keyMappingsModeSelector.setSelectedIndex(0);
 
-    panel.modeSelector.addActionListener(event -> {
+    panel.keyMappingsModeSelector.addActionListener(event -> {
       @SuppressWarnings("unchecked")
       JComboBox<String> comboBox = (JComboBox<String>) event.getSource();
       String mode = (String) comboBox.getSelectedItem();
@@ -74,19 +73,19 @@ class VimishOptionsController implements IPreferencesController {
           keyMappingsHash = keyMappings.insertModeKeyMappings;
           break;
       }
-      tableModel.refreshWith(getKeyValuePairs(keyMappingsHash));
+      keyMappingsTableModel.refreshWith(getKeyValuePairs(keyMappingsHash));
     });
 
     keyMappings = configuration.getKeyMappings();
 
     // Initial table settings
     List<String[]> keyValuePairs = getKeyValuePairs(keyMappings.normalModeKeyMappings);
-    tableModel = new VimishTableModel(keyValuePairs);
-    panel.keyMappingsTable.setModel(tableModel);
+    keyMappingsTableModel = new VimishTableModel(keyValuePairs);
+    panel.keyMappingsTable.setModel(keyMappingsTableModel);
 
-    tableModel.addTableModelListener(event -> {
-        Map<String, String> keyMappingsHash = tableModel.getKeyMappingsHash();
-        String mode = (String) panel.modeSelector.getSelectedItem();
+    keyMappingsTableModel.addTableModelListener(event -> {
+        Map<String, String> keyMappingsHash = keyMappingsTableModel.getKeyMappingsHash();
+        String mode = (String) panel.keyMappingsModeSelector.getSelectedItem();
         switch (mode) {
           case "Normal":
             keyMappings.normalModeKeyMappings = keyMappingsHash;
@@ -108,21 +107,25 @@ class VimishOptionsController implements IPreferencesController {
     panel.keyMappingsTable.getColumnModel().getColumn(0).setPreferredWidth(150);
     panel.keyMappingsTable.getColumnModel().getColumn(1).setPreferredWidth(150);
 
-    Dimension tableSize = panel.keyMappingsTable.getPreferredSize();
+    Dimension keyMappingsTableSize = panel.keyMappingsTable.getPreferredSize();
     panel.keyMappingsTable.setPreferredScrollableViewportSize(
-        new Dimension(tableSize.width, panel.keyMappingsTable.getRowHeight() * MAX_ROW_COUNT));
+        new Dimension(keyMappingsTableSize.width, panel.keyMappingsTable.getRowHeight() * MAX_ROW_COUNT));
 
     panel.keyMappingsAddButton.addActionListener(e -> {
-      tableModel.addRow();
+      keyMappingsTableModel.addRow();
       panel.keyMappingsTable.changeSelection(panel.keyMappingsTable.getRowCount() - 1, 0, false, false);
       panel.keyMappingsTable.changeSelection(panel.keyMappingsTable.getRowCount() - 1,
                                              panel.keyMappingsTable.getColumnCount() - 1, false, true);
     });
 
     panel.keyMappingsRemoveButton.addActionListener(e -> {
-      tableModel.removeRow(panel.keyMappingsTable.getSelectedRow());
+      keyMappingsTableModel.removeRow(panel.keyMappingsTable.getSelectedRow());
     });
 
+    // Key chords
+    Dimension keyChordsTableSize = panel.keyChordsTable.getPreferredSize();
+    panel.keyChordsTable.setPreferredScrollableViewportSize(
+        new Dimension(keyChordsTableSize.width, panel.keyChordsTable.getRowHeight() * MAX_ROW_COUNT));
   }
 
   private List<String[]> getKeyValuePairs(Map<String, String> keyMappingsHash) {
