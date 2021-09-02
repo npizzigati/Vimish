@@ -10,8 +10,8 @@ class KeyEquivalenciesRouter {
   private EditorController editor = (EditorController) Core.getEditor();
   private Actions actions = new Actions(editor);
   private KeySequence keySequence = new KeySequence(actions);
-  private KeyMappingController keyMappingController = new KeyMappingController(this);
-  private KeyChordController keyChordController = new KeyChordController(this);
+  private KeyMappingsController keyMappingsController = new KeyMappingsController(this);
+  private KeyChordsController keyChordsController = new KeyChordsController(this);
   private Configuration configuration;
 
   KeyEquivalenciesRouter() {
@@ -21,15 +21,16 @@ class KeyEquivalenciesRouter {
   void process(String keyString) {
     if (configuration.keyEquivalenciesNeedRefreshing()) {
       configuration.flagKeyEquivalenciesAsNotified();
-      keyMappingController.refreshKeyMappingsHash();
+      keyMappingsController.refreshKeyMappingsHash();
+      keyChordsController.refreshKeyChordsHash();
       // TODO: refresh data in abbreviation and chord controllers
     }
 
-    keyChordController.process(keyString);
+    keyChordsController.process(keyString);
   }
 
   void sendToKeyMapper(String keyString) {
-    keyMappingController.process(keyString);
+    keyMappingsController.process(keyString);
   }
 
   void applyAsKeySequence(String keyString) {
@@ -37,6 +38,6 @@ class KeyEquivalenciesRouter {
   }
 
   void sendMultipleKeysToKeyMapper(List<String> keyList) {
-    keyMappingController.processMultipleKeys(keyList);
+    keyMappingsController.processMultipleKeys(keyList);
   }
 }

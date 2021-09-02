@@ -35,7 +35,7 @@ class Configuration {
 
   boolean DEFAULT_MOVE_CURSOR_BACK = true;
   KeyMappings DEFAULT_KEY_MAPPINGS = new KeyMappings();
-  Map<String, String> DEFAULT_KEY_CHORDS = new HashMap<String, String>();
+  KeyChords DEFAULT_KEY_CHORDS = new KeyChords();
   Map<String, String> DEFAULT_ABBREVIATIONS = new HashMap<String, String>();
 
   private Configuration() {
@@ -76,6 +76,18 @@ class Configuration {
     }
 
     return keyMappings;
+  }
+
+  KeyChords getKeyChords() {
+    // TODO: Downcase all special keys for use here
+    // (e.g., <ESC> -> <esc>) so that they are
+    // case insensitive
+    KeyChords keyChords = configurationData.keyChords;
+    if (keyChords == null) {
+      keyChords = DEFAULT_KEY_CHORDS;
+    }
+
+    return keyChords;
   }
 
   void readFromFile() {

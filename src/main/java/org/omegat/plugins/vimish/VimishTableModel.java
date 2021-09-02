@@ -41,12 +41,12 @@ public class VimishTableModel extends AbstractTableModel {
     fireTableDataChanged();
   }
 
-  public Map<String, String> getKeyMappingsHash() {
-    Map<String, String> keyMappingsHash = new LinkedHashMap<String, String>();
+  public Map<String, String> getKeyEquivalenciesHash() {
+    Map<String, String> keyEquivalenciesHash = new LinkedHashMap<String, String>();
     keyValuePairs.forEach(array -> {
-      keyMappingsHash.put(array[0], array[1]);
+      keyEquivalenciesHash.put(array[0], array[1]);
     });
-    return keyMappingsHash;
+    return keyEquivalenciesHash;
   }
 
   public int getRowCount() {

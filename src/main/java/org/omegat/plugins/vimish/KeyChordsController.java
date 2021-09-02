@@ -5,19 +5,21 @@ import javax.swing.Timer;
 import java.util.Set;
 import java.util.List;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.ArrayList;
 
 import org.omegat.util.Log;
 
-class KeyChordController {
+class KeyChordsController {
   private List<String> keyChordUnderway = new ArrayList<String>();
-  private HashMap<String, String> keyChordsHash;
+  private Map<String, String> keyChordsHash;
   private Timer timer;
   private KeyEquivalenciesRouter keyEquivalenciesRouter;
+  private Configuration configuration = Configuration.getConfiguration();
 
-  KeyChordController(KeyEquivalenciesRouter keyEquivalenciesRouter) {
+  KeyChordsController(KeyEquivalenciesRouter keyEquivalenciesRouter) {
     this.keyEquivalenciesRouter = keyEquivalenciesRouter;
-    this.keyChordsHash = getKeyChordsHash();
+    refreshKeyChordsHash();
   }
 
   void reset() {
@@ -96,9 +98,24 @@ class KeyChordController {
     return false;
   }
 
-  private static HashMap<String, String> getKeyChordsHash() {
-    HashMap<String, String> keyChordsHash = new HashMap<String, String>();
-    keyChordsHash.put("ie", "<ESC>");
-    return keyChordsHash;
+  // private static HashMap<String, String> getKeyChordsHash() {
+  //   HashMap<String, String> keyChordsHash = new HashMap<String, String>();
+  //   keyChordsHash.put("ie", "<ESC>");
+  //   return keyChordsHash;
+  // }
+
+  void refreshKeyChordsHash() {
+    KeyChords allKeyChords = getAllKeyChords();
+    if (Mode.NORMAL.isActive()) {
+      keyChordsHash = allKeyChords.normalModeKeyChords;
+    } else if (Mode.VISUAL.isActive()){
+      keyChordsHash = allKeyChords.visualModeKeyChords;
+    } else {
+      keyChordsHash = allKeyChords.insertModeKeyChords;
+    }
+  }
+
+  KeyChords getAllKeyChords() {
+    return configuration.getKeyChords();
   }
 }

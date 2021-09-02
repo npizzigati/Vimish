@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import org.omegat.util.Log;
 
-class KeyMappingController {
+class KeyMappingsController {
   private List<String> keyMappingUnderway = new ArrayList<String>();
   private Map<String, String> keyMappingsHash;
   private Timer timer;
@@ -16,11 +16,12 @@ class KeyMappingController {
   private Boolean isFirstKey = true;
   private Configuration configuration = Configuration.getConfiguration();
 
-  KeyMappingController(KeyEquivalenciesRouter keyEquivalenciesRouter) {
+  KeyMappingsController(KeyEquivalenciesRouter keyEquivalenciesRouter) {
     this.keyEquivalenciesRouter = keyEquivalenciesRouter;
-    KeyMappings allKeyMappings = getAllKeyMappings();
-    // Set to normal mode key mappings to start
-    keyMappingsHash = allKeyMappings.normalModeKeyMappings;
+    // KeyMappings allKeyMappings = getAllKeyMappings();
+    // // Set to normal mode key mappings to start
+    // keyMappingsHash = allKeyMappings.normalModeKeyMappings;
+    refreshKeyMappingsHash();
   }
 
   void processMultipleKeys(List<String> keyList) {
@@ -106,9 +107,6 @@ class KeyMappingController {
   }
 
   KeyMappings getAllKeyMappings() {
-    // TODO: Downcase all special keys for use here
-    // (e.g., <ESCAPE> -> <escape>) so that they are
-    // case insensitive
     return configuration.getKeyMappings();
   }
 

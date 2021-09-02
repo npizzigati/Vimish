@@ -13,8 +13,9 @@ class VimishOptionsController implements IPreferencesController {
   private VimishOptionsPanel panel;
   private Configuration configuration = Configuration.getConfiguration();
   private KeyMappings keyMappings;
+  private KeyChords keyChords;
   VimishTableModel keyMappingsTableModel;
-  VimishTableModel chordsTableModel;
+  VimishTableModel keyChordsTableModel;
 
   private final String VIEW_NAME = "Vimish";
   private final int MAX_ROW_COUNT = 4;
@@ -81,7 +82,7 @@ class VimishOptionsController implements IPreferencesController {
 
     keyMappingsTableModel.addTableModelListener(event -> {
         Map<String, String> keyMappingsHash =
-          keyMappingsTableModel.getKeyMappingsHash();
+          keyMappingsTableModel.getKeyEquivalenciesHash();
         String mode =
           (String) panel.keyMappingsModeSelector.getSelectedItem();
         switch (mode) {
@@ -95,7 +96,6 @@ class VimishOptionsController implements IPreferencesController {
             keyMappings.insertModeKeyMappings = keyMappingsHash;
             break;
         }
-      Log.log("current visual: " + keyMappings.visualModeKeyMappings.toString());
       });
 
     panel.keyMappingsTable.getColumnModel().getColumn(0).setPreferredWidth(150);
@@ -117,9 +117,69 @@ class VimishOptionsController implements IPreferencesController {
     });
 
     // Key chords
+    // Start mode selector combo box at normal mode
+    panel.keyChordsModeSelector.setSelectedIndex(0);
+
+    panel.keyChordsModeSelector.addActionListener(event -> {
+      @SuppressWarnings("unchecked")
+      JComboBox<String> comboBox = (JComboBox<String>) event.getSource();
+      String mode = (String) comboBox.getSelectedItem();
+      Map<String, String> keyChordsHash = null;
+      switch (mode) {
+        case "Normal":
+          keyChordsHash = keyChords.normalModeKeyChords;
+          break;
+        case "Visual":
+          keyChordsHash = keyChords.visualModeKeyChords;
+          break;
+        case "Insert":
+          keyChordsHash = keyChords.insertModeKeyChords;
+          break;
+      }
+      keyChordsTableModel.refreshWith(keyChordsHash);
+    });
+
+    keyChords = configuration.getKeyChords();
+
+    keyChordsTableModel =
+      new VimishTableModel(keyChords.normalModeKeyChords);
+    panel.keyChordsTable.setModel(keyChordsTableModel);
+
+    keyChordsTableModel.addTableModelListener(event -> {
+        Map<String, String> keyChordsHash =
+          keyChordsTableModel.getKeyEquivalenciesHash();
+        String mode =
+          (String) panel.keyChordsModeSelector.getSelectedItem();
+        switch (mode) {
+          case "Normal":
+            keyChords.normalModeKeyChords = keyChordsHash;
+            break;
+          case "Visual":
+            keyChords.visualModeKeyChords = keyChordsHash;
+            break;
+          case "Insert":
+            keyChords.insertModeKeyChords = keyChordsHash;
+            break;
+        }
+      });
+
+    panel.keyChordsTable.getColumnModel().getColumn(0).setPreferredWidth(150);
+    panel.keyChordsTable.getColumnModel().getColumn(1).setPreferredWidth(150);
+
     Dimension keyChordsTableSize = panel.keyChordsTable.getPreferredSize();
     panel.keyChordsTable.setPreferredScrollableViewportSize(
         new Dimension(keyChordsTableSize.width, panel.keyChordsTable.getRowHeight() * MAX_ROW_COUNT));
+
+    panel.keyChordsAddButton.addActionListener(e -> {
+      keyChordsTableModel.addRow();
+      panel.keyChordsTable.changeSelection(panel.keyChordsTable.getRowCount() - 1, 0, false, false);
+      panel.keyChordsTable.changeSelection(panel.keyChordsTable.getRowCount() - 1,
+                                             panel.keyChordsTable.getColumnCount() - 1, false, true);
+    });
+
+    panel.keyChordsRemoveButton.addActionListener(e -> {
+      keyChordsTableModel.removeRow(panel.keyChordsTable.getSelectedRow());
+    });
   }
 
   @Override
@@ -173,8 +233,10 @@ class VimishOptionsController implements IPreferencesController {
   @Override
   public void persist() {
     ConfigurationData newData = new ConfigurationData();
-    newData.keyMappings = keyMappings;
+
     newData.moveCursorBack = panel.moveCursorBackCheckBox.isSelected();
+    newData.keyMappings = keyMappings;
+    newData.keyChords = keyChords;
     configuration.writeToFile(newData);
 
     // Flag key equivalency (chord, mapping, abbreviation) changes

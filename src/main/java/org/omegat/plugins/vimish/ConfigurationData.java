@@ -11,6 +11,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 class ConfigurationData {
   public boolean moveCursorBack;
   public KeyMappings keyMappings;
-  public Map<String, String> keyChords;
+  public KeyChords keyChords;
   public Map<String, String> abbreviations;
 }
