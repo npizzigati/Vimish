@@ -7,9 +7,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import javax.swing.JComboBox;
 
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.List;
 
 class VimishOptionsController implements IPreferencesController {
   private VimishOptionsPanel panel;
@@ -63,7 +61,6 @@ class VimishOptionsController implements IPreferencesController {
       Map<String, String> keyMappingsHash = null;
       switch (mode) {
         case "Normal":
-          // keyMappingsHash = configuration.getKeyMappings().normalModeKeyMappings;
           keyMappingsHash = keyMappings.normalModeKeyMappings;
           break;
         case "Visual":
@@ -73,19 +70,20 @@ class VimishOptionsController implements IPreferencesController {
           keyMappingsHash = keyMappings.insertModeKeyMappings;
           break;
       }
-      keyMappingsTableModel.refreshWith(getKeyValuePairs(keyMappingsHash));
+      keyMappingsTableModel.refreshWith(keyMappingsHash);
     });
 
     keyMappings = configuration.getKeyMappings();
 
-    // Initial table settings
-    List<String[]> keyValuePairs = getKeyValuePairs(keyMappings.normalModeKeyMappings);
-    keyMappingsTableModel = new VimishTableModel(keyValuePairs);
+    keyMappingsTableModel =
+      new VimishTableModel(keyMappings.normalModeKeyMappings);
     panel.keyMappingsTable.setModel(keyMappingsTableModel);
 
     keyMappingsTableModel.addTableModelListener(event -> {
-        Map<String, String> keyMappingsHash = keyMappingsTableModel.getKeyMappingsHash();
-        String mode = (String) panel.keyMappingsModeSelector.getSelectedItem();
+        Map<String, String> keyMappingsHash =
+          keyMappingsTableModel.getKeyMappingsHash();
+        String mode =
+          (String) panel.keyMappingsModeSelector.getSelectedItem();
         switch (mode) {
           case "Normal":
             keyMappings.normalModeKeyMappings = keyMappingsHash;
@@ -99,10 +97,6 @@ class VimishOptionsController implements IPreferencesController {
         }
       Log.log("current visual: " + keyMappings.visualModeKeyMappings.toString());
       });
-
-    // Init setting    Map<String, String> normalModeKeyMappingsHash =
-      // configuration.getKeyMappings().normalModeKeyMappings;
-
 
     panel.keyMappingsTable.getColumnModel().getColumn(0).setPreferredWidth(150);
     panel.keyMappingsTable.getColumnModel().getColumn(1).setPreferredWidth(150);
@@ -126,17 +120,6 @@ class VimishOptionsController implements IPreferencesController {
     Dimension keyChordsTableSize = panel.keyChordsTable.getPreferredSize();
     panel.keyChordsTable.setPreferredScrollableViewportSize(
         new Dimension(keyChordsTableSize.width, panel.keyChordsTable.getRowHeight() * MAX_ROW_COUNT));
-  }
-
-  private List<String[]> getKeyValuePairs(Map<String, String> keyMappingsHash) {
-    List<String[]> keyValuePairs = new LinkedList<String[]>();
-
-    if (keyMappingsHash != null) {
-      keyMappingsHash.forEach((k, v) -> {
-        keyValuePairs.add(new String[] { k, v });
-      });
-    }
-    return keyValuePairs;
   }
 
   @Override

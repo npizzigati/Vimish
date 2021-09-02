@@ -5,15 +5,21 @@ import org.omegat.util.Log;
 import java.util.List;
 import java.util.Map;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+
 import javax.swing.table.AbstractTableModel;
 
 @SuppressWarnings("serial")
 public class VimishTableModel extends AbstractTableModel {
   private List<String[]> keyValuePairs;
 
-  public VimishTableModel(List<String[]> keyValuePairs) {
-    this.keyValuePairs = keyValuePairs;
+  public VimishTableModel(Map<String, String> keyEquivalenciesHash) {
+    this.keyValuePairs = getKeyValuePairs(keyEquivalenciesHash);
   }
+
+  // public VimishTableModel(List<String[]> keyValuePairs) {
+  //   this.keyValuePairs = keyValuePairs;
+  // }
 
   public Object getValueAt(int rowIndex, int columnIndex) {
     String[] row = keyValuePairs.get(rowIndex);
@@ -30,8 +36,8 @@ public class VimishTableModel extends AbstractTableModel {
     return this;
   }
 
-  public void refreshWith(List<String[]> keyValuePairs) {
-    this.keyValuePairs = keyValuePairs;
+  public void refreshWith(Map<String, String> keyEquivalenciesHash) {
+    this.keyValuePairs = getKeyValuePairs(keyEquivalenciesHash);
     fireTableDataChanged();
   }
 
@@ -76,5 +82,16 @@ public class VimishTableModel extends AbstractTableModel {
 
   public boolean isCellEditable(int rowIndex, int columnIndex) {
       return true;
+  }
+
+  private List<String[]> getKeyValuePairs(Map<String, String> keyMappingsHash) {
+    List<String[]> keyValuePairs = new LinkedList<String[]>();
+
+    if (keyMappingsHash != null) {
+      keyMappingsHash.forEach((k, v) -> {
+        keyValuePairs.add(new String[] { k, v });
+      });
+    }
+    return keyValuePairs;
   }
 }
