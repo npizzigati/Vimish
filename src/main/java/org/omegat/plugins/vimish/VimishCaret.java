@@ -9,8 +9,6 @@ import java.awt.FontMetrics;
 import java.awt.Rectangle;
 import java.awt.Graphics;
 
-import org.omegat.core.Core;
-import org.omegat.gui.editor.EditorController;
 import org.omegat.util.gui.Styles;
 import org.omegat.util.Java8Compat;
 import org.omegat.util.Log;
@@ -62,7 +60,10 @@ class VimishCaret extends DefaultCaret {
 
     // Do nothing if editingArea not accessible (e.g., if access
     // attempted to protected EditorTextArea3 member was denied)
-    if (editingArea == null) return;
+    if (editingArea == null) {
+      Log.log("Access to protected member EditorTextArea3 denied. Caret will not be able to change shape depending on mode.");
+      return;
+    }
 
     SwingUtilities.invokeLater(new Runnable() {
         public void run() {

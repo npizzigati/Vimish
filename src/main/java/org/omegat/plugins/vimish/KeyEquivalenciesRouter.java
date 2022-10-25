@@ -18,7 +18,12 @@ class KeyEquivalenciesRouter {
     configuration = Configuration.getConfiguration();
   }
 
+  boolean isSequenceEvaluationInProgress() {
+    return keySequence.isInProgress();
+  }
+
   void process(String keyString) {
+    Log.log("Going to process keyString: " + keyString);
     if (configuration.keyEquivalenciesNeedRefreshing()) {
       configuration.flagKeyEquivalenciesAsNotified();
       keyMappingsController.refreshKeyMappingsHash();

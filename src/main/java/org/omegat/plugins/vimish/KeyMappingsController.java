@@ -33,6 +33,17 @@ class KeyMappingsController {
   }
 
   void process(String keyString) {
+    // Pass keyString on to next stage (sequence evaluation) if
+    // sequence evaluation already in progress, i.e., this is not
+    // the first key in the key sequence being evaluated by
+    // KeySequence.apply (e.g., if user presses an "f" and then
+    // an "a", even if the user has "aa" in their remap list, we
+    // will not wait for the next "a").
+    if (keyEquivalenciesRouter.isSequenceEvaluationInProgress()) {
+      Log.log("Sequence evaluation is in progress");
+      keyEquivalenciesRouter.applyAsKeySequence(keyString);
+      return;
+    }
     keyMappingUnderway.add(keyString);
     if (isFirstKey == true) {
       timerFirstStart();
