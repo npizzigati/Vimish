@@ -3,6 +3,7 @@ package org.omegat.plugins.vimish;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
+import java.awt.event.InputEvent;
 
 import org.omegat.gui.editor.EditorTextArea3;
 import org.omegat.util.Log;
@@ -63,6 +64,7 @@ class Dispatcher {
   private String determineKeyString(KeyEvent event) {
     String keyString = null;
     char keyChar = event.getKeyChar();
+    boolean shiftPressed = false;
 
     switch((int)keyChar) {
     case KeyEvent.VK_ESCAPE:
@@ -83,6 +85,14 @@ class Dispatcher {
     default:
       keyString = String.valueOf(keyChar);
       break;
+    }
+
+    if ((event.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) != 0) {
+      shiftPressed = true;
+    }
+
+    if (shiftPressed && keyString.equals("<TAB>")) {
+      keyString = "<S-TAB>";
     }
 
     return keyString;

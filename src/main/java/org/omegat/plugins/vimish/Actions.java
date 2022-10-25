@@ -655,6 +655,12 @@ class Actions {
     }
   }
 
+  void normalModeShiftTab() {
+    if (editor.getSettings().isUseTabForAdvance() == true) {
+      editor.prevEntry();
+    }
+  }
+
   void insertModeInsertText(String text) {
     editor.insertText(text);
   }

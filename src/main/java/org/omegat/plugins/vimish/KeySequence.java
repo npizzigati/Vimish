@@ -422,8 +422,14 @@ class KeySequence {
       match.find();
       String remainder = match.group(1);
       newSequence = remainder;
-      // TODO: Need to implement shift-tab to go to previous tab
       actions.normalModeTab();
+    } else if (sequence.matches("^<S-TAB>.*")) {
+      Matcher match = Pattern.compile("^<S-TAB>(.*)")
+                             .matcher(sequence);
+      match.find();
+      String remainder = match.group(1);
+      newSequence = remainder;
+      actions.normalModeShiftTab();
       // TODO: Need to fix up the cases below
     } else if (sequence.matches(".*<ESC><ESC>")) {
       newSequence = "";
