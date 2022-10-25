@@ -35,6 +35,13 @@ class Dispatcher {
           return false;
         }
 
+        // Don't consume events with ALT or CTRL modifiers
+        int extModifierMask = event.getModifiersEx();
+        if ((extModifierMask & InputEvent.ALT_DOWN_MASK) != 0 ||
+            (extModifierMask & InputEvent.CTRL_DOWN_MASK) != 0) {
+          return false;
+        }
+
         // Don't consume action-key keyPressed events (e.g. arrow
         // keys, page up, page down, home, end, etc.), except for
         // INSERT key (to prevent problems with caret)
