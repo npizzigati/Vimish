@@ -183,8 +183,8 @@ class KeySequence {
 
   private String evaluateInsertSequence() {
     String newSequence = sequence;
-    if (sequence.matches("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<ENTER>).*")) {
-      Matcher match = Pattern.compile("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<ENTER>)(.*)").matcher(sequence);
+    if (sequence.matches("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<S-TAB>|<ENTER>).*")) {
+      Matcher match = Pattern.compile("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<S-TAB>|<ENTER>)(.*)").matcher(sequence);
       match.find();
       String key = match.group(1);
       String remainder = match.group(2);
@@ -202,6 +202,10 @@ class KeySequence {
         case "<TAB>":
           actions.insertModeTab();
           Log.log("Tab evaluated");
+          break;
+        case "<S-TAB>":
+          actions.insertModeShiftTab();
+          Log.log("Shift-Tab evaluated");
           break;
         case "<ENTER>":
           actions.insertModeEnter();

@@ -687,7 +687,17 @@ class Actions {
   }
 
   void insertModeTab() {
-    editor.insertText("\t");
+    if (editor.getSettings().isUseTabForAdvance() == true) {
+      editor.nextEntry();
+    } else {
+      editor.insertText("\t");
+    }
+  }
+
+  void insertModeShiftTab() {
+    if (editor.getSettings().isUseTabForAdvance() == true) {
+      editor.prevEntry();
+    }
   }
 
   private void insertTextAtIndex(String text, int index) {
