@@ -178,6 +178,17 @@ class KeySequence {
       newSequence = remainder;
     }
 
+    else if (sequence.matches("[$0].*")) {
+      Matcher match = Pattern.compile("([$0])(.*)")
+                             .matcher(sequence);
+      match.find();
+      String motion = match.group(1);
+      String remainder = match.group(2);
+      actions.visualModeGoToSegmentBoundary(motion);
+      newSequence = remainder;
+    }
+
+
     // This regex does not account for the fact that an escape
     // will not always take you to normal mode (e.g.
     // it can also escape from another operation, like in the case of
@@ -503,6 +514,27 @@ class KeySequence {
       String operator = match.group(1);
       String remainder = match.group(2);
       actions.normalModeBigDCY(operator);
+      newSequence = remainder;
+    }
+
+    else if (sequence.matches("[$0].*")) {
+      Matcher match = Pattern.compile("([$0])(.*)")
+                             .matcher(sequence);
+      match.find();
+      String motion = match.group(1);
+      String remainder = match.group(2);
+      actions.normalModeGoToSegmentBoundary(motion);
+      newSequence = remainder;
+    }
+
+    else if (sequence.matches("[dcy][$0].*")) {
+      Matcher match = Pattern.compile("([dcy])([$0])(.*)")
+                             .matcher(sequence);
+      match.find();
+      String operator = match.group(1);
+      String motion = match.group(2);
+      String remainder = match.group(3);
+      actions.normalModeOperateToSegmentBoundary(operator, motion);
       newSequence = remainder;
     }
 

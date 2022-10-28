@@ -275,6 +275,38 @@ class Actions {
     }
   }
 
+  void visualModeGoToSegmentBoundary(String motion) {
+    int currentIndex = getCaretIndex();
+    String currentTranslation = editor.getCurrentTranslation();
+    if (motion.equals("$")) {
+      visualModeForwardMove(currentIndex, currentTranslation.length() - 1);
+    } else {
+      visualModeBackwardMove(currentIndex, 0);
+    }
+  }
+
+  void normalModeGoToSegmentBoundary(String motion) {
+    int currentIndex = getCaretIndex();
+    String currentTranslation = editor.getCurrentTranslation();
+    if (motion.equals("$")) {
+      executeForwardAction("", MotionType.OTHER, currentTranslation, currentIndex, currentTranslation.length());
+    } else {
+      executeBackwardAction("", currentTranslation, currentIndex, 0);
+    }
+  }
+
+  void normalModeOperateToSegmentBoundary(String operator, String motion) {
+    int currentIndex = getCaretIndex();
+    String currentTranslation = editor.getCurrentTranslation();
+    if (motion.equals("$")) {
+      executeForwardAction(operator, MotionType.OTHER, currentTranslation, currentIndex, currentTranslation.length());
+      if (operator.equals("c")) {
+        setCaretIndex(getCaretIndex() + 1);
+      }
+    } else {
+      executeBackwardAction(operator, currentTranslation, currentIndex, 0);
+    }
+  }
 
   void normalModeReplace(String key, int count) {
     String currentTranslation = editor.getCurrentTranslation();
