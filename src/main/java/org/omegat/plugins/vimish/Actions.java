@@ -31,7 +31,8 @@ class Actions {
   private enum MotionType {
     TO_OR_TILL,
     FORWARD_WORD,
-    FORWARD_CHAR
+    FORWARD_CHAR,
+    OTHER
   }
 
   private enum ObjectType {
@@ -306,15 +307,14 @@ class Actions {
     String currentTranslation = editor.getCurrentTranslation();
     switch (operator) {
     case "D":
-      executeForwardAction("d", MotionType.FORWARD_CHAR, currentTranslation, currentIndex, currentTranslation.length());
+      executeForwardAction("d", MotionType.OTHER, currentTranslation, currentIndex, currentTranslation.length());
       break;
     case "C":
-      executeForwardAction("d", MotionType.FORWARD_CHAR, currentTranslation, currentIndex, currentTranslation.length());
+      executeForwardAction("c", MotionType.OTHER, currentTranslation, currentIndex, currentTranslation.length());
       setCaretIndex(getCaretIndex() + 1);
-      Mode.INSERT.activate();
       break;
     case "Y":
-      executeForwardAction("y", MotionType.FORWARD_CHAR, currentTranslation, 0, currentTranslation.length());
+      executeForwardAction("y", MotionType.OTHER, currentTranslation, 0, currentTranslation.length());
       break;
     }
   }
