@@ -13,9 +13,15 @@ class KeySequence {
   // *after* all possible mode action matches are checked (if none
   // matches), to see whether sequence is valid but incomplete
   // (and may constitute a match if user enters additional character(s))
-  private Pattern[] validNormalAndVisualSeq = {Pattern.compile("^\\d*[dcyxPp]?\\d*[hlwWeEbBfFtTnNrR]?"),
-                                               Pattern.compile("^[dcy]?[ai]?"),
-                                               Pattern.compile("^\"[0-9a-zA-Z-]?[pP]?")};
+
+  private Pattern[] validPartialNormalSequences = {Pattern.compile("^\\d*[dcyxPp]?\\d*[hlwWeEbBfFtTnNrR]?"),
+                                                   Pattern.compile("^[dcy]?[ai]?"),
+                                                   Pattern.compile("^[dcy]"),
+                                                   Pattern.compile("^\"")};
+  private Pattern[] validPartialVisualSequences = {Pattern.compile("^[fFtTrR]"),
+                                                   Pattern.compile("^\\d*[rNn]?"),
+                                                   Pattern.compile("^[ai]"),
+                                                   Pattern.compile("^\"")};
 
   KeySequence(Actions actions) {
     this.actions = actions;
@@ -28,18 +34,22 @@ class KeySequence {
   }
 
   boolean isValid(String keyString) {
-    boolean valid = false;
-    if (Mode.NORMAL.isActive() || Mode.VISUAL.isActive()) {
-      for (Pattern pattern : validNormalAndVisualSeq) {
-        Matcher m = pattern.matcher(sequence);
-        if (m.find() && m.group().equals(sequence)) {
-          Log.log("Sequence is valid");
-          valid = true;
-          break;
-        }
+    boolean isPatternValid = false;
+    Pattern[] patterns = {};
+    if (Mode.NORMAL.isActive()) {
+      patterns = validPartialNormalSequences;
+    } else if (Mode.VISUAL.isActive()) {
+      patterns = validPartialVisualSequences;
+    }
+    for (Pattern pattern : patterns) {
+      Matcher m = pattern.matcher(sequence);
+      if (m.find() && m.group().equals(sequence)) {
+        Log.log("Sequence is valid");
+        isPatternValid = true;
+        break;
       }
     }
-    return valid;
+    return isPatternValid;
   }
 
   void apply(String keyString) {
