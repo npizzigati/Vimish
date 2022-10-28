@@ -13,6 +13,7 @@ import org.omegat.core.events.*;
 import org.omegat.core.data.SourceTextEntry;
 import org.omegat.util.Log;
 import org.omegat.gui.preferences.PreferencesControllers;
+import org.omegat.gui.main.MainWindow;
 
 
 // TODO: options: - integrate system and vim clipboards

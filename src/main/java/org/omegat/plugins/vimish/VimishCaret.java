@@ -67,7 +67,7 @@ class VimishCaret extends DefaultCaret {
 
     SwingUtilities.invokeLater(new Runnable() {
         public void run() {
-          if (Mode.NORMAL.isActive() || Mode.VISUAL.isActive()) {
+          if (Mode.NORMAL.isActive() || Mode.VISUAL.isActive() || Mode.SEARCH.isActive()) {
             // Change the caret shape, width and color
             editingArea.setCaretColor(Styles.EditorColor.COLOR_BACKGROUND.getColor());
             editingArea.putClientProperty("caretWidth", getCaretWidth());
@@ -105,7 +105,7 @@ class VimishCaret extends DefaultCaret {
 
   @Override
   public void paint(Graphics g) {
-    if (Mode.NORMAL.isActive() || Mode.VISUAL.isActive()) {
+    if (Mode.NORMAL.isActive() || Mode.VISUAL.isActive() || Mode.SEARCH.isActive()) {
       int caretWidth = getCaretWidth();
       editingArea.putClientProperty("caretWidth", caretWidth);
       g.setXORMode(Styles.EditorColor.COLOR_FOREGROUND.getColor());
@@ -118,7 +118,7 @@ class VimishCaret extends DefaultCaret {
 
   @Override
   protected synchronized void damage(Rectangle r) {
-    if (Mode.NORMAL.isActive() || Mode.VISUAL.isActive()) {
+    if (Mode.NORMAL.isActive() || Mode.VISUAL.isActive() || Mode.SEARCH.isActive()) {
       if (r != null) {
         int damageWidth = getCaretWidth();
         x = r.x - 4 - (damageWidth / 2);

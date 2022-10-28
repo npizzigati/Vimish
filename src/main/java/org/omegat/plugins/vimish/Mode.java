@@ -3,7 +3,9 @@ package org.omegat.plugins.vimish;
 enum Mode {
   NORMAL (true),
   INSERT (false),
-  VISUAL (false);
+  VISUAL (false),
+  SEARCH (false),
+  REPLACE (false);
 
   private boolean active;
 

@@ -9,8 +9,9 @@ class KeySequence {
   private Actions actions;
   private int actionsCount = 0;
   private Configuration configuration;
-  private Pattern[] validNormalAndVisualSeq = {Pattern.compile("^\\d*[dcyxPp]?\\d*[hlwWeEbBfFtT]?"),
+  private Pattern[] validNormalAndVisualSeq = {Pattern.compile("^\\d*[dcyxPp]?\\d*[hlwWeEbBfFtTnNrR]?"),
                                                Pattern.compile("^[dcy]?[ai]?"),
+                                               Pattern.compile("^[/?].*"),
                                                Pattern.compile("^\"[0-9a-zA-Z-]?[pP]?"),
                                                Pattern.compile("^[aiuv]")};
 
@@ -54,6 +55,10 @@ class KeySequence {
       newSequence = evaluateInsertSequence();
     } else if (Mode.VISUAL.isActive()) {
       newSequence = evaluateVisualSequence();
+    } else if (Mode.REPLACE.isActive()) {
+      newSequence = evaluateReplaceSequence();
+    } else if (Mode.SEARCH.isActive()) {
+      newSequence = evaluateSearchSequence();
     }
 
     boolean didSequenceChange = !sequence.equals(newSequence);
@@ -103,11 +108,59 @@ class KeySequence {
 
   private String evaluateVisualSequence() {
     String newSequence = sequence;
+    /*
+     * Handle to/till (f/t) and forward and backward search. These two regex
+     * sections must come first, since the following sections assume that they have
+     * already been processed.
+     *
+     * The order of subsequent regexes shouldn't matter
+     **/
+    // To or till or search
+    if (sequence.matches("^\\d*[fFTt]..*")) {
+      Matcher match = Pattern.compile("^(\\d*)([fFTt])(.)(.*)").matcher(sequence);
+      match.find();
+      String countString = match.group(1);
+      String motion = match.group(2);
+      String key = match.group(3);
+      String remainder = match.group(4);
+
+      int count = (countString.equals("")) ? 1 : Integer.parseInt(countString, 10);
+      if (motion.equals("f") || motion.equals("t")) {
+        actions.visualModeGoForwardToChar(count, motion, key);
+      } else {
+        actions.visualModeGoBackwardToChar(count, motion, key);
+      }
+      newSequence = remainder;
+    }
+
+    else if (sequence.matches("^[?/].*")) {
+      Matcher match = Pattern.compile("^([?/])(.*)")
+                             .matcher(sequence);
+      match.find();
+      String operator = match.group(1);
+      String remainder = match.group(2);
+      Mode.SEARCH.activate();
+      actions.normalModeActivateSearch(operator, Mode.VISUAL);
+      newSequence = remainder;
+    }
+
+    // r - little "r" replace
+    else if (sequence.matches("^r..*")) {
+      Matcher match = Pattern.compile("^r(.)(.*)").matcher(sequence);
+      match.find();
+      String key = match.group(1);
+      String remainder = match.group(2);
+      actions.visualModeReplace(key);
+      Mode.NORMAL.activate();
+      actions.clearVisualMarks();
+      newSequence = remainder;
+    }
+
     // This regex does not account for the fact that an escape
     // will not always take you to normal mode (e.g.
     // it can also escape from another operation, like in the case of
     // a<ESC> or i<ESC>
-    if (sequence.matches("^<ESC>.*")) {
+    else if (sequence.matches("^<ESC>.*")) {
       Matcher match = Pattern.compile("^<ESC>(.*)").matcher(sequence);
       match.find();
       String remainder = match.group(1);
@@ -115,7 +168,9 @@ class KeySequence {
       Mode.NORMAL.activate();
       actions.clearVisualMarks();
       newSequence = remainder;
-    } else if (sequence.matches("^\\d*v.*")) {
+    }
+
+    else if (sequence.matches("^\\d*v.*")) {
       // What other key combinations should make us escape back
       // to normal mode?
       // I can also combine these cases in a single if statement
@@ -126,7 +181,9 @@ class KeySequence {
       Mode.NORMAL.activate();
       actions.clearVisualMarks();
       newSequence = remainder;
-    } else if (sequence.matches("^[dx].*")) {
+    }
+
+    else if (sequence.matches("^[dx].*")) {
       Matcher match = Pattern.compile("^[dx](.*)").matcher(sequence);
       match.find();
       String remainder = match.group(1);
@@ -153,9 +210,26 @@ class KeySequence {
       actions.clearVisualMarks();
       Mode.NORMAL.activate();
       newSequence = remainder;
-    } else if (sequence.matches("^\\d*[hl].*")) {
+    }
+
+    else if (sequence.matches("^\\d*[nN].*")) {
+      Matcher match = Pattern.compile("(^\\d*)([nN])(.*)").matcher(sequence);
+      match.find();
+      String countString = match.group(1);
+      String motion = match.group(2);
+      String remainder = match.group(3);
+      int count = (countString.equals("")) ? 1 : Integer.parseInt(countString, 10);
+      if (motion.equals("n")) {
+        actions.repeatForwardSearch(count, "");
+      } else {
+        actions.repeatBackwardSearch(count, "");
+      }
+      newSequence = remainder;
+    }
+
+    else if (sequence.matches("^\\d*[hlwWeEbB].*")) {
       // Handle h/l motions (character left and right)
-      Matcher match = Pattern.compile("^(\\d*)([hl])(.*)").matcher(sequence);
+      Matcher match = Pattern.compile("^(\\d*)([hlwWeEbB])(.*)").matcher(sequence);
       match.find();
       String countString = match.group(1);
       String motion = match.group(2);
@@ -167,6 +241,10 @@ class KeySequence {
         actions.visualModeBackwardChar(count);
       } else if (motion.equals("l")) {
         actions.visualModeForwardChar(count);
+      } else if (motion.toLowerCase().equals("w") || motion.toLowerCase().equals("e")) {
+        actions.visualModeForwardWord(motion, count);
+      } else if (motion.toLowerCase().equals("b")) {
+        actions.visualModeBackwardWord(motion, count);
       }
       newSequence = remainder;
 
@@ -174,8 +252,66 @@ class KeySequence {
       // H/L/J/K, since these are not particularly useful for
       // translation segments (which contain no newlines)
       // NOTE: H/M/L (high/middle/low) may be useful for long segments
+    }
+
+    // Text object selection
+    else if (sequence.matches("^[ai][wW\"\'\\[\\]\\{\\}<>\\(\\)].*")) {
+      Matcher match = Pattern.compile("^([ia])([wW\"\'\\[\\]\\{\\}<>\\(\\)])(.*)")
+                             .matcher(sequence);
+      match.find();
+      String selector = match.group(1);
+      String object = match.group(2);
+      String remainder = match.group(3);
+      actions.visualModeTextObjectSelection(selector, object);
+      newSequence = remainder;
     } else if (sequence.matches(".*<ESC><ESC>")) {
       newSequence = "";
+    }
+
+    return newSequence;
+  }
+
+  private String evaluateReplaceSequence() {
+    String newSequence = sequence;
+    if (sequence.matches("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<S-TAB>|<ENTER>).*")) {
+      Matcher match = Pattern.compile("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<S-TAB>|<ENTER>)(.*)").matcher(sequence);
+      match.find();
+      String key = match.group(1);
+      String remainder = match.group(2);
+      switch (key) {
+        case "<ESC>":
+          Mode.NORMAL.activate();
+          if (configuration.getConfigMoveCursorBack() || actions.isCaretPastLastIndex()) {
+            actions.normalModeBackwardChar(1);
+          }
+          break;
+        case "<BACKSPACE>":
+          actions.replaceModeBackspace();
+          Log.log("Backspace evaluated");
+          break;
+        case "<TAB>":
+          actions.replaceModeTab();
+          Log.log("Tab evaluated");
+          break;
+        case "<S-TAB>":
+          actions.replaceModeShiftTab();
+          Log.log("Shift-Tab evaluated");
+          break;
+        case "<ENTER>":
+          actions.replaceModeEnter();
+          Log.log("Enter evaluated");
+          break;
+        case "<DEL>":
+          actions.replaceModeDelete();
+          Log.log("Delete evaluated");
+          break;
+      }
+      newSequence = remainder;
+    } else {
+      String character = sequence.substring(0, 1);
+      String remainder = sequence.substring(1);
+      actions.replaceModeInsertText(character);
+      newSequence = remainder;
     }
 
     return newSequence;
@@ -232,6 +368,37 @@ class KeySequence {
   // return sequence.replaceFirst(entireMatchString, "");
   // }
 
+  private String evaluateSearchSequence() {
+    String newSequence = sequence;
+    if (sequence.matches("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<S-TAB>|<ENTER>).*")) {
+      Matcher match = Pattern.compile("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<S-TAB>|<ENTER>)(.*)").matcher(sequence);
+      match.find();
+      String key = match.group(1);
+      String remainder = match.group(2);
+      switch (key) {
+        case "<BACKSPACE>":
+          actions.searchModeBackspace();
+          break;
+        case "<ENTER>":
+          actions.searchModeExecuteSearch();
+          break;
+        case "<TAB>":
+        case "<S-TAB>":
+        case "<DEL>":
+        case "<ESC>":
+          actions.searchModeFinalizeSearch(true);
+          break;
+      }
+      newSequence = remainder;
+    } else {
+      String character = sequence.substring(0, 1);
+      String remainder = sequence.substring(1);
+      actions.searchModeAddChar(character);
+      newSequence = remainder;
+    }
+    return newSequence;
+  }
+
   private String evaluateNormalSequence() {
     String newSequence = sequence;
     /*
@@ -261,15 +428,36 @@ class KeySequence {
       newSequence = remainder;
     }
 
-    else if (sequence.matches("^[?/].+<ENTER>.*")) {
-      // Need to fill this in
-      Matcher match = Pattern.compile("^([?/])(.+)<ENTER>(.*)")
+    else if (sequence.matches("^[?/].*")) {
+      Matcher match = Pattern.compile("^([?/])(.*)")
                              .matcher(sequence);
       match.find();
+      String operator = match.group(1);
+      String remainder = match.group(2);
+      Mode.SEARCH.activate();
+      actions.normalModeActivateSearch(operator, Mode.NORMAL);
+      newSequence = remainder;
+    }
 
-      // // Fill in action
+    // r - little "r" replace
+    else if (sequence.matches("^\\d*r..*")) {
+      Matcher match = Pattern.compile("(^\\d*)r(.)(.*)").matcher(sequence);
+      match.find();
+      String countString = match.group(1);
+      String key = match.group(2);
+      String remainder = match.group(3);
+      int count = (countString.equals("")) ? 1 : Integer.parseInt(countString, 10);
+      actions.normalModeReplace(key, count);
+      newSequence = remainder;
+    }
 
-      // newSequence = remainder;
+    // R - big "R" replace
+    else if (sequence.matches("^R.*")) {
+      Matcher match = Pattern.compile("^R(.*)").matcher(sequence);
+      match.find();
+      String remainder = match.group(1);
+      Mode.REPLACE.activate();
+      newSequence = remainder;
     }
 
     // Text object selection (e.g. "diw" -> delete in word;
@@ -340,10 +528,8 @@ class KeySequence {
       String remainder = match.group(2);
 
       Mode.VISUAL.activate();
-      if (count == 0) {
-        actions.visualModeForwardChar(1);
-        actions.visualModeBackwardChar(1);
-      } else {
+      actions.beginSingleCharVisualSelection();
+      if (count > 0) {
         actions.visualModeForwardChar(count - 1);
       }
       newSequence = remainder;
@@ -382,6 +568,24 @@ class KeySequence {
       String position = (putLetter.equals("p")) ? "after" : "before";
 
       actions.normalModePutUnnamedRegister(position);
+      newSequence = remainder;
+    }
+
+    // Repeat search
+    else if (sequence.matches("^\\d*[dcy]?\\d*[nN].*")) {
+      Matcher match = Pattern.compile("^(\\d*)([dcy]?)(\\d*)([nN])(.*)").matcher(sequence);
+      match.find();
+      String countString1 = match.group(1);
+      String operator = match.group(2);
+      String countString2 = match.group(3);
+      String motion = match.group(4);
+      String remainder = match.group(5);
+      int totalCount = determineTotalCount(countString1, countString2);
+      if (motion.equals("n")) {
+        actions.repeatForwardSearch(totalCount, operator);
+      } else {
+        actions.repeatBackwardSearch(totalCount, operator);
+      }
       newSequence = remainder;
     }
 
