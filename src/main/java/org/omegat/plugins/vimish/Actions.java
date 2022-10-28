@@ -151,7 +151,7 @@ class Actions {
     Integer markEnd = VimishVisualMarker.getMarkEnd();
     String markOrientation = VimishVisualMarker.getMarkOrientation();
     int currentIndex;
-    if (markOrientation == "leftOfCaret") {
+    if (markOrientation.equals("leftOfCaret")) {
       currentIndex = markStart;
     } else {
       currentIndex = markEnd - 1;
@@ -173,7 +173,7 @@ class Actions {
     String markOrientation = VimishVisualMarker.getMarkOrientation();
     int currentIndex;
 
-    if (markOrientation == "leftOfCaret") {
+    if (markOrientation.equals("leftOfCaret")) {
       currentIndex = markStart;
     } else {
       currentIndex = markEnd - 1;
@@ -221,7 +221,7 @@ class Actions {
       // always be in the forward direction
       VimishVisualMarker.setMarkOrientation("rightOfCaret");
       currentIndex = getCaretIndex();
-    } else if (markOrientation == "leftOfCaret") {
+    } else if (markOrientation.equals("leftOfCaret")) {
       currentIndex = markStart;
     } else {
       currentIndex = markEnd - 1;
@@ -674,7 +674,7 @@ class Actions {
       editor.remarkOneMarker(VimishVisualMarker.class.getName());
       VimishVisualMarker.setMarkOrientation("rightOfCaret");
       setCaretIndex(endIndex);
-    } else if (markOrientation == "leftOfCaret"){
+    } else if (markOrientation.equals("leftOfCaret")){
       VimishVisualMarker.setMarkStart(startIndex);
       editor.remarkOneMarker(VimishVisualMarker.class.getName());
       setCaretIndex(startIndex);
