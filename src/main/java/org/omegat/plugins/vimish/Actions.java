@@ -341,9 +341,12 @@ class Actions {
   }
 
   void searchModeForwardSearch() {
+    searchModeFinalizeSearch(false);
+    if (searchString == null || searchString.equals("")) {
+      return;
+    }
     String currentTranslation = editor.getCurrentTranslation();
     int currentIndex = getCaretIndex();
-    searchModeFinalizeSearch(false);
     if (currentIndex >= currentTranslation.length() - 1) {
       return;
     }
@@ -359,6 +362,9 @@ class Actions {
   }
 
   void repeatForwardSearch(int count, String operator) {
+    if (searchString == null || searchString.equals("")) {
+      return;
+    }
     String currentTranslation = editor.getCurrentTranslation();
     int currentIndex = getCaretIndex();
     int tmpIndex = currentIndex;
@@ -381,6 +387,9 @@ class Actions {
   }
 
   void repeatBackwardSearch(int count, String operator) {
+    if (searchString == null || searchString.equals("")) {
+      return;
+    }
     String currentTranslation = editor.getCurrentTranslation();
     int currentIndex = getCaretIndex();
     int tmpIndex = currentIndex;
@@ -402,9 +411,12 @@ class Actions {
   }
 
   void searchModeBackwardSearch() {
+    searchModeFinalizeSearch(false);
+    if (searchString == null || searchString.equals("")) {
+      return;
+    }
     String currentTranslation = editor.getCurrentTranslation();
     int currentIndex = getCaretIndex();
-    searchModeFinalizeSearch(false);
     if (currentIndex == 0) {
       return;
     }
