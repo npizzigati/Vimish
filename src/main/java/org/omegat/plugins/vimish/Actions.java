@@ -264,6 +264,30 @@ class Actions {
     setCaretIndex(startIndex);
   }
 
+  void visualModeOperateToEnd(String operator) {
+    String currentTranslation = editor.getCurrentTranslation();
+    switch (operator) {
+    case "D":
+      Mode.NORMAL.activate();
+      clearVisualMarks();
+      executeForwardAction("d", MotionType.FORWARD_CHAR, currentTranslation, 0, currentTranslation.length());
+      break;
+    case "C":
+      Mode.NORMAL.activate();
+      clearVisualMarks();
+      executeForwardAction("d", MotionType.FORWARD_CHAR, currentTranslation, 0, currentTranslation.length());
+      Mode.INSERT.activate();
+      break;
+    case "Y":
+      clearVisualMarks();
+      Mode.NORMAL.activate();
+      executeForwardAction("y", MotionType.FORWARD_CHAR, currentTranslation, 0, currentTranslation.length());
+      setCaretIndex(0);
+      break;
+    }
+  }
+
+
   void normalModeReplace(String key, int count) {
     String currentTranslation = editor.getCurrentTranslation();
     int lastIndex = currentTranslation.length() - 1;

@@ -168,6 +168,16 @@ class KeySequence {
       newSequence = remainder;
     }
 
+    else if (sequence.matches("[DCY].*")) {
+      Matcher match = Pattern.compile("([DCY])(.*)")
+                             .matcher(sequence);
+      match.find();
+      String operator = match.group(1);
+      String remainder = match.group(2);
+      actions.visualModeOperateToEnd(operator);
+      newSequence = remainder;
+    }
+
     // This regex does not account for the fact that an escape
     // will not always take you to normal mode (e.g.
     // it can also escape from another operation, like in the case of
