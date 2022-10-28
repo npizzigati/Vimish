@@ -167,8 +167,9 @@ class KeySequence {
     }
 
     // r - little "r" replace
-    else if (sequence.matches("^r..*")) {
-      Matcher match = Pattern.compile("^r(.)(.*)").matcher(sequence);
+    else if (sequence.matches("^\\d*r..*")) {
+      // Numbers before r will be ignored
+      Matcher match = Pattern.compile("^\\d*r(.)(.*)").matcher(sequence);
       match.find();
       String key = match.group(1);
       String remainder = match.group(2);
