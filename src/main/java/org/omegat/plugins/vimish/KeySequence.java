@@ -174,7 +174,7 @@ class KeySequence {
       match.find();
       String operator = match.group(1);
       String remainder = match.group(2);
-      actions.visualModeOperateToEnd(operator);
+      actions.visualModeBigDCY(operator);
       newSequence = remainder;
     }
 
@@ -502,7 +502,7 @@ class KeySequence {
       match.find();
       String operator = match.group(1);
       String remainder = match.group(2);
-      actions.normalModeOperateToEnd(operator);
+      actions.normalModeBigDCY(operator);
       newSequence = remainder;
     }
 

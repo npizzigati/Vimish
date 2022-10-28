@@ -264,7 +264,7 @@ class Actions {
     setCaretIndex(startIndex);
   }
 
-  void visualModeOperateToEnd(String operator) {
+  void visualModeBigDCY(String operator) {
     String currentTranslation = editor.getCurrentTranslation();
     switch (operator) {
     case "D":
@@ -301,7 +301,7 @@ class Actions {
     setCaretIndex(indexAfterOverwrite - 1);
   }
 
-  void normalModeOperateToEnd(String operator) {
+  void normalModeBigDCY(String operator) {
     int currentIndex = getCaretIndex();
     String currentTranslation = editor.getCurrentTranslation();
     switch (operator) {
