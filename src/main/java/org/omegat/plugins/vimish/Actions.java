@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.lang.Character;
 
 class Actions {
   private EditorController editor;
@@ -681,6 +682,49 @@ class Actions {
       VimishVisualMarker.setMarkEnd(endIndex + 1);
       editor.remarkOneMarker(VimishVisualMarker.class.getName());
       setCaretIndex(endIndex);
+    }
+  }
+
+  void visualModeSwitchCase(String operator) {
+    Integer startIndex = VimishVisualMarker.getMarkStart();
+    Integer endIndex = VimishVisualMarker.getMarkEnd();
+    String currentTranslation = editor.getCurrentTranslation();
+    String selection = currentTranslation.substring(startIndex, endIndex);
+    if (operator.equals("u")) {
+      selection = selection.toLowerCase();
+    } else {
+      selection = selection.toUpperCase();
+    }
+    editor.replacePartOfText(selection, startIndex, endIndex);
+    // Replacement operation will place caret at end of replaced
+    // text -- we need to put it back in proper place
+    if (VimishVisualMarker.getMarkOrientation().equals("rightOfCaret")) {
+      setCaretIndex(endIndex - 1);
+    } else {
+      setCaretIndex(startIndex);
+    }
+  }
+
+  void normalModeToggleCase(int count) {
+    String currentTranslation = editor.getCurrentTranslation();
+    int startIndex = getCaretIndex();
+    int length = currentTranslation.length();
+    int endIndex = (startIndex + count > length - 1) ? length - 1 : startIndex + count;
+    String toggledString = "";
+    for (int i = startIndex; i < endIndex; i++) {
+      char character = currentTranslation.charAt(i);
+      if (Character.isLowerCase(character)) {
+        toggledString += Character.toString(character).toUpperCase();
+      } else {
+        toggledString += Character.toString(character).toLowerCase();
+      }
+    }
+    editor.replacePartOfText(toggledString, startIndex, endIndex);
+
+    // Move caret back one if it ends up past last index (on
+    // segment end marker)
+    if (endIndex == currentTranslation.length()) {
+      setCaretIndex(getCaretIndex() - 1);
     }
   }
 

@@ -146,6 +146,16 @@ class KeySequence {
       newSequence = remainder;
     }
 
+    // u/U - upcase/downcase
+    else if (sequence.matches("^[uU].*")) {
+      Matcher match = Pattern.compile("^([uU])(.*)").matcher(sequence);
+      match.find();
+      String operator = match.group(1);
+      String remainder = match.group(2);
+      actions.visualModeSwitchCase(operator);
+      newSequence = remainder;
+    }
+
     // r - little "r" replace
     else if (sequence.matches("^r..*")) {
       Matcher match = Pattern.compile("^r(.)(.*)").matcher(sequence);
@@ -505,6 +515,18 @@ class KeySequence {
 
       actions.normalModeAppendAfterCursor();
       Mode.INSERT.activate();
+      newSequence = remainder;
+    }
+
+    else if (sequence.matches("^\\d*~.*")) {
+      Matcher match = Pattern.compile("^(\\d*)~(.*)")
+                             .matcher(sequence);
+      match.find();
+      String countString = match.group(1);
+      String remainder = match.group(2);
+      int count = (countString.equals("")) ? 1 : Integer.parseInt(countString, 10);
+
+      actions.normalModeToggleCase(count);
       newSequence = remainder;
     }
 
