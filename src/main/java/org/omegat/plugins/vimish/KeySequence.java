@@ -103,21 +103,6 @@ class KeySequence {
     }
   }
 
-  // private void evaluateVisualSequence(String sequence) {
-  // // Handle case where a number is entered before the v
-  // // (to switch from normal into visual mode),
-  // // entering into visual mode with a count
-  // Log.log("EVALUATING VISUAL SEQUENCE");
-  // Matcher match = Pattern.compile("^(\\d+)v(.*)").matcher(sequence);
-  // match.find();
-  // String countString = match.group(1);
-  // String remainder = match.group(2);
-  // int count = Integer.parseInt(countString, 10);
-
-  // actions.visualModeForwardChar(count - 1);
-  // sequence = remainder;
-  // }
-
   private String evaluateVisualSequence() {
     String newSequence = sequence;
     /*
