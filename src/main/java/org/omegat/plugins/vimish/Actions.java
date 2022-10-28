@@ -310,6 +310,7 @@ class Actions {
       break;
     case "C":
       executeForwardAction("d", MotionType.FORWARD_CHAR, currentTranslation, currentIndex, currentTranslation.length());
+      setCaretIndex(getCaretIndex() + 1);
       Mode.INSERT.activate();
       break;
     case "Y":
