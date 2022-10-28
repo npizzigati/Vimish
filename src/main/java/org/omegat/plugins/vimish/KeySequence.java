@@ -486,6 +486,16 @@ class KeySequence {
       newSequence = remainder;
     }
 
+    else if (sequence.matches("[DCY].*")) {
+      Matcher match = Pattern.compile("([DCY])(.*)")
+                             .matcher(sequence);
+      match.find();
+      String operator = match.group(1);
+      String remainder = match.group(2);
+      actions.normalModeOperateToEnd(operator);
+      newSequence = remainder;
+    }
+
     else if (sequence.matches("^x.*")) {
       // Need to fill this in
       Matcher match = Pattern.compile("^x(.*)")

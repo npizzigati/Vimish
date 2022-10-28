@@ -277,6 +277,23 @@ class Actions {
     setCaretIndex(indexAfterOverwrite - 1);
   }
 
+  void normalModeOperateToEnd(String operator) {
+    int currentIndex = getCaretIndex();
+    String currentTranslation = editor.getCurrentTranslation();
+    switch (operator) {
+    case "D":
+      executeForwardAction("d", MotionType.FORWARD_CHAR, currentTranslation, currentIndex, currentTranslation.length());
+      break;
+    case "C":
+      executeForwardAction("d", MotionType.FORWARD_CHAR, currentTranslation, currentIndex, currentTranslation.length());
+      Mode.INSERT.activate();
+      break;
+    case "Y":
+      executeForwardAction("y", MotionType.FORWARD_CHAR, currentTranslation, 0, currentTranslation.length());
+      break;
+    }
+  }
+
   void normalModePutSpecificRegister(String registerKey, String position) {
     Registers registers = Registers.getRegisters();
     String text = registers.retrieve(registerKey);
@@ -948,8 +965,8 @@ class Actions {
     }
 
     // Move caret back one if it ends up one past last index (on
-    // segment end marker)
-    if (newIndex == length) {
+    // segment end marker) and operation is not a yank
+    if (!operator.equals("y") && newIndex == length) {
       Log.log("moving index back in forward char");
       setCaretIndex(getCaretIndex() - 1);
     }
