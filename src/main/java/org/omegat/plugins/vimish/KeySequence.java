@@ -112,7 +112,7 @@ class KeySequence {
      *
      * The order of subsequent regexes shouldn't matter
      **/
-    // To or till or search
+    // To or till
     if (sequence.matches("^\\d*[fFTt]..*")) {
       Matcher match = Pattern.compile("^(\\d*)([fFTt])(.)(.*)").matcher(sequence);
       match.find();
