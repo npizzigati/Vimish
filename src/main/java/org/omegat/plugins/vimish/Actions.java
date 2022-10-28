@@ -267,24 +267,11 @@ class Actions {
 
   void visualModeBigDCY(String operator) {
     String currentTranslation = editor.getCurrentTranslation();
-    switch (operator) {
-    case "D":
-      Mode.NORMAL.activate();
-      clearVisualMarks();
-      executeForwardAction("d", MotionType.FORWARD_CHAR, currentTranslation, 0, currentTranslation.length());
-      break;
-    case "C":
-      Mode.NORMAL.activate();
-      clearVisualMarks();
-      executeForwardAction("d", MotionType.FORWARD_CHAR, currentTranslation, 0, currentTranslation.length());
-      Mode.INSERT.activate();
-      break;
-    case "Y":
-      clearVisualMarks();
-      Mode.NORMAL.activate();
-      executeForwardAction("y", MotionType.FORWARD_CHAR, currentTranslation, 0, currentTranslation.length());
+    Mode.NORMAL.activate();
+    clearVisualMarks();
+    executeForwardAction(operator.toLowerCase(), MotionType.OTHER, currentTranslation, 0, currentTranslation.length());
+    if (operator.equals("Y")) {
       setCaretIndex(0);
-      break;
     }
   }
 
