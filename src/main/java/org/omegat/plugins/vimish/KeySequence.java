@@ -9,11 +9,13 @@ class KeySequence {
   private Actions actions;
   private int actionsCount = 0;
   private Configuration configuration;
+  // User-entered sequence is checked against these sequences
+  // after all possible mode action matches are checked (if none
+  // matches), to see whether sequence is valid but incomplete
+  // (and may constitute a match if user enters additional character(s))
   private Pattern[] validNormalAndVisualSeq = {Pattern.compile("^\\d*[dcyxPp]?\\d*[hlwWeEbBfFtTnNrR]?"),
                                                Pattern.compile("^[dcy]?[ai]?"),
-                                               Pattern.compile("^[/?].*"),
-                                               Pattern.compile("^\"[0-9a-zA-Z-]?[pP]?"),
-                                               Pattern.compile("^[aiuv]")};
+                                               Pattern.compile("^\"[0-9a-zA-Z-]?[pP]?")};
 
   KeySequence(Actions actions) {
     this.actions = actions;
