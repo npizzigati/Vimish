@@ -84,10 +84,20 @@ class Actions {
   }
 
   void visualModeSwitchSelectionEnd() {
-    Integer startIndex = VimishVisualMarker.getMarkStart();
-    Integer endIndex = VimishVisualMarker.getMarkEnd();
+    Integer markStartIndex = VimishVisualMarker.getMarkStart();
+    Integer markEndIndex = VimishVisualMarker.getMarkEnd();
     int currentIndex = getCaretIndex();
-    // TODO: Finish this
+    Log.log("st: " + markStartIndex + ", ei: " + markEndIndex + ", ci: " + currentIndex);
+    // Do nothing if visual selection is a single character
+    if (markEndIndex - markStartIndex < 2) {
+      return;
+    }
+    if (currentIndex == markEndIndex - 1) {
+      setCaretIndex(markStartIndex);
+    } else {
+      setCaretIndex(markEndIndex - 1);
+    }
+    VimishVisualMarker.toggleMarkOrientation();
   }
 
   void visualModeYank() {

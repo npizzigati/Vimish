@@ -30,6 +30,10 @@ public class VimishVisualMarker implements IMarker {
     return markOrientation;
   }
 
+  static void toggleMarkOrientation() {
+    markOrientation = (markOrientation == MarkOrientation.LEFT) ? MarkOrientation.RIGHT : MarkOrientation.LEFT;
+  }
+
   static void setMarkEnd(int markEnd) {
     markPoints.put(Point.END, markEnd);
   }
