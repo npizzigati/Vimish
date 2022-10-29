@@ -3,7 +3,7 @@ package org.omegat.plugins.vimish;
 import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Hashtable;
+import java.util.EnumMap;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter.HighlightPainter;
 import org.omegat.core.data.SourceTextEntry;
@@ -11,12 +11,15 @@ import org.omegat.gui.editor.mark.IMarker;
 import org.omegat.gui.editor.mark.Mark;
 
 public class VimishVisualMarker implements IMarker {
-  static private Hashtable<String, Integer> markPoints =
-      new Hashtable<String, Integer>();
+  static private enum Point {
+    START,
+    END;
+  }
+  static private EnumMap<Point, Integer> markPoints = new EnumMap<>(Point.class);
   static private MarkOrientation markOrientation;
 
   static void setMarkStart(int markStart) {
-    markPoints.put("start", markStart);
+    markPoints.put(Point.START, markStart);
   }
 
   static void setMarkOrientation(MarkOrientation orientation) {
@@ -28,14 +31,14 @@ public class VimishVisualMarker implements IMarker {
   }
 
   static void setMarkEnd(int markEnd) {
-    markPoints.put("end", markEnd);
+    markPoints.put(Point.END, markEnd);
   }
 
   static Integer getMarkStart() {
     if (markPoints.isEmpty())
       return null;
 
-    return markPoints.get("start");
+    return markPoints.get(Point.START);
   }
 
   static Integer getMarkEnd() {
@@ -43,11 +46,11 @@ public class VimishVisualMarker implements IMarker {
       return null;
     }
     
-    return markPoints.get("end");
+    return markPoints.get(Point.END);
   }
 
   static void resetMarks() {
-    markPoints = new Hashtable<String, Integer>();
+    markPoints = new EnumMap<>(Point.class);
     markOrientation = MarkOrientation.NONE;
   }
 
