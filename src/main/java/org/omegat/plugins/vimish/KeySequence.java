@@ -21,7 +21,6 @@ class KeySequence {
   }
 
   boolean isInProgress() {
-    Log.log("actionsCount: " + actionsCount);
     return actionsCount > 0;
   }
 
@@ -47,19 +46,6 @@ class KeySequence {
     }
 
     boolean didSequenceChange = !sequence.equals(newSequence);
-
-    // // If sequence didn't change, this means no portion was
-    // // matched. Check to see if a future match will be possible
-    // // if the user enters more text by checking whether the
-    // // sequence is valid.
-    // if (!didSequenceChange) {
-    //   if (!isValid(keyString)) {
-    //     Log.log("Invalid sequence");
-    //     sequence = "";
-    //     actionsCount = 0;
-    //     return;
-    //   }
-    // }
 
     sequence = newSequence;
 
