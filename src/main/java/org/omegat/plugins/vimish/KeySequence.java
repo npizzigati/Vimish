@@ -35,10 +35,12 @@ class KeySequence {
     String newSequence = sequence;
     if (Mode.NORMAL.isActive()) {
       newSequence = evaluateNormalSequence();
-    } else if (Mode.INSERT.isActive()) {
-      newSequence = evaluateInsertSequence();
+      normalMatchers.clear();
     } else if (Mode.VISUAL.isActive()) {
       newSequence = evaluateVisualSequence();
+      visualMatchers.clear();
+    } else if (Mode.INSERT.isActive()) {
+      newSequence = evaluateInsertSequence();
     } else if (Mode.REPLACE.isActive()) {
       newSequence = evaluateReplaceSequence();
     } else if (Mode.SEARCH.isActive()) {
@@ -100,7 +102,6 @@ class KeySequence {
       } else {
         actions.normalModeGoBackwardToChar(count, operator, motion, key);
       }
-      normalMatchers.clear();
       return remainder;
     }
 
@@ -110,7 +111,6 @@ class KeySequence {
       String remainder = matcher.group(2);
       Mode.SEARCH.activate();
       actions.normalModeActivateSearch(operator, Mode.NORMAL);
-      normalMatchers.clear();
       return remainder;
     }
 
@@ -122,7 +122,6 @@ class KeySequence {
       String remainder = matcher.group(3);
       int count = (countString.equals("")) ? 1 : Integer.parseInt(countString, 10);
       actions.normalModeReplace(key, count);
-      normalMatchers.clear();
       return remainder;
     }
 
@@ -131,7 +130,6 @@ class KeySequence {
     if (matcher.find()) {
       String remainder = matcher.group(1);
       Mode.REPLACE.activate();
-      normalMatchers.clear();
       return remainder;
     }
 
@@ -144,7 +142,6 @@ class KeySequence {
       String object = matcher.group(3);
       String remainder = matcher.group(4);
       actions.normalModeTextObjectSelection(operator, selector, object);
-      normalMatchers.clear();
       return remainder;
     }
 
@@ -153,7 +150,6 @@ class KeySequence {
       String operator = matcher.group(1);
       String remainder = matcher.group(2);
       actions.normalModeBigDCY(operator);
-      normalMatchers.clear();
       return remainder;
     }
 
@@ -162,7 +158,6 @@ class KeySequence {
       String motion = matcher.group(1);
       String remainder = matcher.group(2);
       actions.normalModeGoToSegmentBoundary(motion);
-      normalMatchers.clear();
       return remainder;
     }
 
@@ -172,7 +167,6 @@ class KeySequence {
       String motion = matcher.group(2);
       String remainder = matcher.group(3);
       actions.normalModeOperateToSegmentBoundary(operator, motion);
-      normalMatchers.clear();
       return remainder;
     }
 
@@ -180,7 +174,6 @@ class KeySequence {
     if (matcher.find()) {
       actions.normalModeForwardChar("d", 1);
       String remainder = matcher.group(1);
-      normalMatchers.clear();
       return remainder;
     }
 
@@ -188,7 +181,6 @@ class KeySequence {
     if (matcher.find()) {
       String remainder = matcher.group(1);
       Mode.INSERT.activate();
-      normalMatchers.clear();
       return remainder;
     }
 
@@ -197,7 +189,6 @@ class KeySequence {
       String remainder = matcher.group(1);
       actions.normalModeAppendAfterCursor();
       Mode.INSERT.activate();
-      normalMatchers.clear();
       return remainder;
     }
 
@@ -207,7 +198,6 @@ class KeySequence {
       String remainder = matcher.group(2);
       int count = (countString.equals("")) ? 1 : Integer.parseInt(countString, 10);
       actions.normalModeToggleCase(count);
-      normalMatchers.clear();
       return remainder;
     }
 
@@ -215,7 +205,6 @@ class KeySequence {
     if (matcher.find()) {
       String remainder = matcher.group(1);
       actions.undo();
-      normalMatchers.clear();
       return remainder;
     }
 
@@ -232,7 +221,6 @@ class KeySequence {
       if (count > 0) {
         actions.visualModeForwardChar(count - 1);
       }
-      normalMatchers.clear();
       return remainder;
     }
 
@@ -246,7 +234,6 @@ class KeySequence {
       String remainder = matcher.group(3);
       String position = (putLetter.equals("p")) ? "after" : "before";
       actions.normalModePutSpecificRegister(registerKey, position);
-      normalMatchers.clear();
       return remainder;
     }
 
@@ -256,7 +243,6 @@ class KeySequence {
       String remainder = matcher.group(4);
       String position = (putLetter.equals("p")) ? "after" : "before";
       actions.normalModePutUnnamedRegister(position);
-      normalMatchers.clear();
       return remainder;
     }
 
@@ -274,7 +260,6 @@ class KeySequence {
       } else {
         actions.repeatBackwardSearch(totalCount, operator);
       }
-      normalMatchers.clear();
       return remainder;
     }
 
@@ -300,7 +285,6 @@ class KeySequence {
       } else if (motion.toLowerCase().equals("b")) {
         actions.normalModeBackwardWord(operator, motion, totalCount);
       }
-      normalMatchers.clear();
       return remainder;
 
       // We are currently ignoring motion keys j/k and uppercase
@@ -315,7 +299,6 @@ class KeySequence {
     if (matcher.find()) {
       String remainder = matcher.group(1);
       actions.normalModeTab();
-      normalMatchers.clear();
       return remainder;
     }
 
@@ -323,12 +306,10 @@ class KeySequence {
     if (matcher.find()) {
       String remainder = matcher.group(1);
       actions.normalModeShiftTab();
-      normalMatchers.clear();
       return remainder;
     }
 
     if (sequence.matches(".*<ESC><ESC>")) {
-      normalMatchers.clear();
       return "";
     }
 
@@ -342,14 +323,12 @@ class KeySequence {
       Log.log(m.toString());
       if (m.hitEnd()) {
         Log.log("Partial match found: " + m.toString());
-        normalMatchers.clear();
         Log.log("normalMatchers length: " + normalMatchers.size());
         return sequence;
       }
     }
 
     // TODO: also need to account for ";" and "," (single char)
-    normalMatchers.clear();
     return "";
   }
 
@@ -377,7 +356,6 @@ class KeySequence {
       } else {
         actions.visualModeGoBackwardToChar(count, motion, key);
       }
-      visualMatchers.clear();
       return remainder;
     }
 
@@ -387,7 +365,6 @@ class KeySequence {
       String remainder = matcher.group(2);
       Mode.SEARCH.activate();
       actions.normalModeActivateSearch(operator, Mode.VISUAL);
-      visualMatchers.clear();
       return remainder;
     }
 
@@ -397,7 +374,6 @@ class KeySequence {
       String operator = matcher.group(1);
       String remainder = matcher.group(2);
       actions.visualModeSwitchCase(operator);
-      visualMatchers.clear();
       return remainder;
     }
 
@@ -410,7 +386,6 @@ class KeySequence {
       actions.visualModeReplace(key);
       Mode.NORMAL.activate();
       actions.clearVisualMarks();
-      visualMatchers.clear();
       return remainder;
     }
 
@@ -419,7 +394,6 @@ class KeySequence {
       String operator = matcher.group(1);
       String remainder = matcher.group(2);
       actions.visualModeBigDCY(operator);
-      visualMatchers.clear();
       return remainder;
     }
 
@@ -428,7 +402,6 @@ class KeySequence {
       String motion = matcher.group(1);
       String remainder = matcher.group(2);
       actions.visualModeGoToSegmentBoundary(motion);
-      visualMatchers.clear();
       return remainder;
     }
 
@@ -443,7 +416,6 @@ class KeySequence {
 
       Mode.NORMAL.activate();
       actions.clearVisualMarks();
-      visualMatchers.clear();
       return remainder;
     }
 
@@ -455,7 +427,6 @@ class KeySequence {
       String remainder = matcher.group(1);
       Mode.NORMAL.activate();
       actions.clearVisualMarks();
-      visualMatchers.clear();
       return remainder;
     }
 
@@ -465,7 +436,6 @@ class KeySequence {
       actions.visualModeDelete();
       actions.clearVisualMarks();
       Mode.NORMAL.activate();
-      visualMatchers.clear();
       return remainder;
     }
 
@@ -475,7 +445,6 @@ class KeySequence {
       actions.visualModeDelete();
       actions.clearVisualMarks();
       Mode.INSERT.activate();
-      visualMatchers.clear();
       return remainder;
     }
 
@@ -485,7 +454,6 @@ class KeySequence {
       actions.visualModeYank();
       actions.clearVisualMarks();
       Mode.NORMAL.activate();
-      visualMatchers.clear();
       return remainder;
     }
 
@@ -500,7 +468,6 @@ class KeySequence {
       } else {
         actions.repeatBackwardSearch(count, "");
       }
-      visualMatchers.clear();
       return remainder;
     }
 
@@ -520,7 +487,6 @@ class KeySequence {
       } else if (motion.toLowerCase().equals("b")) {
         actions.visualModeBackwardWord(motion, count);
       }
-      visualMatchers.clear();
       return remainder;
       // We are currently ignoring motion keys j/k and uppercase
       // H/L/J/K, since these are not particularly useful for
@@ -535,12 +501,10 @@ class KeySequence {
       String object = matcher.group(2);
       String remainder = matcher.group(3);
       actions.visualModeTextObjectSelection(selector, object);
-      visualMatchers.clear();
       return remainder;
     }
 
     if (sequence.matches(".*<ESC><ESC>")) {
-      visualMatchers.clear();
       return "";
     }
 
@@ -551,13 +515,11 @@ class KeySequence {
     // to be added
     for (Matcher m : visualMatchers) {
       if (m.hitEnd()) {
-        visualMatchers.clear();
         return sequence;
       }
     }
 
     // Sequence is invalid and evaluation will be aborted
-    visualMatchers.clear();
     return "";
   }
 
