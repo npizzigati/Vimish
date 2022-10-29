@@ -74,13 +74,20 @@ class Actions {
     int currentIndex = getCaretIndex();
     VimishVisualMarker.setMarkStart(currentIndex);
     VimishVisualMarker.setMarkEnd(currentIndex + 1);
-    VimishVisualMarker.setMarkOrientation("rightOfCaret");
+    VimishVisualMarker.setMarkOrientation(MarkOrientation.RIGHT);
     editor.remarkOneMarker(VimishVisualMarker.class.getName());
   }
 
   void clearVisualMarks() {
     VimishVisualMarker.resetMarks();
     editor.remarkOneMarker(VimishVisualMarker.class.getName());
+  }
+
+  void visualModeSwitchSelectionEnd() {
+    Integer startIndex = VimishVisualMarker.getMarkStart();
+    Integer endIndex = VimishVisualMarker.getMarkEnd();
+    int currentIndex = getCaretIndex();
+    // TODO: Finish this
   }
 
   void visualModeYank() {
@@ -137,7 +144,7 @@ class Actions {
         // mark is implemented up to but not including end index)
         VimishVisualMarker.setMarkEnd(markStart + 1);
         // Also set mark orientation
-        VimishVisualMarker.setMarkOrientation("leftOfCaret");
+        VimishVisualMarker.setMarkOrientation(MarkOrientation.LEFT);
       }
 
       VimishVisualMarker.setMarkStart(newIndex);
@@ -150,9 +157,9 @@ class Actions {
   void visualModeBackwardChar(int count) {
     Integer markStart = VimishVisualMarker.getMarkStart();
     Integer markEnd = VimishVisualMarker.getMarkEnd();
-    String markOrientation = VimishVisualMarker.getMarkOrientation();
+    MarkOrientation markOrientation = VimishVisualMarker.getMarkOrientation();
     int currentIndex;
-    if (markOrientation.equals("leftOfCaret")) {
+    if (markOrientation == MarkOrientation.LEFT) {
       currentIndex = markStart;
     } else {
       currentIndex = markEnd - 1;
@@ -171,25 +178,14 @@ class Actions {
   void visualModeForwardChar(int count) {
     Integer markStart = VimishVisualMarker.getMarkStart();
     Integer markEnd = VimishVisualMarker.getMarkEnd();
-    String markOrientation = VimishVisualMarker.getMarkOrientation();
+    MarkOrientation markOrientation = VimishVisualMarker.getMarkOrientation();
     int currentIndex;
 
-    if (markOrientation.equals("leftOfCaret")) {
+    if (markOrientation == MarkOrientation.LEFT) {
       currentIndex = markStart;
     } else {
       currentIndex = markEnd - 1;
     }
-    // if (markOrientation == null) {
-    //   // If there is no visually marked text yet, the first mark will
-    //   // always be in the forward direction
-    //   VimishVisualMarker.setMarkOrientation("rightOfCaret");
-    //   currentIndex = getCaretIndex();
-    // } else if (markOrientation == "leftOfCaret") {
-    //   currentIndex = markStart;
-    // } else {
-    //   currentIndex = markEnd - 1;
-    // }
-
     int length = editor.getCurrentTranslation().length();
 
     // Do nothing if already at last index
@@ -215,14 +211,14 @@ class Actions {
   void visualModeForwardWord(String motion, int count) {
     Integer markStart = VimishVisualMarker.getMarkStart();
     Integer markEnd = VimishVisualMarker.getMarkEnd();
-    String markOrientation = VimishVisualMarker.getMarkOrientation();
+    MarkOrientation markOrientation = VimishVisualMarker.getMarkOrientation();
     int currentIndex;
-    if (markOrientation == null) {
+    if (markOrientation == MarkOrientation.NONE) {
       // If there is no visually marked text yet, the first mark will
       // always be in the forward direction
-      VimishVisualMarker.setMarkOrientation("rightOfCaret");
+      VimishVisualMarker.setMarkOrientation(MarkOrientation.RIGHT);
       currentIndex = getCaretIndex();
-    } else if (markOrientation.equals("leftOfCaret")) {
+    } else if (markOrientation == MarkOrientation.LEFT) {
       currentIndex = markStart;
     } else {
       currentIndex = markEnd - 1;
@@ -248,7 +244,7 @@ class Actions {
         // mark is implemented up to but not including end index)
         VimishVisualMarker.setMarkStart(markEnd - 1);
         // Also set mark orientation
-        VimishVisualMarker.setMarkOrientation("rightOfCaret");
+        VimishVisualMarker.setMarkOrientation(MarkOrientation.RIGHT);
       }
 
       VimishVisualMarker.setMarkEnd(newIndex + 1);
@@ -725,7 +721,7 @@ class Actions {
     startIndex = getObjectStartIndex(currentIndex, currentTranslation, objectType, selector, delimiter,
         isEndIndexExpanded);
 
-    String markOrientation = VimishVisualMarker.getMarkOrientation();
+    MarkOrientation markOrientation = VimishVisualMarker.getMarkOrientation();
     boolean isSelectionSingleChar = VimishVisualMarker.getMarkStart() + 1 == VimishVisualMarker.getMarkEnd();
     if (isSelectionSingleChar) {
       // If there is no visually marked text before selection, mark will
@@ -733,9 +729,9 @@ class Actions {
       VimishVisualMarker.setMarkStart(startIndex);
       VimishVisualMarker.setMarkEnd(endIndex + 1);
       editor.remarkOneMarker(VimishVisualMarker.class.getName());
-      VimishVisualMarker.setMarkOrientation("rightOfCaret");
+      VimishVisualMarker.setMarkOrientation(MarkOrientation.RIGHT);
       setCaretIndex(endIndex);
-    } else if (markOrientation.equals("leftOfCaret")){
+    } else if (markOrientation == MarkOrientation.LEFT) {
       VimishVisualMarker.setMarkStart(startIndex);
       editor.remarkOneMarker(VimishVisualMarker.class.getName());
       setCaretIndex(startIndex);
@@ -759,7 +755,7 @@ class Actions {
     editor.replacePartOfText(selection, startIndex, endIndex);
     // Replacement operation will place caret at end of replaced
     // text -- we need to put it back in proper place
-    if (VimishVisualMarker.getMarkOrientation().equals("rightOfCaret")) {
+    if (VimishVisualMarker.getMarkOrientation() == MarkOrientation.RIGHT) {
       setCaretIndex(endIndex - 1);
     } else {
       setCaretIndex(startIndex);

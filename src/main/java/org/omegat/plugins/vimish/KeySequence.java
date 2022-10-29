@@ -377,6 +377,15 @@ class KeySequence {
       return remainder;
     }
 
+    // Switch selection end
+    matcher = getVisualMatcher("^[oO](.*)", sequence);
+    if (matcher.find()) {
+      String remainder = matcher.group(1);
+      actions.visualModeSwitchSelectionEnd();
+      return remainder;
+    }
+
+
     // r - little "r" replace
     matcher = getVisualMatcher("^\\d*r(.)(.*)", sequence);
     if (matcher.find()) {

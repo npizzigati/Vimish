@@ -13,17 +13,17 @@ import org.omegat.gui.editor.mark.Mark;
 public class VimishVisualMarker implements IMarker {
   static private Hashtable<String, Integer> markPoints =
       new Hashtable<String, Integer>();
-  static private String markOrientation;
+  static private MarkOrientation markOrientation;
 
   static void setMarkStart(int markStart) {
     markPoints.put("start", markStart);
   }
 
-  static void setMarkOrientation(String orientation) {
+  static void setMarkOrientation(MarkOrientation orientation) {
     markOrientation = orientation;
   }
 
-  static String getMarkOrientation() {
+  static MarkOrientation getMarkOrientation() {
     return markOrientation;
   }
 
@@ -48,7 +48,7 @@ public class VimishVisualMarker implements IMarker {
 
   static void resetMarks() {
     markPoints = new Hashtable<String, Integer>();
-    markOrientation = null;
+    markOrientation = MarkOrientation.NONE;
   }
 
   @Override
