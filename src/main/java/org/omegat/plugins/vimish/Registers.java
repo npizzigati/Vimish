@@ -19,40 +19,49 @@ class Registers {
     return instance;
   }
 
-  void storeSmallDeletion(String content) {
-    store("unnamed", content);
-    store("-", content);
-  }
-  
-  void storeBigDeletion(String content) {
-    store("unnamed", content);
-    shiftContents();
-    store("1", content);
+  void storeSmallDeletion(String registerKey, String content) {
+    store("\"", content);
+    if (registerKey == "") {
+      store("-", content);
+    } else {
+      store(registerKey, content);
+    }
   }
 
-  void storeYankedText(String content) {
-    store("unnamed", content);
-    store("0", content);
+  void storeBigDeletion(String registerKey, String content) {
+    store("\"", content);
+    if (registerKey == "") {
+      shiftContents();
+      store("1", content);
+    } else {
+      store(registerKey, content);
+    }
   }
 
-  private void store(String key, String content) {
-    registerData.put(key, content);
+  void storeYank(String registerKey, String content) {
+    store("\"", content);
+    if (registerKey == "") {
+      store("0", content);
+    } else {
+      store(registerKey, content);
+    }
   }
 
-  String retrieve(String key) {
-    return registerData.getOrDefault(key, "");
+  private void store(String registerKey, String content) {
+    registerData.put(registerKey, content);
+  }
+
+  String retrieve(String registerKey) {
+    return registerData.getOrDefault(registerKey, "");
   }
 
   void shiftContents() {
     for (Integer i = 9; i > 1; i--) {
       String currentRegisterKey = i.toString();
-      String previousRegisterKey = (Integer.valueOf(i - 1)).toString(); 
+      String previousRegisterKey = (Integer.valueOf(i - 1)).toString();
 
       String previousRegisterContent = retrieve(previousRegisterKey);
       store(currentRegisterKey, previousRegisterContent);
     }
   }
 }
-    
-
-  

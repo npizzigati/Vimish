@@ -100,36 +100,42 @@ class Actions {
     VimishVisualMarker.toggleMarkOrientation();
   }
 
-  void visualModeYank() {
+  void visualModeOperate(String operator, String registerKey) {
+    switch (operator) {
+    case "d":
+    case "x":
+      visualModeDelete(registerKey);
+      Mode.NORMAL.activate();
+      break;
+    case "c":
+      visualModeDelete(registerKey);
+      Mode.INSERT.activate();
+      break;
+    case "y":
+      visualModeYank(registerKey);
+      Mode.NORMAL.activate();
+      break;
+    }
+  }
+
+  void visualModeYank(String registerKey) {
     Integer startIndex = VimishVisualMarker.getMarkStart();
     Integer endIndex = VimishVisualMarker.getMarkEnd();
     String currentTranslation = editor.getCurrentTranslation();
     String yankedText = currentTranslation.substring(startIndex, endIndex);
-    Registers registers = Registers.getRegisters();
-
-    registers.storeYankedText(yankedText);
+    storeYankedOrDeletedText(yankedText, "y", registerKey);
     setCaretIndex(startIndex);
   }
 
-  void visualModeDelete() {
+  void visualModeDelete(String registerKey) {
     // Delete all visually selected text
     Integer startIndex = VimishVisualMarker.getMarkStart();
     Integer endIndex = VimishVisualMarker.getMarkEnd();
     String currentTranslation = editor.getCurrentTranslation();
     String deletedText = currentTranslation.substring(startIndex, endIndex);
-
-    Registers registers = Registers.getRegisters();
-    // If text is less than one line, store it in "small delete" register
-    // (currentTranslation is assumed to be a maximum of 1 line long)
-    if (currentTranslation.equals(deletedText)) {
-      registers.storeBigDeletion(deletedText);
-    } else {
-      registers.storeSmallDeletion(deletedText);
-    }
-
+    storeYankedOrDeletedText(deletedText, "d", registerKey);
     // Delete text
     editor.replacePartOfText("", startIndex, endIndex);
-
     // If caret ends up on segment marker that is beyond last
     // index, move it back one
     int indexAfterDeletion = getCaretIndex();
@@ -271,11 +277,11 @@ class Actions {
     setCaretIndex(startIndex);
   }
 
-  void visualModeBigDCY(String operator) {
+  void visualModeBigDCY(String operator, String registerKey) {
     String currentTranslation = editor.getCurrentTranslation();
     Mode.NORMAL.activate();
     clearVisualMarks();
-    executeForwardAction(operator.toLowerCase(), MotionType.OTHER, currentTranslation, 0, currentTranslation.length());
+    executeForwardAction(operator.toLowerCase(), MotionType.OTHER, currentTranslation, 0, currentTranslation.length(), registerKey);
     if (operator.equals("Y")) {
       setCaretIndex(0);
     }
@@ -295,22 +301,22 @@ class Actions {
     int currentIndex = getCaretIndex();
     String currentTranslation = editor.getCurrentTranslation();
     if (motion.equals("$")) {
-      executeForwardAction("", MotionType.OTHER, currentTranslation, currentIndex, currentTranslation.length());
+      executeForwardAction("", MotionType.OTHER, currentTranslation, currentIndex, currentTranslation.length(), "");
     } else {
-      executeBackwardAction("", currentTranslation, currentIndex, 0);
+      executeBackwardAction("", currentTranslation, currentIndex, 0, "");
     }
   }
 
-  void normalModeOperateToSegmentBoundary(String operator, String motion) {
+  void normalModeOperateToSegmentBoundary(String operator, String motion, String registerKey) {
     int currentIndex = getCaretIndex();
     String currentTranslation = editor.getCurrentTranslation();
     if (motion.equals("$")) {
-      executeForwardAction(operator, MotionType.OTHER, currentTranslation, currentIndex, currentTranslation.length());
+      executeForwardAction(operator, MotionType.OTHER, currentTranslation, currentIndex, currentTranslation.length(), registerKey);
       if (operator.equals("c")) {
         setCaretIndex(getCaretIndex() + 1);
       }
     } else {
-      executeBackwardAction(operator, currentTranslation, currentIndex, 0);
+      executeBackwardAction(operator, currentTranslation, currentIndex, 0, registerKey);
     }
   }
 
@@ -327,38 +333,51 @@ class Actions {
     setCaretIndex(indexAfterOverwrite - 1);
   }
 
-  void normalModeBigDCY(String operator) {
+  void normalModeBigDCY(String operator, String registerKey) {
     int currentIndex = getCaretIndex();
     String currentTranslation = editor.getCurrentTranslation();
     switch (operator) {
     case "D":
-      executeForwardAction("d", MotionType.OTHER, currentTranslation, currentIndex, currentTranslation.length());
+      executeForwardAction("d", MotionType.OTHER, currentTranslation, currentIndex, currentTranslation.length(), registerKey);
       break;
     case "C":
-      executeForwardAction("c", MotionType.OTHER, currentTranslation, currentIndex, currentTranslation.length());
+      executeForwardAction("c", MotionType.OTHER, currentTranslation, currentIndex, currentTranslation.length(), registerKey);
       setCaretIndex(getCaretIndex() + 1);
       break;
     case "Y":
-      executeForwardAction("y", MotionType.OTHER, currentTranslation, 0, currentTranslation.length());
+      executeForwardAction("y", MotionType.OTHER, currentTranslation, 0, currentTranslation.length(), registerKey);
       break;
     }
   }
 
-  void normalModePutSpecificRegister(String registerKey, String position) {
+  void visualModePut(String registerKey, int count) {
     Registers registers = Registers.getRegisters();
-    String text = registers.retrieve(registerKey);
-    normalModePut(text, position);
+    String text;
+    if (isEmpty(registerKey)) {
+      text = registers.retrieve("\"");
+    } else {
+      text = registers.retrieve(registerKey);
+    }
+    text = repeat(text, count);
+    Integer startIndex = VimishVisualMarker.getMarkStart();
+    Integer endIndex = VimishVisualMarker.getMarkEnd();
+    editor.replacePartOfText(text, startIndex, endIndex);
+    clearVisualMarks();
+    Mode.NORMAL.activate();
+    setCaretIndex(getCaretIndex() - 1);
   }
 
-  void normalModePutUnnamedRegister(String position) {
+  void normalModePut(String registerKey, String operator, int count) {
     Registers registers = Registers.getRegisters();
-    String text = registers.retrieve("unnamed");
-    normalModePut(text, position);
-  }
-
-  void normalModePut(String text, String position) {
+    String text;
+    if (isEmpty(registerKey)) {
+      text = registers.retrieve("\"");
+    } else {
+      text = registers.retrieve(registerKey);
+    }
+    text = repeat(text, count);
     int index = getCaretIndex();
-    if (position.equals("before")) {
+    if (operator.equals("P")) {
       insertTextAtIndex(text, index);
     } else {
       insertTextAtIndex(text, index + 1);
@@ -387,7 +406,7 @@ class Actions {
   }
 
   void searchModeBackspace() {
-    if (searchString.equals("")) {
+    if (isEmpty(searchString)) {
       mainWindow.showStatusMessageRB(null);
       searchModeFinalizeSearch(true);
     }
@@ -410,7 +429,7 @@ class Actions {
 
   void searchModeForwardSearch() {
     searchModeFinalizeSearch(false);
-    if (searchString == null || searchString.equals("")) {
+    if (isEmpty(searchString)) {
       return;
     }
     String currentTranslation = editor.getCurrentTranslation();
@@ -429,8 +448,8 @@ class Actions {
     }
   }
 
-  void repeatForwardSearch(int count, String operator) {
-    if (searchString == null || searchString.equals("")) {
+  void repeatForwardSearch(int count, String operator, String registerKey) {
+    if (isEmpty(searchString)) {
       return;
     }
     String currentTranslation = editor.getCurrentTranslation();
@@ -448,14 +467,14 @@ class Actions {
     }
 
     if (Mode.NORMAL.isActive()) {
-      executeForwardAction(operator, MotionType.FORWARD_CHAR, currentTranslation, currentIndex, newIndex);
+      executeForwardAction(operator, MotionType.FORWARD_CHAR, currentTranslation, currentIndex, newIndex, registerKey);
     } else {
       visualModeForwardMove(currentIndex, newIndex);
     }
   }
 
-  void repeatBackwardSearch(int count, String operator) {
-    if (searchString == null || searchString.equals("")) {
+  void repeatBackwardSearch(int count, String operator, String registerKey) {
+    if (isEmpty(searchString)) {
       return;
     }
     String currentTranslation = editor.getCurrentTranslation();
@@ -472,7 +491,7 @@ class Actions {
       tmpIndex = newIndex;
     }
     if (Mode.NORMAL.isActive()) {
-      executeBackwardAction(operator, currentTranslation, currentIndex, newIndex);
+      executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
     } else {
       visualModeBackwardMove(currentIndex, newIndex);
     }
@@ -480,7 +499,7 @@ class Actions {
 
   void searchModeBackwardSearch() {
     searchModeFinalizeSearch(false);
-    if (searchString == null || searchString.equals("")) {
+    if (isEmpty(searchString)) {
       return;
     }
     String currentTranslation = editor.getCurrentTranslation();
@@ -795,7 +814,7 @@ class Actions {
     }
   }
 
-  void normalModeTextObjectSelection(String operator, String selector, String delimiter) {
+  void normalModeTextObjectSelection(String operator, String selector, String delimiter, String registerKey) {
     int currentIndex = getCaretIndex();
     String currentTranslation = editor.getCurrentTranslation();
     int endIndex = currentIndex;
@@ -814,7 +833,7 @@ class Actions {
     startIndex = getObjectStartIndex(currentIndex, currentTranslation, objectType, selector, delimiter,
         isEndIndexExpanded);
     setCaretIndex(startIndex);
-    executeForwardAction(operator, MotionType.FORWARD_WORD, currentTranslation, startIndex, endIndex + 1);
+    executeForwardAction(operator, MotionType.FORWARD_WORD, currentTranslation, startIndex, endIndex + 1, registerKey);
   }
 
   int getForwardSearchIndex(String currentTranslation, int currentIndex) {
@@ -903,24 +922,24 @@ class Actions {
     visualModeBackwardMove(currentIndex, newIndex);
   }
 
-  void normalModeGoForwardToChar(int count, String operator, String motion, String key) {
+  void normalModeGoForwardToChar(int count, String operator, String motion, String key, String registerKey) {
     int currentIndex = getCaretIndex();
     String currentTranslation = editor.getCurrentTranslation();
     int newIndex = getForwardToCharIndex(count, currentIndex, motion, key, currentTranslation);
     if (newIndex == currentIndex) {
       return;
     }
-    executeForwardAction(operator, MotionType.TO_OR_TILL, currentTranslation, currentIndex, newIndex + 1);
+    executeForwardAction(operator, MotionType.TO_OR_TILL, currentTranslation, currentIndex, newIndex + 1, registerKey);
   }
 
-  void normalModeGoBackwardToChar(int count, String operator, String motion, String key) {
+  void normalModeGoBackwardToChar(int count, String operator, String motion, String key, String registerKey) {
     int currentIndex = getCaretIndex();
     String currentTranslation = editor.getCurrentTranslation();
     int newIndex = getBackwardToCharIndex(count, currentIndex, motion, key, currentTranslation);
     if (newIndex == currentIndex) {
       return;
     }
-    executeBackwardAction(operator, currentTranslation, currentIndex, newIndex);
+    executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
   }
 
   int getForwardWordIndex(int currentIndex, String motion, int count, String currentTranslation) {
@@ -953,7 +972,7 @@ class Actions {
     return newIndex;
   }
 
-  void normalModeForwardWord(String operator, String motion, int count) {
+  void normalModeForwardWord(String operator, String motion, int count, String registerKey) {
     int currentIndex = getCaretIndex();
     String currentTranslation = editor.getCurrentTranslation();
     int length = currentTranslation.length();
@@ -964,37 +983,49 @@ class Actions {
     // character in segment and there is an operator, we need to
     // change the algorithm we use to get the new index, to
     // assure the selection endpoint is correct
-    if (!operator.equals("") && newIndex == length - 1 && motion.toLowerCase().equals("w")) {
+    if (!isEmpty(operator) && newIndex == length - 1 && motion.toLowerCase().equals("w")) {
       String newMotion = (motion.equals("w") ? "e" : "E");
-      normalModeForwardWord(operator, newMotion, count);
+      normalModeForwardWord(operator, newMotion, count, registerKey);
       return;
     }
 
     // For d/c/y operations with the "e" motion, we need to
     // increment the new index by one to ensure selection is correct
-    if (!operator.equals("") && motion.toLowerCase().equals("e")) {
+    if (!isEmpty(operator) && motion.toLowerCase().equals("e")) {
       newIndex++;
     }
 
-    executeForwardAction(operator, MotionType.FORWARD_WORD, currentTranslation, currentIndex, newIndex);
+    executeForwardAction(operator, MotionType.FORWARD_WORD, currentTranslation, currentIndex, newIndex, registerKey);
+  }
+
+  void storeYankedOrDeletedText(String yankedOrDeletedText, String operator, String registerKey) {
+    String currentTranslation = editor.getCurrentTranslation();
+    Registers registers = Registers.getRegisters();
+    switch (operator) {
+    // If text is entire line, store deletes in "big delete" register
+    // (currentTranslation is assumed to be a maximum of 1 line long)
+    case "c":
+    case "d":
+      if (currentTranslation.equals(yankedOrDeletedText)) {
+        registers.storeBigDeletion(registerKey, yankedOrDeletedText);
+      } else {
+        registers.storeSmallDeletion(registerKey, yankedOrDeletedText);
+      }
+      break;
+    case "y":
+      registers.storeYank(registerKey, yankedOrDeletedText);
+      break;
+    }
   }
 
   void executeForwardAction(String operator, MotionType motionType, String currentTranslation,
-                            int currentIndex, int newIndex) {
+                            int currentIndex, int newIndex, String registerKey) {
     int length = currentTranslation.length();
-    if (operator.equals("")) {
+    if (isEmpty(operator)) {
       setCaretIndex((motionType == MotionType.TO_OR_TILL) ? newIndex - 1 : newIndex);
     } else {
-      String yankedText = currentTranslation.substring(currentIndex, newIndex);
-      Registers registers = Registers.getRegisters();
-      // If text is less than one line, store it in "small delete" register
-      // (currentTranslation is assumed to be a maximum of 1 line long)
-      if (currentTranslation.equals(yankedText)) {
-        registers.storeBigDeletion(yankedText);
-      } else {
-        registers.storeSmallDeletion(yankedText);
-      }
-
+      String yankedOrDeletedText = currentTranslation.substring(currentIndex, newIndex);
+      storeYankedOrDeletedText(yankedOrDeletedText, operator, registerKey);
       if (operator.equals("d")) {
         Log.log("deleting word, newIndex: " + newIndex);
         editor.replacePartOfText("", currentIndex, newIndex);
@@ -1022,20 +1053,12 @@ class Actions {
     }
   }
 
-  void executeBackwardAction(String operator, String currentTranslation, int currentIndex, int newIndex) {
-    if (operator.equals("")) {
+  void executeBackwardAction(String operator, String currentTranslation, int currentIndex, int newIndex, String registerKey) {
+    if (isEmpty(operator)) {
       setCaretIndex(newIndex);
     } else {
-      String yankedText = currentTranslation.substring(newIndex, currentIndex);
-      Registers registers = Registers.getRegisters();
-      // If text is less than one line, store it in "small delete" register
-      // (currentTranslation is assumed to be a maximum of 1 line long)
-      if (currentTranslation.equals(yankedText)) {
-        registers.storeBigDeletion(yankedText);
-      } else {
-        registers.storeSmallDeletion(yankedText);
-      }
-
+      String yankedOrDeletedText = currentTranslation.substring(newIndex, currentIndex);
+      storeYankedOrDeletedText(yankedOrDeletedText, operator, registerKey);
       if (operator.equals("d")) {
         editor.replacePartOfText("", newIndex, currentIndex);
       } else if (operator.equals("c")) {
@@ -1045,12 +1068,12 @@ class Actions {
     }
   }
 
-  void normalModeForwardChar(String operator, int count) {
+  void normalModeForwardChar(String operator, int count, String registerKey) {
     int currentIndex = getCaretIndex();
     String currentTranslation = editor.getCurrentTranslation();
     int length = currentTranslation.length();
     int newIndex = (length - currentIndex >= count) ? currentIndex + count : length;
-    executeForwardAction(operator, MotionType.FORWARD_CHAR, currentTranslation, currentIndex, newIndex);
+    executeForwardAction(operator, MotionType.FORWARD_CHAR, currentTranslation, currentIndex, newIndex, registerKey);
   }
 
   int getBackwardWordIndex(int currentIndex, int count, String motion, String currentTranslation) {
@@ -1071,7 +1094,7 @@ class Actions {
     return allMatchIndexes.isEmpty() ? currentIndex : allMatchIndexes.get(matchPosition);
   }
 
-  void normalModeBackwardWord(String operator, String motion, int totalCount) {
+  void normalModeBackwardWord(String operator, String motion, int totalCount, String registerKey) {
     int currentIndex = getCaretIndex();
     if (currentIndex == 0) {
       return;
@@ -1080,18 +1103,18 @@ class Actions {
 
     int newIndex = getBackwardWordIndex(currentIndex, totalCount, motion, currentTranslation);
 
-    executeBackwardAction(operator, currentTranslation, currentIndex, newIndex);
+    executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
   }
 
   void normalModeBackwardChar(int count) {
-    normalModeBackwardChar("", count);
+    normalModeBackwardChar("", count, "");
   }
 
-  void normalModeBackwardChar(String operator, int count) {
+  void normalModeBackwardChar(String operator, int count, String registerKey) {
     int currentIndex = getCaretIndex();
     int newIndex = (currentIndex >= count) ? currentIndex - count : 0;
     String currentTranslation = editor.getCurrentTranslation();
-    executeBackwardAction(operator, currentTranslation, currentIndex, newIndex);
+    executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
   }
 
   void normalModeTab() {
@@ -1220,5 +1243,9 @@ class Actions {
 
   String repeat(String word, int times) {
     return String.join("", Collections.nCopies(times, word));
+  }
+
+  boolean isEmpty(String item) {
+    return item == null || item.equals("");
   }
 }

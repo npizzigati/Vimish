@@ -25,7 +25,7 @@ class ActionsTest {
     when(mockEditor.getCurrentTranslation()).thenReturn("This is a test");
 
     Actions actionsSpy = spy(actions); 
-    actionsSpy.normalModeForwardChar("", 1);
+    actionsSpy.normalModeForwardChar("", 1, "");
 
     verify(actionsSpy).setCaretIndex(6);
   }
@@ -37,7 +37,7 @@ class ActionsTest {
     when(mockEditor.getCurrentTranslation()).thenReturn("This is a test");
 
     Actions actionsSpy = spy(actions); 
-    actionsSpy.normalModeForwardChar("", 6);
+    actionsSpy.normalModeForwardChar("", 6, "");
 
     verify(actionsSpy).setCaretIndex(14);
   }
