@@ -88,7 +88,7 @@ class KeySequence {
      * The order of subsequent regexes shouldn't matter
      **/
     // To or till or search
-    matcher = getNormalMatcher("^(\"([0-9a-zA-Z\\-\"]))?(\\d*)([dcy]?)(\\d*)([fFTt])(.)(.*)", sequence);
+    matcher = getNormalMatcher("^(\"([\\w\\-\"]))?(\\d*)([dcy]?)(\\d*)([fFTt])(.)(.*)", sequence);
     if (matcher.find()) {
       String registerKey = matcher.group(2);
       String countString1 = matcher.group(3);
@@ -136,7 +136,7 @@ class KeySequence {
 
     // Text object selection (e.g. "diw" -> delete in word;
     // "di)" -> delete in parentheses)
-    matcher = getNormalMatcher("^(\"([0-9a-zA-Z\\-\"]))?([dcy])([ia])([wW\"\'\\[\\]\\{\\}<>\\(\\)])(.*)", sequence);
+    matcher = getNormalMatcher("^(\"([\\w\\-\"]))?([dcy])([ia])([wW\"\'\\[\\]\\{\\}<>\\(\\)])(.*)", sequence);
     if (matcher.find()) {
       String registerKey = matcher.group(2);
       String operator = matcher.group(3);
@@ -147,7 +147,7 @@ class KeySequence {
       return remainder;
     }
 
-    matcher = getNormalMatcher("^(\"([0-9a-zA-Z\\-\"]))?([DCY])(.*)", sequence);
+    matcher = getNormalMatcher("^(\"([\\w\\-\"]))?([DCY])(.*)", sequence);
     if (matcher.find()) {
       String registerKey = matcher.group(2);
       String operator = matcher.group(3);
@@ -164,7 +164,7 @@ class KeySequence {
       return remainder;
     }
 
-    matcher = getNormalMatcher("^(\"([0-9a-zA-Z\\-\"]))?([dcy])([$0])(.*)", sequence);
+    matcher = getNormalMatcher("^(\"([\\w\\-\"]))?([dcy])([$0])(.*)", sequence);
     if (matcher.find()) {
       String registerKey = matcher.group(2);
       String operator = matcher.group(3);
@@ -174,7 +174,7 @@ class KeySequence {
       return remainder;
     }
 
-    matcher = getNormalMatcher("^(\"([0-9a-zA-Z\\-\"]))?(\\d*)x(.*)", sequence);
+    matcher = getNormalMatcher("^(\"([\\w\\-\"]))?(\\d*)x(.*)", sequence);
     if (matcher.find()) {
       String registerKey = matcher.group(2);
       String countString = matcher.group(3);
@@ -246,7 +246,7 @@ class KeySequence {
     }
 
     // Repeat search
-    matcher = getNormalMatcher("^(\"([0-9a-zA-Z\\-\"]))?(\\d*)([dcy]?)(\\d*)([nN])(.*)", sequence);
+    matcher = getNormalMatcher("^(\"([\\w\\-\"]))?(\\d*)([dcy]?)(\\d*)([nN])(.*)", sequence);
     if (matcher.find()) {
       String registerKey = matcher.group(2);
       String countString1 = matcher.group(3);
@@ -265,7 +265,7 @@ class KeySequence {
 
       // Handle h/l/wW/eE motions (character left and right)
       // with no operator or with d/c/y operators
-    matcher = getNormalMatcher("^(\"([0-9a-zA-Z\\-\"]))?(\\d*)([dcy]?)(\\d*)([hlwWeEbB])(.*)", sequence);
+    matcher = getNormalMatcher("^(\"([\\w\\-\"]))?(\\d*)([dcy]?)(\\d*)([hlwWeEbB])(.*)", sequence);
     if (matcher.find()) {
       String registerKey = matcher.group(2);
       String countString1 = matcher.group(3);
@@ -396,7 +396,7 @@ class KeySequence {
       return remainder;
     }
 
-    matcher = getVisualMatcher("^(\"([0-9a-zA-Z\\-\"]))?([DCY])(.*)", sequence);
+    matcher = getVisualMatcher("^(\"([\\w\\-\"]))?([DCY])(.*)", sequence);
     if (matcher.find()) {
       String registerKey = matcher.group(2);
       String operator = matcher.group(3);
@@ -438,7 +438,7 @@ class KeySequence {
       return remainder;
     }
 
-    matcher = getVisualMatcher("^(\"([0-9a-zA-Z\\-\"]))?([dxcy])(.*)", sequence);
+    matcher = getVisualMatcher("^(\"([\\w\\-\"]))?([dxcy])(.*)", sequence);
     if (matcher.find()) {
       String registerKey = matcher.group(2);
       String operator = matcher.group(3);

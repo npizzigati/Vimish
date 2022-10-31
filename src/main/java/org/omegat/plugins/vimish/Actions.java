@@ -355,6 +355,8 @@ class Actions {
     String text;
     if (isEmpty(registerKey)) {
       text = registers.retrieve("\"");
+    } else if (registerKey.equals("_")) {
+      text = "";
     } else {
       text = registers.retrieve(registerKey);
     }
@@ -372,6 +374,8 @@ class Actions {
     String text;
     if (isEmpty(registerKey)) {
       text = registers.retrieve("\"");
+    } else if (registerKey.equals("_")) {
+      text = "";
     } else {
       text = registers.retrieve(registerKey);
     }
@@ -999,6 +1003,10 @@ class Actions {
   }
 
   void storeYankedOrDeletedText(String yankedOrDeletedText, String operator, String registerKey) {
+    // Do not store text if register is null register
+    if (registerKey.equals("_")) {
+      return;
+    }
     String currentTranslation = editor.getCurrentTranslation();
     Registers registers = Registers.getRegisters();
     switch (operator) {
