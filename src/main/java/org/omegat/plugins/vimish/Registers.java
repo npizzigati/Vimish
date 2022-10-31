@@ -21,7 +21,7 @@ class Registers {
 
   void storeSmallDeletion(String registerKey, String content) {
     store("\"", content);
-    if (registerKey == "") {
+    if (registerKey.equals("")) {
       store("-", content);
     } else {
       store(registerKey, content);
@@ -30,7 +30,7 @@ class Registers {
 
   void storeBigDeletion(String registerKey, String content) {
     store("\"", content);
-    if (registerKey == "") {
+    if (registerKey.equals("")) {
       shiftContents();
       store("1", content);
     } else {
@@ -40,7 +40,7 @@ class Registers {
 
   void storeYank(String registerKey, String content) {
     store("\"", content);
-    if (registerKey == "") {
+    if (registerKey.equals("")) {
       store("0", content);
     } else {
       store(registerKey, content);
