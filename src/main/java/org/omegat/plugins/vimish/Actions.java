@@ -1003,8 +1003,7 @@ class Actions {
   }
 
   void storeYankedOrDeletedText(String yankedOrDeletedText, String operator, String registerKey) {
-    // Do not store text if register is null register
-    if (registerKey.equals("_")) {
+    if (registerKey == null || registerKey.equals("") || registerKey.equals("_")) {
       return;
     }
     String currentTranslation = editor.getCurrentTranslation();
