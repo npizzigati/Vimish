@@ -1034,7 +1034,7 @@ class Actions {
       String yankedOrDeletedText = currentTranslation.substring(currentIndex, newIndex);
       storeYankedOrDeletedText(yankedOrDeletedText, operator, registerKey);
       if (operator.equals("d")) {
-        Log.log("deleting word, newIndex: " + newIndex);
+        Log.log("deleting, newIndex: " + newIndex);
         editor.replacePartOfText("", currentIndex, newIndex);
       } else if (operator.equals("c")) {
         // If this is a word operation and new index falls on a
