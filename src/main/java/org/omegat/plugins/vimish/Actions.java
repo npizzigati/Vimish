@@ -1054,7 +1054,7 @@ class Actions {
 
     // Move caret back one if it ends up one past last index (on
     // segment end marker) and operation is not a yank
-    if (!operator.equals("y") && newIndex == length) {
+    if (!operator.equals("y") && newIndex == length && getCaretIndex() != 0) {
       Log.log("moving index back in forward char");
       setCaretIndex(getCaretIndex() - 1);
     }
