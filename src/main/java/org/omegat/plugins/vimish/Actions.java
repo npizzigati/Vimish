@@ -929,9 +929,6 @@ class Actions {
     int currentIndex = getCaretIndex();
     String currentTranslation = editor.getCurrentTranslation();
     int newIndex = getForwardToCharIndex(count, currentIndex, motion, key, currentTranslation);
-    if (newIndex == currentIndex) {
-      return;
-    }
     executeForwardAction(operator, MotionType.TO_OR_TILL, currentTranslation, currentIndex, newIndex + 1, registerKey);
   }
 
