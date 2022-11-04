@@ -328,7 +328,7 @@ class Actions {
     if (currentIndex + count > lastIndex + 1) {
       return;
     }
-    editor.replacePartOfText(repeat(key, count), currentIndex, currentIndex + count);
+    editor.replacePartOfText(Util.repeat(key, count), currentIndex, currentIndex + count);
     int indexAfterOverwrite = getCaretIndex();
     setCaretIndex(indexAfterOverwrite - 1);
   }
@@ -353,14 +353,14 @@ class Actions {
   void visualModePut(String registerKey, int count) {
     Registers registers = Registers.getRegisters();
     String text;
-    if (isEmpty(registerKey)) {
+    if (Util.isEmpty(registerKey)) {
       text = registers.retrieve("\"");
     } else if (registerKey.equals("_")) {
       text = "";
     } else {
       text = registers.retrieve(registerKey);
     }
-    text = repeat(text, count);
+    text = Util.repeat(text, count);
     Integer startIndex = VimishVisualMarker.getMarkStart();
     Integer endIndex = VimishVisualMarker.getMarkEnd();
     editor.replacePartOfText(text, startIndex, endIndex);
@@ -372,14 +372,14 @@ class Actions {
   void normalModePut(String registerKey, String operator, int count) {
     Registers registers = Registers.getRegisters();
     String text;
-    if (isEmpty(registerKey)) {
+    if (Util.isEmpty(registerKey)) {
       text = registers.retrieve("\"");
     } else if (registerKey.equals("_")) {
       text = "";
     } else {
       text = registers.retrieve(registerKey);
     }
-    text = repeat(text, count);
+    text = Util.repeat(text, count);
     int index = getCaretIndex();
     if (operator.equals("P")) {
       insertTextAtIndex(text, index);
@@ -410,7 +410,7 @@ class Actions {
   }
 
   void searchModeBackspace() {
-    if (isEmpty(searchString)) {
+    if (Util.isEmpty(searchString)) {
       mainWindow.showStatusMessageRB(null);
       searchModeFinalizeSearch(true);
     }
@@ -433,7 +433,7 @@ class Actions {
 
   void searchModeForwardSearch() {
     searchModeFinalizeSearch(false);
-    if (isEmpty(searchString)) {
+    if (Util.isEmpty(searchString)) {
       return;
     }
     String currentTranslation = editor.getCurrentTranslation();
@@ -453,7 +453,7 @@ class Actions {
   }
 
   void repeatForwardSearch(int count, String operator, String registerKey) {
-    if (isEmpty(searchString)) {
+    if (Util.isEmpty(searchString)) {
       return;
     }
     String currentTranslation = editor.getCurrentTranslation();
@@ -478,7 +478,7 @@ class Actions {
   }
 
   void repeatBackwardSearch(int count, String operator, String registerKey) {
-    if (isEmpty(searchString)) {
+    if (Util.isEmpty(searchString)) {
       return;
     }
     String currentTranslation = editor.getCurrentTranslation();
@@ -503,7 +503,7 @@ class Actions {
 
   void searchModeBackwardSearch() {
     searchModeFinalizeSearch(false);
-    if (isEmpty(searchString)) {
+    if (Util.isEmpty(searchString)) {
       return;
     }
     String currentTranslation = editor.getCurrentTranslation();
@@ -987,7 +987,7 @@ class Actions {
     // character in segment and there is an operator, we need to
     // change the algorithm we use to get the new index, to
     // assure the selection endpoint is correct
-    if (!isEmpty(operator) && newIndex == length - 1 && motion.toLowerCase().equals("w")) {
+    if (!Util.isEmpty(operator) && newIndex == length - 1 && motion.toLowerCase().equals("w")) {
       String newMotion = (motion.equals("w") ? "e" : "E");
       normalModeForwardWord(operator, newMotion, count, registerKey);
       return;
@@ -995,7 +995,7 @@ class Actions {
 
     // For d/c/y operations with the "e" motion, we need to
     // increment the new index by one to ensure selection is correct
-    if (!isEmpty(operator) && motion.toLowerCase().equals("e")) {
+    if (!Util.isEmpty(operator) && motion.toLowerCase().equals("e")) {
       newIndex++;
     }
 
@@ -1003,7 +1003,7 @@ class Actions {
   }
 
   void storeYankedOrDeletedText(String yankedOrDeletedText, String operator, String registerKey) {
-    if (registerKey == null || registerKey.equals("") || registerKey.equals("_")) {
+    if (!Util.isEmpty(registerKey) && registerKey.equals("_")) {
       return;
     }
     String currentTranslation = editor.getCurrentTranslation();
@@ -1028,7 +1028,7 @@ class Actions {
   void executeForwardAction(String operator, MotionType motionType, String currentTranslation,
                             int currentIndex, int newIndex, String registerKey) {
     int length = currentTranslation.length();
-    if (isEmpty(operator)) {
+    if (Util.isEmpty(operator)) {
       setCaretIndex((motionType == MotionType.TO_OR_TILL) ? newIndex - 1 : newIndex);
     } else {
       String yankedOrDeletedText = currentTranslation.substring(currentIndex, newIndex);
@@ -1061,7 +1061,7 @@ class Actions {
   }
 
   void executeBackwardAction(String operator, String currentTranslation, int currentIndex, int newIndex, String registerKey) {
-    if (isEmpty(operator)) {
+    if (Util.isEmpty(operator)) {
       setCaretIndex(newIndex);
     } else {
       String yankedOrDeletedText = currentTranslation.substring(newIndex, currentIndex);
