@@ -3,6 +3,7 @@ package org.omegat.plugins.vimish;
 // import org.omegat.util.Log;
 
 import java.util.HashMap;
+import org.omegat.util.Log;
 
 class Registers {
   private static Registers instance;
@@ -21,7 +22,7 @@ class Registers {
 
   void storeSmallDeletion(String registerKey, String content) {
     store("\"", content);
-    if (registerKey.equals("")) {
+    if (Util.isEmpty(registerKey)) {
       store("-", content);
     } else {
       store(registerKey, content);
@@ -30,7 +31,7 @@ class Registers {
 
   void storeBigDeletion(String registerKey, String content) {
     store("\"", content);
-    if (registerKey.equals("")) {
+    if (Util.isEmpty(registerKey)) {
       shiftContents();
       store("1", content);
     } else {
@@ -40,7 +41,7 @@ class Registers {
 
   void storeYank(String registerKey, String content) {
     store("\"", content);
-    if (registerKey.equals("")) {
+    if (Util.isEmpty(registerKey)) {
       store("0", content);
     } else {
       store(registerKey, content);

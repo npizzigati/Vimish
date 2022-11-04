@@ -1,5 +1,6 @@
 package org.omegat.plugins.vimish;
 
+import java.util.Collections;
 import javax.swing.text.JTextComponent;
 
 
@@ -21,5 +22,13 @@ class Util {
         Log.log(iae);
     }
     return area;
+  }
+
+  static String repeat(String word, int times) {
+    return String.join("", Collections.nCopies(times, word));
+  }
+
+  static boolean isEmpty(String item) {
+    return item == null || item.equals("");
   }
 }
