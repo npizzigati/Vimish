@@ -10,12 +10,10 @@ import org.omegat.gui.editor.EditorController;
 import org.omegat.gui.editor.IEditor.CaretPosition;
 import org.omegat.util.Log;
 
-import java.lang.Integer;
-
 class ActionsTest {
-  EditorController mockEditor;
-  Actions actions;
-  KeySequence keySequence;
+  private EditorController mockEditor;
+  private Actions actions;
+  private KeySequence keySequence;
 
   // This is a stand-in for the real EditorController instance
   // (in addition to the mock created below). The mock editor
@@ -29,31 +27,31 @@ class ActionsTest {
   class TestEditor {
     private String content;
     private int caretPos;
-    TestEditor(String initialContent, int initialCaretPos) {
+    TestEditor(final String initialContent, final int initialCaretPos) {
       content = initialContent;
       caretPos = initialCaretPos;
     }
 
-    void replacePartOfText(String newText, int startIndex, int endIndex) {
+    void replacePartOfText(final String newText, final int startIndex, final int endIndex) {
       if (endIndex > content.length()) {
         return;
       }
       content = content.substring(0, startIndex) + newText + content.substring(endIndex);
     }
 
-    int insertText(String text) {
+    int insertText(final String text) {
       int index = getCaretPosition();
       content = content.substring(0, index) + text + content.substring(index);
       int newIndex = index + text.length();
       return newIndex;
     }
 
-    void setCaretPosition(CaretPosition pos) {
+    void setCaretPosition(final CaretPosition pos) {
       caretPos = extractCaretIndex(pos);
       getCaretPosition();
     }
 
-    void setCaretPosition(int idx) {
+    void setCaretPosition(final int idx) {
       caretPos = idx;
       getCaretPosition();
     }
@@ -79,34 +77,34 @@ class ActionsTest {
 
   @ParameterizedTest
   @CsvFileSource(resources = "/normal_mode_delete_data.csv", numLinesToSkip = 1)
-  void testNormalModeDelete(String initialMode, String initialCaretPos, String initialContent, String sequence,
-                              String expectedMode, String expectedCaretPos, String expectedContent) {
+  void testNormalModeDelete(final String initialMode, final String initialCaretPos, final String initialContent, final String sequence,
+                              final String expectedMode, final String expectedCaretPos, final String expectedContent) {
     performTest(initialMode, initialCaretPos, initialContent, sequence, expectedMode, expectedCaretPos, expectedContent);
   }
 
   @ParameterizedTest
   @CsvFileSource(resources = "/normal_mode_change_data.csv", numLinesToSkip = 1)
-  void testNormalModeChange(String initialMode, String initialCaretPos, String initialContent, String sequence,
-                              String expectedMode, String expectedCaretPos, String expectedContent) {
+  void testNormalModeChange(final String initialMode, final String initialCaretPos, final String initialContent, final String sequence,
+                              final String expectedMode, final String expectedCaretPos, final String expectedContent) {
     performTest(initialMode, initialCaretPos, initialContent, sequence, expectedMode, expectedCaretPos, expectedContent);
   }
 
   @ParameterizedTest
   @CsvFileSource(resources = "/normal_mode_move_data.csv", numLinesToSkip = 1)
-  void testNormalModeMove(String initialMode, String initialCaretPos, String initialContent, String sequence,
-                              String expectedMode, String expectedCaretPos, String expectedContent) {
+  void testNormalModeMove(final String initialMode, final String initialCaretPos, final String initialContent, final String sequence,
+                              final String expectedMode, final String expectedCaretPos, final String expectedContent) {
     performTest(initialMode, initialCaretPos, initialContent, sequence, expectedMode, expectedCaretPos, expectedContent);
   }
 
   @ParameterizedTest
   @CsvFileSource(resources = "/multiple_actions_data.csv", numLinesToSkip = 1)
-  void testMultipleActions(String initialMode, String initialCaretPos, String initialContent, String sequence,
-                              String expectedMode, String expectedCaretPos, String expectedContent) {
+  void testMultipleActions(final String initialMode, final String initialCaretPos, final String initialContent, final String sequence,
+                              final String expectedMode, final String expectedCaretPos, final String expectedContent) {
     performTest(initialMode, initialCaretPos, initialContent, sequence, expectedMode, expectedCaretPos, expectedContent);
   }
 
-  void performTest(String initialMode, String initialCaretPos, String initialContent, String sequence,
-                              String expectedMode, String expectedCaretPos, String expectedContent) {
+  void performTest(final String initialMode, final String initialCaretPos, final String initialContent, final String sequence,
+                              final String expectedMode, final String expectedCaretPos, final String expectedContent) {
     TestEditor testEditor = new TestEditor(initialContent, Integer.valueOf(initialCaretPos));
     setupStandInMethods(testEditor);
     Mode.valueOf(initialMode).activate();
@@ -116,7 +114,7 @@ class ActionsTest {
     assertEquals(Integer.valueOf(expectedCaretPos), testEditor.getCaretPosition());
   }
 
-  void setupStandInMethods(TestEditor testEditor) {
+  void setupStandInMethods(final TestEditor testEditor) {
     doAnswer((InvocationOnMock i) -> {
       return testEditor.getCaretPosition();
       }).when(mockEditor).getCurrentPositionInEntryTranslation();
@@ -127,9 +125,9 @@ class ActionsTest {
 
     doAnswer((InvocationOnMock i) -> {
       Object[] args = i.getArguments();
-      String newText = (String)args[0];
-      int startIndex = (Integer)args[1];
-      int endIndex = (Integer)args[2];
+      String newText = (String) args[0];
+      int startIndex = (Integer) args[1];
+      int endIndex = (Integer) args[2];
       testEditor.replacePartOfText(newText, startIndex, endIndex);
       int newCaretIndex = startIndex + newText.length();
       testEditor.setCaretPosition(newCaretIndex);
@@ -138,7 +136,7 @@ class ActionsTest {
 
     doAnswer((InvocationOnMock i) -> {
       Object[] args = i.getArguments();
-      String text = (String)args[0];
+      String text = (String) args[0];
       int newIndex = testEditor.insertText(text);
       testEditor.setCaretPosition(newIndex);
       return null;
@@ -146,20 +144,20 @@ class ActionsTest {
 
     doAnswer((InvocationOnMock i) -> {
       Object[] args = i.getArguments();
-      testEditor.setCaretPosition((CaretPosition)args[0]);
+      testEditor.setCaretPosition((CaretPosition) args[0]);
       return null;
       }).when(mockEditor).setCaretPosition(any());
   }
 
-  static Integer extractCaretIndex(CaretPosition pos) {
+  static Integer extractCaretIndex(final CaretPosition pos) {
     Integer index = null;
     try {
         java.lang.reflect.Field protectedField = CaretPosition.class.getDeclaredField("position");
         protectedField.setAccessible(true);
         index = (Integer) protectedField.get(pos);
-    } catch(NoSuchFieldException nsfe) {
+    } catch (NoSuchFieldException nsfe) {
       Log.log("Unable to get caret index: " + nsfe);
-    } catch(IllegalAccessException iae) {
+    } catch (IllegalAccessException iae) {
       Log.log("Unable to get caret index: " + iae);
     }
     return index;
