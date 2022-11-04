@@ -191,7 +191,7 @@ class KeySequence {
       return remainder;
     }
 
-    matcher = getNormalMatcher("^a(.*)", sequence);
+    matcher = getNormalMatcher("^\\d*a(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
       actions.normalModeAppendAfterCursor();
