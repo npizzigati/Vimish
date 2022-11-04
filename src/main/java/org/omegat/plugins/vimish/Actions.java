@@ -273,7 +273,7 @@ class Actions {
     Integer startIndex = VimishVisualMarker.getMarkStart();
     Integer endIndex = VimishVisualMarker.getMarkEnd();
     int count = endIndex - startIndex;
-    editor.replacePartOfText(repeat(key, count), startIndex, endIndex);
+    editor.replacePartOfText(Util.repeat(key, count), startIndex, endIndex);
     setCaretIndex(startIndex);
   }
 
@@ -1003,6 +1003,7 @@ class Actions {
   }
 
   void storeYankedOrDeletedText(String yankedOrDeletedText, String operator, String registerKey) {
+    // Do nothing if yanking to Vim's "null" register ("_")
     if (!Util.isEmpty(registerKey) && registerKey.equals("_")) {
       return;
     }
@@ -1028,33 +1029,41 @@ class Actions {
   void executeForwardAction(String operator, MotionType motionType, String currentTranslation,
                             int currentIndex, int newIndex, String registerKey) {
     int length = currentTranslation.length();
+    String yankedOrDeletedText = null;
     if (Util.isEmpty(operator)) {
       setCaretIndex((motionType == MotionType.TO_OR_TILL) ? newIndex - 1 : newIndex);
     } else {
-      String yankedOrDeletedText = currentTranslation.substring(currentIndex, newIndex);
-      storeYankedOrDeletedText(yankedOrDeletedText, operator, registerKey);
+      if (operator.equals("y")) {
+        yankedOrDeletedText = currentTranslation.substring(currentIndex, newIndex);
+      }
       if (operator.equals("d")) {
         Log.log("deleting, newIndex: " + newIndex);
+        yankedOrDeletedText = currentTranslation.substring(currentIndex, newIndex);
         editor.replacePartOfText("", currentIndex, newIndex);
       } else if (operator.equals("c")) {
         // If this is a word operation and new index falls on a
         // word char (but not at end of segment), back off
         // newIndex one position (new index in that case should
         // fall one before the beginning ot the next word)
-        Log.log("changing word, newIndex: " + newIndex);
-            
-        if (motionType == MotionType.FORWARD_WORD && newIndex != length && currentTranslation.substring(newIndex, newIndex + 1).matches("\\p{L}")) {
+        // UNLESS the change starts on a space
+        if (motionType == MotionType.FORWARD_WORD && newIndex != length
+            && currentTranslation.substring(newIndex, newIndex + 1).matches("\\p{L}")
+            && !currentTranslation.substring(currentIndex, currentIndex + 1).equals(" ")) {
+          yankedOrDeletedText = currentTranslation.substring(currentIndex, newIndex - 1);
           editor.replacePartOfText("", currentIndex, newIndex - 1);
         } else {
+          yankedOrDeletedText = currentTranslation.substring(currentIndex, newIndex);
           editor.replacePartOfText("", currentIndex, newIndex);
         }
         Mode.INSERT.activate();
       }
     }
-
+    if (yankedOrDeletedText != null) {
+      storeYankedOrDeletedText(yankedOrDeletedText, operator, registerKey);
+    }
     // Move caret back one if it ends up one past last index (on
-    // segment end marker) and operation is not a yank
-    if (!operator.equals("y") && newIndex == length && getCaretIndex() != 0) {
+    // segment end marker) and operation is not a yank or a change
+    if (!operator.equals("y") && !operator.equals("c") && newIndex == length && getCaretIndex() != 0) {
       Log.log("moving index back in forward char");
       setCaretIndex(getCaretIndex() - 1);
     }
@@ -1246,13 +1255,5 @@ class Actions {
    */
   int getCaretIndex() {
     return editor.getCurrentPositionInEntryTranslation();
-  }
-
-  String repeat(String word, int times) {
-    return String.join("", Collections.nCopies(times, word));
-  }
-
-  boolean isEmpty(String item) {
-    return item == null || item.equals("");
   }
 }
