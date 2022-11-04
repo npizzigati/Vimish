@@ -342,7 +342,6 @@ class Actions {
       break;
     case "C":
       executeForwardAction("c", MotionType.OTHER, currentTranslation, currentIndex, currentTranslation.length(), registerKey);
-      setCaretIndex(getCaretIndex() + 1);
       break;
     case "Y":
       executeForwardAction("y", MotionType.OTHER, currentTranslation, 0, currentTranslation.length(), registerKey);
