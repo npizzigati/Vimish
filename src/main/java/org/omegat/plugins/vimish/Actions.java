@@ -834,7 +834,7 @@ class Actions {
     startIndex = getObjectStartIndex(currentIndex, currentTranslation, objectType, selector, delimiter,
         isEndIndexExpanded);
     setCaretIndex(startIndex);
-    executeForwardAction(operator, MotionType.FORWARD_WORD, currentTranslation, startIndex, endIndex + 1, registerKey);
+    executeForwardAction(operator, MotionType.OTHER, currentTranslation, startIndex, endIndex + 1, registerKey);
   }
 
   int getForwardSearchIndex(String currentTranslation, int currentIndex) {
