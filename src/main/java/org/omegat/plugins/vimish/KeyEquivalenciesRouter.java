@@ -2,13 +2,14 @@ package org.omegat.plugins.vimish;
 
 import org.omegat.core.Core;
 import org.omegat.gui.editor.EditorController;
+import org.omegat.gui.main.MainWindow;
 import org.omegat.util.Log;
 
 import java.util.List;
 
 class KeyEquivalenciesRouter {
   private EditorController editor = (EditorController) Core.getEditor();
-  private Actions actions = new Actions(editor);
+  private Actions actions = new Actions(editor, (MainWindow) Core.getMainWindow());
   private KeySequence keySequence = new KeySequence(actions);
   private KeyMappingsController keyMappingsController = new KeyMappingsController(this);
   private KeyChordsController keyChordsController = new KeyChordsController(this);

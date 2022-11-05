@@ -42,8 +42,8 @@ class Actions {
 
   Container displayFrame;
 
-  Actions(EditorController editor) {
-    this.mainWindow = (MainWindow) Core.getMainWindow();
+  Actions(EditorController editor, MainWindow mainWindow) {
+    this.mainWindow = mainWindow;
     this.editor = editor;
   }
 
