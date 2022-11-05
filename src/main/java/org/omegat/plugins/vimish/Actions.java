@@ -878,8 +878,7 @@ class Actions {
   int getBackwardSearchIndex(String currentTranslation, int currentIndex) {
     int newIndex = currentIndex;
     String text = currentTranslation;
-    Matcher m = Pattern.compile(executedSearch.searchString)
-                            .matcher(text);
+    Matcher m = Pattern.compile(executedSearch.searchString).matcher(text);
     ArrayList<Integer> allMatchIndexes = new ArrayList<>();
     while (m.find()) {
       int matchStartIndex = m.start();
