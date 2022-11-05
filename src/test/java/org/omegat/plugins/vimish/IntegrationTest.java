@@ -6,8 +6,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.*;
 import org.junit.jupiter.params.provider.*;
 import static org.junit.jupiter.api.Assertions.*;
+
 import org.omegat.gui.editor.EditorController;
 import org.omegat.gui.editor.IEditor.CaretPosition;
+import org.omegat.gui.main.MainWindow;
 import org.omegat.util.Log;
 
 class ActionsTest {
