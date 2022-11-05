@@ -15,15 +15,11 @@ class ActionsTest {
   private Actions actions;
   private KeySequence keySequence;
 
-  // This is a stand-in for the real EditorController instance
-  // (in addition to the mock created below). The mock editor
-  // provides mock return values for function calls that would
-  // otherwise involve other parts of OmegaT which we don't have
-  // access to here. This stand-in, on the other hand, receives
-  // text replacement and caret position instructions (which would
-  // ordinarily be sent to the real editor), so we can examine
-  // the text and caret position after each key sequence is
-  // evaluated.
+  // This is a stand-in for the real EditorController
+  // instance. It receives text replacement and caret position
+  // instructions (which would ordinarily be sent to the real
+  // editor), so we can examine the text and caret position after
+  // each key sequence is evaluated.
   class TestEditor {
     private String content;
     private int caretPos;
