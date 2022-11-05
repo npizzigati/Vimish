@@ -111,7 +111,7 @@ class KeySequence {
       String operator = matcher.group(1);
       String remainder = matcher.group(2);
       Mode.SEARCH.activate();
-      actions.normalModeActivateSearch(operator, Mode.NORMAL);
+      actions.activateSearch(operator, Mode.NORMAL);
       return remainder;
     }
 
@@ -255,11 +255,7 @@ class KeySequence {
       String motion = matcher.group(6);
       String remainder = matcher.group(7);
       int totalCount = determineTotalCount(countString1, countString2);
-      if (motion.equals("n")) {
-        actions.repeatForwardSearch(totalCount, operator, registerKey);
-      } else {
-        actions.repeatBackwardSearch(totalCount, operator, registerKey);
-      }
+      actions.repeatSearch(totalCount, motion, operator, registerKey);
       return remainder;
     }
 
@@ -362,7 +358,7 @@ class KeySequence {
       String operator = matcher.group(1);
       String remainder = matcher.group(2);
       Mode.SEARCH.activate();
-      actions.normalModeActivateSearch(operator, Mode.VISUAL);
+      actions.activateSearch(operator, Mode.VISUAL);
       return remainder;
     }
 
@@ -641,7 +637,7 @@ class KeySequence {
         case "<S-TAB>":
         case "<DEL>":
         case "<ESC>":
-          actions.searchModeFinalizeSearch(true);
+          actions.searchModeFinalizeSearch(false);
           break;
       }
       newSequence = remainder;

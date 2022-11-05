@@ -14,11 +14,10 @@ import java.lang.Character;
 class Actions {
   private EditorController editor;
   private MainWindow mainWindow;
+  private Search pendingSearch;
+  private Search executedSearch;
   // private JFrame searchPopup;
   // private JLabel searchPopupLabel;
-  private String searchString;
-  private String searchOperator;
-  private Mode preSearchMode;
   private Pattern beginningOfWordPattern = Pattern.compile("(^[\\p{L}\\d\\p{P}])|((?<=[^\\p{L}\\d])[\\p{L}\\d])|(?<=[\\p{L}\\d\\s])([^\\p{L}\\d\\s])|(.$)");
   private Pattern beginningOfWordBigWPattern = Pattern.compile("((?<=[\\s])[\\p{L}\\d\\p{P}])|(.$)");
   private Pattern beginningOfWordBackPattern = Pattern.compile("(^[\\p{L}\\d\\p{P}])|((?<=[^\\p{L}\\d])[\\p{L}\\d])|(?<=[\\p{L}\\d\\s])([^\\p{L}\\d\\s])");
@@ -45,6 +44,18 @@ class Actions {
   Actions(EditorController editor, MainWindow mainWindow) {
     this.mainWindow = mainWindow;
     this.editor = editor;
+  }
+
+  class Search {
+    String searchString;
+    String searchOperator;
+    Mode preSearchMode;
+
+    Search(String searchString, String searchOperator, Mode preSearchMode) {
+      this.searchString = searchString;
+      this.searchOperator = searchOperator;
+      this.preSearchMode = preSearchMode;
+    }
   }
 
   class EndIndexResult {
@@ -391,37 +402,36 @@ class Actions {
     setCaretIndex(currentIndex + 1);
   }
 
-  void normalModeActivateSearch(String operator, Mode activatingMode) {
-    preSearchMode = activatingMode;
-    searchOperator = operator;
-    searchString = "";
+  void activateSearch(String searchOperator, Mode activatingMode) {
+    pendingSearch = new Search("", searchOperator, activatingMode);
     mainWindow.showStatusMessageRB("PREFERENCES_SEARCH_HINT", searchOperator);
   }
 
-  void searchModeFinalizeSearch(boolean resetSearch) {
+  void searchModeFinalizeSearch(boolean wasExecuted) {
     mainWindow.showStatusMessageRB(null);
-    preSearchMode.activate();
-    if (resetSearch) {
-      searchString = "";
+    pendingSearch.preSearchMode.activate();
+    if (wasExecuted) {
+      executedSearch = pendingSearch;
     }
   }
 
   void searchModeBackspace() {
-    if (Util.isEmpty(searchString)) {
+    if (Util.isEmpty(pendingSearch.searchString)) {
       mainWindow.showStatusMessageRB(null);
-      searchModeFinalizeSearch(true);
+      searchModeFinalizeSearch(false);
     }
-    searchString = searchString.substring(0, searchString.length() - 1);
-    mainWindow.showStatusMessageRB("PREFERENCES_SEARCH_HINT", searchOperator + searchString);
+    pendingSearch.searchString = pendingSearch.searchString.substring(0, pendingSearch.searchString.length() - 1);
+    mainWindow.showStatusMessageRB("PREFERENCES_SEARCH_HINT", pendingSearch.searchOperator + pendingSearch.searchString);
   }
 
   void searchModeAddChar(String character) {
-    searchString += character;
-    mainWindow.showStatusMessageRB("PREFERENCES_SEARCH_HINT", searchOperator + searchString);
+    pendingSearch.searchString += character;
+    mainWindow.showStatusMessageRB("PREFERENCES_SEARCH_HINT", pendingSearch.searchOperator + pendingSearch.searchString);
   }
 
   void searchModeExecuteSearch() {
-    if (searchOperator.equals("/")) {
+    searchModeFinalizeSearch(true);
+    if (pendingSearch.searchOperator.equals("/")) {
       searchModeForwardSearch();
     } else {
       searchModeBackwardSearch();
@@ -429,8 +439,7 @@ class Actions {
   }
 
   void searchModeForwardSearch() {
-    searchModeFinalizeSearch(false);
-    if (Util.isEmpty(searchString)) {
+    if (Util.isEmpty(pendingSearch.searchString)) {
       return;
     }
     String currentTranslation = editor.getCurrentTranslation();
@@ -449,10 +458,29 @@ class Actions {
     }
   }
 
-  void repeatForwardSearch(int count, String operator, String registerKey) {
-    if (Util.isEmpty(searchString)) {
+  void repeatSearch(int count, String motion, String operator, String registerKey) {
+    if (executedSearch == null || executedSearch.searchString.equals("")) {
       return;
     }
+    switch (motion) {
+    case "n":
+      if (executedSearch.searchOperator.equals("/")) {
+        repeatForwardSearch(count, operator, registerKey);
+      } else {
+        repeatBackwardSearch(count, operator, registerKey);
+      }
+      break;
+    case "N":
+      if (executedSearch.searchOperator.equals("?")) {
+        repeatForwardSearch(count, operator, registerKey);
+      } else {
+        repeatBackwardSearch(count, operator, registerKey);
+      }
+      break;
+    }
+  }
+
+  void repeatForwardSearch(int count, String operator, String registerKey) {
     String currentTranslation = editor.getCurrentTranslation();
     int currentIndex = getCaretIndex();
     int tmpIndex = currentIndex;
@@ -475,9 +503,6 @@ class Actions {
   }
 
   void repeatBackwardSearch(int count, String operator, String registerKey) {
-    if (Util.isEmpty(searchString)) {
-      return;
-    }
     String currentTranslation = editor.getCurrentTranslation();
     int currentIndex = getCaretIndex();
     int tmpIndex = currentIndex;
@@ -499,8 +524,7 @@ class Actions {
   }
 
   void searchModeBackwardSearch() {
-    searchModeFinalizeSearch(false);
-    if (Util.isEmpty(searchString)) {
+    if (executedSearch == null || executedSearch.searchString.equals("")) {
       return;
     }
     String currentTranslation = editor.getCurrentTranslation();
@@ -839,7 +863,7 @@ class Actions {
 
   int getForwardSearchIndex(String currentTranslation, int currentIndex) {
     String textToEnd = currentTranslation.substring(currentIndex + 1);
-    Matcher m = Pattern.compile(searchString)
+    Matcher m = Pattern.compile(executedSearch.searchString)
                             .matcher(textToEnd);
     int matchStart;
     if (m.find()) {
@@ -854,7 +878,7 @@ class Actions {
   int getBackwardSearchIndex(String currentTranslation, int currentIndex) {
     int newIndex = currentIndex;
     String textFromStart = currentTranslation.substring(0, currentIndex);
-    Matcher m = Pattern.compile(searchString)
+    Matcher m = Pattern.compile(executedSearch.searchString)
                             .matcher(textFromStart);
     ArrayList<Integer> allMatchIndexes = new ArrayList<>();
     while (m.find()) {
