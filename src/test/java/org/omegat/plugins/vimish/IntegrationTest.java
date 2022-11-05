@@ -15,6 +15,7 @@ import org.omegat.util.Log;
 class ActionsTest {
   private EditorController mockEditor;
   private Actions actions;
+  private MainWindow mockMainWindow;
   private KeySequence keySequence;
 
   // This is a stand-in for the real EditorController
@@ -69,8 +70,10 @@ class ActionsTest {
   void setUp() {
     Log.log(System.currentTimeMillis() + " Starting test case: ");
     mockEditor = mock(EditorController.class);
-    actions = new Actions(mockEditor);
+    mockMainWindow = mock(MainWindow.class);
+    actions = new Actions(mockEditor, mockMainWindow);
     keySequence = new KeySequence(actions);
+    doNothing().when(mockMainWindow).showStatusMessageRB(isA(String.class), isA(String.class));
   }
 
   @ParameterizedTest
