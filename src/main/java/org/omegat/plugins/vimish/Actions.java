@@ -1,6 +1,5 @@
 package org.omegat.plugins.vimish;
 
-import org.omegat.core.Core;
 import org.omegat.gui.main.MainWindow;
 import org.omegat.gui.editor.EditorController;
 import org.omegat.gui.editor.IEditor.CaretPosition;
@@ -10,7 +9,6 @@ import java.awt.Container;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.lang.Character;
 
 class Actions {
