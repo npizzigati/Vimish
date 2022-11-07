@@ -95,13 +95,13 @@ class KeySequence {
       String operator = matcher.group(4);
       String countString2 = matcher.group(5);
       String motion = matcher.group(6);
-      String key = matcher.group(7);
+      String character = matcher.group(7);
       String remainder = matcher.group(8);
       int count = determineTotalCount(countString1, countString2);
       if (motion.equals("f") || motion.equals("t")) {
-        actions.normalModeGoForwardToChar(count, operator, motion, key, registerKey);
+        actions.normalModeGoToChar(count, operator, motion, character, registerKey, RepeatType.NONE);
       } else {
-        actions.normalModeGoBackwardToChar(count, operator, motion, key, registerKey);
+        actions.normalModeGoToChar(count, operator, motion, character, registerKey, RepeatType.NONE);
       }
       return remainder;
     }
@@ -360,11 +360,7 @@ class KeySequence {
       String remainder = matcher.group(4);
 
       int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
-      if (motion.equals("f") || motion.equals("t")) {
-        actions.visualModeGoForwardToChar(count, motion, key);
-      } else {
-        actions.visualModeGoBackwardToChar(count, motion, key);
-      }
+      actions.visualModeGoToChar(count, motion, key, RepeatType.NONE);
       return remainder;
     }
 
@@ -481,6 +477,18 @@ class KeySequence {
       actions.repeatSearch(count, motion, "", "");
       return remainder;
     }
+
+    // Repeat find
+    matcher = getVisualMatcher("^(\\d*)([;,])(.*)", sequence);
+    if (matcher.find()) {
+      String countString = matcher.group(1);
+      String repeatMotion = matcher.group(2);
+      String remainder = matcher.group(3);
+      int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
+      actions.repeatFind(count, repeatMotion, "", "");
+      return remainder;
+    }
+
 
     // Handle h/l motions (character left and right)
     matcher = getVisualMatcher("^(\\d*)([hlwWeEbB])(.*)", sequence);

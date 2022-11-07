@@ -905,9 +905,19 @@ class Actions {
     return newIndex;
   }
 
-  int getBackwardToCharIndex(int count, int currentIndex, String motion, String key, String currentTranslation) {
+  int getBackwardToCharIndex(int count, int currentIndex, String motion, String key, String currentTranslation, RepeatType repeatType) {
     int newIndex = currentIndex;
     int iterations = 0;
+    // If motion is non-reverse repeated "T" or reverse repeated "t",
+    // decrease the starting index by one because otherwise the
+    // first next index it finds will be the current index
+    if ((repeatType == RepeatType.REVERSE && motion.equals("t")) ||
+        (repeatType == RepeatType.NORMAL && motion.equals("T"))) {
+      // Guard against index out-of-bounds error
+      if (newIndex > 0) {
+        newIndex -= 1;
+      }
+    }
     while (iterations < count) {
       iterations++;
       newIndex = currentTranslation.lastIndexOf(key, newIndex - 1);
@@ -915,16 +925,32 @@ class Actions {
         return currentIndex;
       }
     }
-    // If motion is "til" ("t"), final index should land on index
-    // before character
-    if (motion.equals("T")) {
-      newIndex += 1;
+    // If motion is non-reverse non-repeated "T", non-reverse repeated "T" or reverse repeated "t"
+    // final index should land on index before character (which
+    // in this case is in front of character)
+    if ((motion.equals("T") && repeatType == RepeatType.NONE) ||
+        (motion.equals("T") && repeatType == RepeatType.NORMAL) ||
+        (motion.equals("t") && repeatType == RepeatType.REVERSE)) {
+      // Guard against index out-of-bounds error
+      if (newIndex < currentTranslation.length() - 1) {
+        newIndex += 1;
+      }
     }
     return newIndex;
   }
 
-  int getForwardToCharIndex(int count, int currentIndex, String motion, String key, String currentTranslation) {
+  int getForwardToCharIndex(int count, int currentIndex, String motion, String key, String currentTranslation, RepeatType repeatType) {
     int newIndex = currentIndex;
+    // If motion is non-reverse repeat "t" or reverse repeated "T",
+    // increase the starting index by one because otherwise the
+    // first next index it finds will be the current index
+    if ((repeatType == RepeatType.NORMAL && motion.equals("t")) ||
+        (repeatType == RepeatType.REVERSE && motion.equals("T"))) {
+      // Guard against index out-of-bounds error
+      if (newIndex < currentTranslation.length() - 1) {
+        newIndex += 1;
+      }
+    }
     int iterations = 0;
     while (iterations < count) {
       iterations++;
@@ -933,96 +959,82 @@ class Actions {
         return currentIndex;
       }
     }
-    // If motion is "til" ("t"), final index should land on index
-    // before character
-    if (motion.equals("t")) {
-      newIndex -= 1;
+    if (newIndex == currentIndex) {
+      return currentIndex;
+    }
+    // If motion is non-repeated non-reverse "t", repeated
+    // non-reverse "t" or repeated reverse "T", final index
+    // should land on index before character
+    if ((motion.equals("t") && repeatType == RepeatType.NONE) ||
+        (motion.equals("t") && repeatType == RepeatType.NORMAL) ||
+        (motion.equals("T") && repeatType == RepeatType.REVERSE)) {
+      // Guard against index out-of-bounds error
+      if (newIndex > 0) {
+        newIndex -= 1;
+      }
     }
     return newIndex;
   }
 
-  void visualModeGoForwardToChar(int count, String motion, String key) {
+  void visualModeGoToChar(int count, String motion, String character, RepeatType repeatType) {
     int currentIndex = getCaretIndex();
     String currentTranslation = editor.getCurrentTranslation();
-    int newIndex = getForwardToCharIndex(count, currentIndex, motion, key, currentTranslation);
-    if (newIndex == currentIndex) {
-      return;
+    // If motion is lowercase (f/t) and is repeated with a ";"
+    // or not repeated at all, or if it's uppercase and the
+    // motion is reversed (repeated with an ","), this is a
+    // forward motion
+    if ((Util.isLowerCase(motion) && repeatType != RepeatType.REVERSE) || (!Util.isLowerCase(motion) && repeatType == RepeatType.REVERSE)) {
+      int newIndex = getForwardToCharIndex(count, currentIndex, motion, character, currentTranslation, repeatType);
+      visualModeForwardMove(currentIndex, newIndex);
+    } else {
+      int newIndex = getBackwardToCharIndex(count, currentIndex, motion, character, currentTranslation, repeatType);
+      if (newIndex == currentIndex) {
+        return;
+      }
+      visualModeBackwardMove(currentIndex, newIndex);
     }
-    visualModeForwardMove(currentIndex, newIndex);
+    // Store new executed find if this is not a repeat
+    if (repeatType == RepeatType.NONE) {
+      executedFind = new Find(character, motion);
+    }
   }
 
-  void visualModeGoBackwardToChar(int count, String motion, String key) {
+  void normalModeGoToChar(int count, String operator, String motion, String character,
+                          String registerKey, RepeatType repeatType) {
     int currentIndex = getCaretIndex();
     String currentTranslation = editor.getCurrentTranslation();
-    int newIndex = getBackwardToCharIndex(count, currentIndex, motion, key, currentTranslation);
-    if (newIndex == currentIndex) {
-      return;
+    // If motion is lowercase (f/t) and is repeated with a ";"
+    // or not repeated at all, or if it's uppercase and the
+    // motion is reversed (repeated with an ","), this is a
+    // forward motion
+    if ((Util.isLowerCase(motion) && repeatType != RepeatType.REVERSE) || (!Util.isLowerCase(motion) && repeatType == RepeatType.REVERSE)) {
+      int newIndex = getForwardToCharIndex(count, currentIndex, motion, character, currentTranslation, repeatType);
+      executeForwardAction(operator, MotionType.TO_OR_TILL, currentTranslation, currentIndex, newIndex + 1, registerKey);
+    } else {
+      int newIndex = getBackwardToCharIndex(count, currentIndex, motion, character, currentTranslation, repeatType);
+      if (newIndex == currentIndex) {
+        return;
+      }
+      executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
     }
-    visualModeBackwardMove(currentIndex, newIndex);
-  }
-
-  void normalModeGoForwardToChar(int count, String operator, String motion, String key, String registerKey) {
-    int currentIndex = getCaretIndex();
-    String currentTranslation = editor.getCurrentTranslation();
-    int newIndex = getForwardToCharIndex(count, currentIndex, motion, key, currentTranslation);
-    executeForwardAction(operator, MotionType.TO_OR_TILL, currentTranslation, currentIndex, newIndex + 1, registerKey);
-    executedFind = new Find(key, motion);
-  }
-
-  void normalModeGoBackwardToChar(int count, String operator, String motion, String key, String registerKey) {
-    int currentIndex = getCaretIndex();
-    String currentTranslation = editor.getCurrentTranslation();
-    int newIndex = getBackwardToCharIndex(count, currentIndex, motion, key, currentTranslation);
-    if (newIndex == currentIndex) {
-      return;
+    // Store new executed find if this is not a repeat
+    if (repeatType == RepeatType.NONE) {
+      executedFind = new Find(character, motion);
     }
-    executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
-    executedFind = new Find(key, motion);
   }
 
   void repeatFind(int count, String repeatMotion, String operator, String registerKey) {
     if (executedFind == null || executedFind.findString.equals("")) {
       return;
     }
-    String currentTranslation = editor.getCurrentTranslation();
-    int currentIndex = getCaretIndex();
-    switch (repeatMotion) {
-    case ";":
-      // If find operator is "t" or "f"
-      if (Util.isLowerCase(executedFind.findOperator)) {
-        Log.log("Going forward to find next occurrence");
-        int newIndex = getForwardToCharIndex(count, currentIndex, executedFind.findOperator, executedFind.findString, currentTranslation);
-        if (Mode.NORMAL.isActive()) {
-          executeForwardAction(operator, MotionType.TO_OR_TILL, currentTranslation, currentIndex, newIndex + 1, registerKey);
-        } else {
-          visualModeForwardMove(currentIndex, currentTranslation.length() - 1);
-        }
-      } else {
-        int newIndex = getBackwardToCharIndex(count, currentIndex, executedFind.findOperator, executedFind.findString, currentTranslation);
-        if (Mode.NORMAL.isActive()) {
-          executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
-        } else {
-          visualModeForwardMove(currentIndex, currentTranslation.length() - 1);
-        }
-      }
-      break;
-    case ",":
-      // If find operator is "t" or "f"
-      if (Util.isLowerCase(executedFind.findOperator)) {
-        int newIndex = getBackwardToCharIndex(count, currentIndex, executedFind.findOperator, executedFind.findString, currentTranslation);
-        if (Mode.NORMAL.isActive()) {
-          executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
-        } else {
-          visualModeForwardMove(currentIndex, currentTranslation.length() - 1);
-        }
-      } else {
-        int newIndex = getForwardToCharIndex(count, currentIndex, executedFind.findOperator, executedFind.findString, currentTranslation);
-        if (Mode.NORMAL.isActive()) {
-          executeForwardAction(operator, MotionType.TO_OR_TILL, currentTranslation, currentIndex, newIndex + 1, registerKey);
-        } else {
-          visualModeForwardMove(currentIndex, currentTranslation.length() - 1);
-        }
-      }
+    RepeatType repeatType = RepeatType.NORMAL;
+    if (repeatMotion.equals(",")) {
+      repeatType = RepeatType.REVERSE;
+    }
+    if (Mode.NORMAL.isActive()) {
+      normalModeGoToChar(count, operator, executedFind.findOperator, executedFind.findString, registerKey, repeatType);
+    } else {
+      visualModeGoToChar(count, executedFind.findOperator, executedFind.findString, repeatType);
     }
   }
 
@@ -1111,7 +1123,10 @@ class Actions {
     int length = currentTranslation.length();
     String yankedOrDeletedText = null;
     if (Util.isEmpty(operator)) {
-      setCaretIndex((motionType == MotionType.TO_OR_TILL) ? newIndex - 1 : newIndex);
+      if (motionType == MotionType.TO_OR_TILL && newIndex < length) {
+        newIndex -= 1;
+      }
+      setCaretIndex(newIndex);
     } else {
       if (operator.equals("y")) {
         yankedOrDeletedText = currentTranslation.substring(currentIndex, newIndex);
