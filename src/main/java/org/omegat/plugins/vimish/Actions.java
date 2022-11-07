@@ -16,6 +16,7 @@ class Actions {
   private MainWindow mainWindow;
   private Search pendingSearch;
   private Search executedSearch;
+  private Find executedFind;
   // private JFrame searchPopup;
   // private JLabel searchPopupLabel;
   private Pattern beginningOfWordPattern = Pattern.compile("(^[\\p{L}\\d\\p{P}])|((?<=[^\\p{L}\\d])[\\p{L}\\d])|(?<=[\\p{L}\\d\\s])([^\\p{L}\\d\\s])|(.$)");
@@ -55,6 +56,16 @@ class Actions {
       this.searchString = searchString;
       this.searchOperator = searchOperator;
       this.preSearchMode = preSearchMode;
+    }
+  }
+
+  class Find {
+    String findString;
+    String findOperator;
+
+    Find(String findString, String findOperator) {
+      this.findString = findString;
+      this.findOperator = findOperator;
     }
   }
 
@@ -955,6 +966,7 @@ class Actions {
     String currentTranslation = editor.getCurrentTranslation();
     int newIndex = getForwardToCharIndex(count, currentIndex, motion, key, currentTranslation);
     executeForwardAction(operator, MotionType.TO_OR_TILL, currentTranslation, currentIndex, newIndex + 1, registerKey);
+    executedFind = new Find(key, motion);
   }
 
   void normalModeGoBackwardToChar(int count, String operator, String motion, String key, String registerKey) {
@@ -965,6 +977,53 @@ class Actions {
       return;
     }
     executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
+    executedFind = new Find(key, motion);
+  }
+
+  void repeatFind(int count, String repeatMotion, String operator, String registerKey) {
+    if (executedFind == null || executedFind.findString.equals("")) {
+      return;
+    }
+    String currentTranslation = editor.getCurrentTranslation();
+    int currentIndex = getCaretIndex();
+    switch (repeatMotion) {
+    case ";":
+      // If find operator is "t" or "f"
+      if (Util.isLowerCase(executedFind.findOperator)) {
+        Log.log("Going forward to find next occurrence");
+        int newIndex = getForwardToCharIndex(count, currentIndex, executedFind.findOperator, executedFind.findString, currentTranslation);
+        if (Mode.NORMAL.isActive()) {
+          executeForwardAction(operator, MotionType.TO_OR_TILL, currentTranslation, currentIndex, newIndex + 1, registerKey);
+        } else {
+          visualModeForwardMove(currentIndex, currentTranslation.length() - 1);
+        }
+      } else {
+        int newIndex = getBackwardToCharIndex(count, currentIndex, executedFind.findOperator, executedFind.findString, currentTranslation);
+        if (Mode.NORMAL.isActive()) {
+          executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
+        } else {
+          visualModeForwardMove(currentIndex, currentTranslation.length() - 1);
+        }
+      }
+      break;
+    case ",":
+      // If find operator is "t" or "f"
+      if (Util.isLowerCase(executedFind.findOperator)) {
+        int newIndex = getBackwardToCharIndex(count, currentIndex, executedFind.findOperator, executedFind.findString, currentTranslation);
+        if (Mode.NORMAL.isActive()) {
+          executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
+        } else {
+          visualModeForwardMove(currentIndex, currentTranslation.length() - 1);
+        }
+      } else {
+        int newIndex = getForwardToCharIndex(count, currentIndex, executedFind.findOperator, executedFind.findString, currentTranslation);
+        if (Mode.NORMAL.isActive()) {
+          executeForwardAction(operator, MotionType.TO_OR_TILL, currentTranslation, currentIndex, newIndex + 1, registerKey);
+        } else {
+          visualModeForwardMove(currentIndex, currentTranslation.length() - 1);
+        }
+      }
+    }
   }
 
   int getForwardWordIndex(int currentIndex, String motion, int count, String currentTranslation) {

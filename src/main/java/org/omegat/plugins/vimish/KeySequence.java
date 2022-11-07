@@ -106,6 +106,7 @@ class KeySequence {
       return remainder;
     }
 
+    // Search
     matcher = getNormalMatcher("^([?/])(.*)", sequence);
     if (matcher.find()) {
       String operator = matcher.group(1);
@@ -252,10 +253,24 @@ class KeySequence {
       String countString1 = matcher.group(3);
       String operator = matcher.group(4);
       String countString2 = matcher.group(5);
-      String motion = matcher.group(6);
+      String repeatMotion = matcher.group(6);
       String remainder = matcher.group(7);
       int totalCount = determineTotalCount(countString1, countString2);
-      actions.repeatSearch(totalCount, motion, operator, registerKey);
+      actions.repeatSearch(totalCount, repeatMotion, operator, registerKey);
+      return remainder;
+    }
+
+    // Repeat find
+    matcher = getNormalMatcher("^(\"([\\w\\-\"]))?(\\d*)([dcy]?)(\\d*)([;,])(.*)", sequence);
+    if (matcher.find()) {
+      String registerKey = matcher.group(2);
+      String countString1 = matcher.group(3);
+      String operator = matcher.group(4);
+      String countString2 = matcher.group(5);
+      String repeatMotion = matcher.group(6);
+      String remainder = matcher.group(7);
+      int totalCount = determineTotalCount(countString1, countString2);
+      actions.repeatFind(totalCount, repeatMotion, operator, registerKey);
       return remainder;
     }
 
@@ -456,17 +471,14 @@ class KeySequence {
       return remainder;
     }
 
+    // Repeat search
     matcher = getVisualMatcher("^(\\d*)([nN])(.*)", sequence);
     if (matcher.find()) {
       String countString = matcher.group(1);
       String motion = matcher.group(2);
       String remainder = matcher.group(3);
       int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
-      if (motion.equals("n")) {
-        actions.repeatForwardSearch(count, "", "");
-      } else {
-        actions.repeatBackwardSearch(count, "", "");
-      }
+      actions.repeatSearch(count, motion, "", "");
       return remainder;
     }
 
