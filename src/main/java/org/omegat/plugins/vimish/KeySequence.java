@@ -87,7 +87,7 @@ class KeySequence {
      *
      * The order of subsequent regexes shouldn't matter
      **/
-    // To or till or search
+    // To or till find
     matcher = getNormalMatcher("^(\"([\\w\\-\"]))?(\\d*)([dcy]?)(\\d*)([fFTt])(.)(.*)", sequence);
     if (matcher.find()) {
       String registerKey = matcher.group(2);
@@ -107,12 +107,17 @@ class KeySequence {
     }
 
     // Search
-    matcher = getNormalMatcher("^([?/])(.*)", sequence);
+    matcher = getNormalMatcher("^(\"([\\w\\-\"]))?(\\d*)([dcy]?)(\\d*)([?/])(.*)", sequence);
     if (matcher.find()) {
-      String operator = matcher.group(1);
-      String remainder = matcher.group(2);
+      String registerKey = matcher.group(2);
+      String countString1 = matcher.group(3);
+      String operator = matcher.group(4);
+      String countString2 = matcher.group(5);
+      String searchOperator = matcher.group(6);
+      String remainder = matcher.group(7);
+      int count = determineTotalCount(countString1, countString2);
       Mode.SEARCH.activate();
-      actions.activateSearch(operator, Mode.NORMAL);
+      actions.activateSearch(count, operator, searchOperator, registerKey, Mode.NORMAL);
       return remainder;
     }
 
@@ -364,12 +369,15 @@ class KeySequence {
       return remainder;
     }
 
-    matcher = getVisualMatcher("^([?/])(.*)", sequence);
+    // Search
+    matcher = getVisualMatcher("^(\\d*)([?/])(.*)", sequence);
     if (matcher.find()) {
-      String operator = matcher.group(1);
-      String remainder = matcher.group(2);
+      String countString = matcher.group(1);
+      String searchOperator = matcher.group(2);
+      String remainder = matcher.group(3);
       Mode.SEARCH.activate();
-      actions.activateSearch(operator, Mode.VISUAL);
+      int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
+      actions.activateSearch(count, "", searchOperator, "", Mode.VISUAL);
       return remainder;
     }
 

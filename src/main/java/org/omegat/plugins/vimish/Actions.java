@@ -51,11 +51,18 @@ class Actions {
     String searchString;
     String searchOperator;
     Mode preSearchMode;
+    int count;
+    String operator;
+    String registerKey;
 
-    Search(String searchString, String searchOperator, Mode preSearchMode) {
+    Search(String searchString, String searchOperator, Mode preSearchMode,
+           int count, String operator, String registerKey) {
       this.searchString = searchString;
       this.searchOperator = searchOperator;
       this.preSearchMode = preSearchMode;
+      this.count = count;
+      this.operator = operator;
+      this.registerKey = registerKey;
     }
   }
 
@@ -413,8 +420,9 @@ class Actions {
     setCaretIndex(currentIndex + 1);
   }
 
-  void activateSearch(String searchOperator, Mode activatingMode) {
-    pendingSearch = new Search("", searchOperator, activatingMode);
+  void activateSearch(int count, String operator, String searchOperator,
+                      String registerKey, Mode activatingMode) {
+    pendingSearch = new Search("", searchOperator, activatingMode, count, operator, registerKey);
     mainWindow.showStatusMessageRB("PREFERENCES_SEARCH_HINT", searchOperator);
   }
 
@@ -442,32 +450,36 @@ class Actions {
 
   void searchModeExecuteSearch() {
     searchModeFinalizeSearch(true);
+    if (Util.isEmpty(executedSearch.searchString)) {
+      return;
+    }
     if (pendingSearch.searchOperator.equals("/")) {
-      searchModeForwardSearch();
+      forwardSearch(executedSearch.count, executedSearch.operator, executedSearch.registerKey);
     } else {
-      searchModeBackwardSearch();
+      backwardSearch(executedSearch.count, executedSearch.operator, executedSearch.registerKey);
     }
   }
 
-  void searchModeForwardSearch() {
-    if (Util.isEmpty(pendingSearch.searchString)) {
-      return;
-    }
-    String currentTranslation = editor.getCurrentTranslation();
-    int currentIndex = getCaretIndex();
-    if (currentIndex >= currentTranslation.length() - 1) {
-      return;
-    }
-    int newIndex = getForwardSearchIndex(currentTranslation, currentIndex);
-    if (newIndex == currentIndex) {
-      return;
-    }
-    if (Mode.NORMAL.isActive()) {
-      setCaretIndex(newIndex);
-    } else {
-      visualModeForwardMove(currentIndex, newIndex);
-    }
-  }
+  // void executeBackwardSearch() {
+  //   if (executedSearch == null || executedSearch.searchString.equals("")) {
+  //     return;
+  //   }
+  //   String currentTranslation = editor.getCurrentTranslation();
+  //   int currentIndex = getCaretIndex();
+  //   if (currentIndex == 0) {
+  //     return;
+  //   }
+  //   int newIndex = getNextBackwardSearchIndex(currentTranslation, currentIndex);
+  //   if (newIndex == currentIndex) {
+  //     return;
+  //   }
+  //   if (Mode.NORMAL.isActive()) {
+  //     setCaretIndex(newIndex);
+  //   } else {
+  //     visualModeBackwardMove(currentIndex, newIndex);
+  //   }
+  // }
+
 
   void repeatSearch(int count, String motion, String operator, String registerKey) {
     if (executedSearch == null || executedSearch.searchString.equals("")) {
@@ -476,22 +488,22 @@ class Actions {
     switch (motion) {
     case "n":
       if (executedSearch.searchOperator.equals("/")) {
-        repeatForwardSearch(count, operator, registerKey);
+        forwardSearch(count, operator, registerKey);
       } else {
-        repeatBackwardSearch(count, operator, registerKey);
+        backwardSearch(count, operator, registerKey);
       }
       break;
     case "N":
       if (executedSearch.searchOperator.equals("?")) {
-        repeatForwardSearch(count, operator, registerKey);
+        forwardSearch(count, operator, registerKey);
       } else {
-        repeatBackwardSearch(count, operator, registerKey);
+        backwardSearch(count, operator, registerKey);
       }
       break;
     }
   }
 
-  void repeatForwardSearch(int count, String operator, String registerKey) {
+  void forwardSearch(int count, String operator, String registerKey) {
     String currentTranslation = editor.getCurrentTranslation();
     int currentIndex = getCaretIndex();
     int tmpIndex = currentIndex;
@@ -499,7 +511,7 @@ class Actions {
     int iterations = 0;
     while (iterations < count) {
       iterations++;
-      newIndex = getForwardSearchIndex(currentTranslation, tmpIndex);
+      newIndex = getNextForwardSearchIndex(currentTranslation, tmpIndex);
       if (newIndex == tmpIndex) {
         break;
       }
@@ -513,15 +525,15 @@ class Actions {
     }
   }
 
-  void repeatBackwardSearch(int count, String operator, String registerKey) {
+  void backwardSearch(int count, String operator, String registerKey) {
     String currentTranslation = editor.getCurrentTranslation();
     int currentIndex = getCaretIndex();
     int tmpIndex = currentIndex;
-    int newIndex = getBackwardSearchIndex(currentTranslation, currentIndex);
+    int newIndex = getNextBackwardSearchIndex(currentTranslation, currentIndex);
     int iterations = 0;
     while (iterations < count) {
       iterations++;
-      newIndex = getBackwardSearchIndex(currentTranslation, tmpIndex);
+      newIndex = getNextBackwardSearchIndex(currentTranslation, tmpIndex);
       if (newIndex == tmpIndex) {
         break;
       }
@@ -529,26 +541,6 @@ class Actions {
     }
     if (Mode.NORMAL.isActive()) {
       executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
-    } else {
-      visualModeBackwardMove(currentIndex, newIndex);
-    }
-  }
-
-  void searchModeBackwardSearch() {
-    if (executedSearch == null || executedSearch.searchString.equals("")) {
-      return;
-    }
-    String currentTranslation = editor.getCurrentTranslation();
-    int currentIndex = getCaretIndex();
-    if (currentIndex == 0) {
-      return;
-    }
-    int newIndex = getBackwardSearchIndex(currentTranslation, currentIndex);
-    if (newIndex == currentIndex) {
-      return;
-    }
-    if (Mode.NORMAL.isActive()) {
-      setCaretIndex(newIndex);
     } else {
       visualModeBackwardMove(currentIndex, newIndex);
     }
@@ -872,7 +864,7 @@ class Actions {
     executeForwardAction(operator, MotionType.OTHER, currentTranslation, startIndex, endIndex + 1, registerKey);
   }
 
-  int getForwardSearchIndex(String currentTranslation, int currentIndex) {
+  int getNextForwardSearchIndex(String currentTranslation, int currentIndex) {
     String textToEnd = currentTranslation.substring(currentIndex + 1);
     Matcher m = Pattern.compile(executedSearch.searchString)
                             .matcher(textToEnd);
@@ -886,7 +878,7 @@ class Actions {
     return newIndex;
   }
 
-  int getBackwardSearchIndex(String currentTranslation, int currentIndex) {
+  int getNextBackwardSearchIndex(String currentTranslation, int currentIndex) {
     int newIndex = currentIndex;
     String text = currentTranslation;
     Matcher m = Pattern.compile(executedSearch.searchString).matcher(text);
