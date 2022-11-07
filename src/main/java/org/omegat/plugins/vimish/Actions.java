@@ -460,27 +460,6 @@ class Actions {
     }
   }
 
-  // void executeBackwardSearch() {
-  //   if (executedSearch == null || executedSearch.searchString.equals("")) {
-  //     return;
-  //   }
-  //   String currentTranslation = editor.getCurrentTranslation();
-  //   int currentIndex = getCaretIndex();
-  //   if (currentIndex == 0) {
-  //     return;
-  //   }
-  //   int newIndex = getNextBackwardSearchIndex(currentTranslation, currentIndex);
-  //   if (newIndex == currentIndex) {
-  //     return;
-  //   }
-  //   if (Mode.NORMAL.isActive()) {
-  //     setCaretIndex(newIndex);
-  //   } else {
-  //     visualModeBackwardMove(currentIndex, newIndex);
-  //   }
-  // }
-
-
   void repeatSearch(int count, String motion, String operator, String registerKey) {
     if (executedSearch == null || executedSearch.searchString.equals("")) {
       return;
