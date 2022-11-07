@@ -31,4 +31,8 @@ class Util {
   static boolean isEmpty(String item) {
     return item == null || item.equals("");
   }
+
+  static boolean isLowerCase(String text) {
+    return text.toLowerCase().equals(text);
+  }
 }
