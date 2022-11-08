@@ -910,7 +910,7 @@ class Actions {
       iterations++;
       newIndex = currentTranslation.lastIndexOf(key, newIndex - 1);
       if (newIndex == -1) {
-        return currentIndex;
+        return -1;
       }
     }
     // If motion is non-reverse non-repeated "T", non-reverse repeated "T" or reverse repeated "t"
@@ -944,11 +944,8 @@ class Actions {
       iterations++;
       newIndex = currentTranslation.indexOf(key, newIndex + 1);
       if (newIndex == -1) {
-        return currentIndex;
+        return -1;
       }
-    }
-    if (newIndex == currentIndex) {
-      return currentIndex;
     }
     // If motion is non-repeated non-reverse "t", repeated
     // non-reverse "t" or repeated reverse "T", final index
@@ -973,10 +970,13 @@ class Actions {
     // forward motion
     if ((Util.isLowerCase(motion) && repeatType != RepeatType.REVERSE) || (!Util.isLowerCase(motion) && repeatType == RepeatType.REVERSE)) {
       int newIndex = getForwardToCharIndex(count, currentIndex, motion, character, currentTranslation, repeatType);
+      if (newIndex == -1) {
+        return;
+      }
       visualModeForwardMove(currentIndex, newIndex);
     } else {
       int newIndex = getBackwardToCharIndex(count, currentIndex, motion, character, currentTranslation, repeatType);
-      if (newIndex == currentIndex) {
+      if (newIndex == -1) {
         return;
       }
       visualModeBackwardMove(currentIndex, newIndex);
@@ -997,10 +997,13 @@ class Actions {
     // forward motion
     if ((Util.isLowerCase(motion) && repeatType != RepeatType.REVERSE) || (!Util.isLowerCase(motion) && repeatType == RepeatType.REVERSE)) {
       int newIndex = getForwardToCharIndex(count, currentIndex, motion, character, currentTranslation, repeatType);
+      if (newIndex == -1) {
+          return;
+      }
       executeForwardAction(operator, MotionType.TO_OR_TILL, currentTranslation, currentIndex, newIndex + 1, registerKey);
     } else {
       int newIndex = getBackwardToCharIndex(count, currentIndex, motion, character, currentTranslation, repeatType);
-      if (newIndex == currentIndex) {
+      if (newIndex == -1) {
         return;
       }
       executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
