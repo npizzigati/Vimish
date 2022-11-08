@@ -526,6 +526,15 @@ class Actions {
       }
       tmpIndex = newIndex;
     }
+
+    // Do not move caret if search result at count not found
+    // (Vim nowrapscan behavior)
+    if (iterations < count - 1) {
+      return;
+    }
+
+    // TODO: Implement vim wrap-around behavior as an option
+
     if (Mode.NORMAL.isActive()) {
       executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
     } else {
