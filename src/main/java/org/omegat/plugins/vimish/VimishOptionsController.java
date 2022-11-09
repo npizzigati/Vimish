@@ -1,7 +1,6 @@
 package org.omegat.plugins.vimish;
 
-import org.omegat.gui.preferences.IPreferencesController;
-import org.omegat.util.Log;
+import org.omegat.gui.preferences.BasePreferencesController;
 
 import java.awt.Component;
 import java.awt.Dimension;
@@ -9,7 +8,7 @@ import javax.swing.JComboBox;
 
 import java.util.Map;
 
-class VimishOptionsController implements IPreferencesController {
+class VimishOptionsController extends BasePreferencesController {
   private VimishOptionsPanel panel;
   private Configuration configuration = Configuration.getConfiguration();
   private KeyMappings keyMappings;
@@ -21,17 +20,6 @@ class VimishOptionsController implements IPreferencesController {
   private final int MAX_ROW_COUNT = 4;
 
   /**
-   * An interface used by observers interested in knowing when a preference has
-   * been altered that requires the application to be restarted or the project to
-   * be reloaded.
-   */
-  interface FurtherActionListener {
-    void setReloadRequired(boolean reloadRequired);
-
-    void setRestartRequired(boolean restartRequired);
-  }
-
-  /**
    * Get the GUI (the "view") controlled by this controller. This should not be a
    * window (e.g. JDialog, JFrame) but rather a component embeddable in a window
    * (e.g. JPanel).
@@ -39,22 +27,17 @@ class VimishOptionsController implements IPreferencesController {
   @Override
   public Component getGui() {
     if (panel == null) {
-      initPanel();
+      initGui();
+      initFromPrefs();
     }
     return panel;
   };
 
-  private void initPanel() {
-
+  private void initGui() {
     panel = new VimishOptionsPanel();
-
-    boolean moveCursorBack = configuration.getConfigMoveCursorBack();
-    panel.moveCursorBackCheckBox.setSelected(moveCursorBack);
-
     // Key Mappings
     // Start mode selector combo box at normal mode
     panel.keyMappingsModeSelector.setSelectedIndex(0);
-
     panel.keyMappingsModeSelector.addActionListener(event -> {
       @SuppressWarnings("unchecked")
       JComboBox<String> comboBox = (JComboBox<String>) event.getSource();
@@ -73,34 +56,6 @@ class VimishOptionsController implements IPreferencesController {
       }
       keyMappingsTableModel.refreshWith(keyMappingsHash);
     });
-
-    keyMappings = configuration.getKeyMappings();
-
-    keyMappingsTableModel =
-      new VimishTableModel(keyMappings.normalModeKeyMappings);
-    panel.keyMappingsTable.setModel(keyMappingsTableModel);
-
-    keyMappingsTableModel.addTableModelListener(event -> {
-        Map<String, String> keyMappingsHash =
-          keyMappingsTableModel.getKeyEquivalenciesHash();
-        String mode =
-          (String) panel.keyMappingsModeSelector.getSelectedItem();
-        switch (mode) {
-          case "Normal":
-            keyMappings.normalModeKeyMappings = keyMappingsHash;
-            break;
-          case "Visual":
-            keyMappings.visualModeKeyMappings = keyMappingsHash;
-            break;
-          case "Insert":
-            keyMappings.insertModeKeyMappings = keyMappingsHash;
-            break;
-        }
-      });
-
-    panel.keyMappingsTable.getColumnModel().getColumn(0).setPreferredWidth(150);
-    panel.keyMappingsTable.getColumnModel().getColumn(1).setPreferredWidth(150);
-
     Dimension keyMappingsTableSize = panel.keyMappingsTable.getPreferredSize();
     panel.keyMappingsTable.setPreferredScrollableViewportSize(
         new Dimension(keyMappingsTableSize.width, panel.keyMappingsTable.getRowHeight() * MAX_ROW_COUNT));
@@ -119,7 +74,6 @@ class VimishOptionsController implements IPreferencesController {
     // Key chords
     // Start mode selector combo box at normal mode
     panel.keyChordsModeSelector.setSelectedIndex(0);
-
     panel.keyChordsModeSelector.addActionListener(event -> {
       @SuppressWarnings("unchecked")
       JComboBox<String> comboBox = (JComboBox<String>) event.getSource();
@@ -139,33 +93,6 @@ class VimishOptionsController implements IPreferencesController {
       keyChordsTableModel.refreshWith(keyChordsHash);
     });
 
-    keyChords = configuration.getKeyChords();
-
-    keyChordsTableModel =
-      new VimishTableModel(keyChords.normalModeKeyChords);
-    panel.keyChordsTable.setModel(keyChordsTableModel);
-
-    keyChordsTableModel.addTableModelListener(event -> {
-        Map<String, String> keyChordsHash =
-          keyChordsTableModel.getKeyEquivalenciesHash();
-        String mode =
-          (String) panel.keyChordsModeSelector.getSelectedItem();
-        switch (mode) {
-          case "Normal":
-            keyChords.normalModeKeyChords = keyChordsHash;
-            break;
-          case "Visual":
-            keyChords.visualModeKeyChords = keyChordsHash;
-            break;
-          case "Insert":
-            keyChords.insertModeKeyChords = keyChordsHash;
-            break;
-        }
-      });
-
-    panel.keyChordsTable.getColumnModel().getColumn(0).setPreferredWidth(150);
-    panel.keyChordsTable.getColumnModel().getColumn(1).setPreferredWidth(150);
-
     Dimension keyChordsTableSize = panel.keyChordsTable.getPreferredSize();
     panel.keyChordsTable.setPreferredScrollableViewportSize(
         new Dimension(keyChordsTableSize.width, panel.keyChordsTable.getRowHeight() * MAX_ROW_COUNT));
@@ -183,30 +110,64 @@ class VimishOptionsController implements IPreferencesController {
   }
 
   @Override
-  public void addFurtherActionListener(IPreferencesController.FurtherActionListener listener) {
-  };
+  protected void initFromPrefs() {
+    configuration.refresh();
+    showData();
+  }
 
-  @Override
-  public void removeFurtherActionListener(IPreferencesController.FurtherActionListener listener) {
-  };
+  private void showData() {
+    boolean moveCursorBack = configuration.getConfigMoveCursorBack();
+    panel.moveCursorBackCheckBox.setSelected(moveCursorBack);
+    keyMappings = configuration.getKeyMappings();
+    keyMappingsTableModel =
+      new VimishTableModel(keyMappings.normalModeKeyMappings);
+    panel.keyMappingsTable.setModel(keyMappingsTableModel);
+    panel.keyMappingsModeSelector.setSelectedIndex(0);
+    keyMappingsTableModel.addTableModelListener(event -> {
+        Map<String, String> keyMappingsHash =
+          keyMappingsTableModel.getKeyEquivalenciesHash();
+        String mode =
+          (String) panel.keyMappingsModeSelector.getSelectedItem();
+        switch (mode) {
+          case "Normal":
+            keyMappings.normalModeKeyMappings = keyMappingsHash;
+            break;
+          case "Visual":
+            keyMappings.visualModeKeyMappings = keyMappingsHash;
+            break;
+          case "Insert":
+            keyMappings.insertModeKeyMappings = keyMappingsHash;
+            break;
+        }
+      });
+    panel.keyMappingsTable.getColumnModel().getColumn(0).setPreferredWidth(150);
+    panel.keyMappingsTable.getColumnModel().getColumn(1).setPreferredWidth(150);
 
-  /**
-   * Returns whether a preference has been altered such as to require the
-   * application to be restarted.
-   */
-  @Override
-  public boolean isRestartRequired() {
-    return false;
-  };
-
-  /**
-   * Returns whether a preference has been altered such as to require the project
-   * to be reloaded.
-   */
-  @Override
-  public boolean isReloadRequired() {
-    return false;
-  };
+    keyChords = configuration.getKeyChords();
+    keyChordsTableModel =
+      new VimishTableModel(keyChords.normalModeKeyChords);
+    panel.keyChordsTable.setModel(keyChordsTableModel);
+    panel.keyChordsModeSelector.setSelectedIndex(0);
+    keyChordsTableModel.addTableModelListener(event -> {
+        Map<String, String> keyChordsHash =
+          keyChordsTableModel.getKeyEquivalenciesHash();
+        String mode =
+          (String) panel.keyChordsModeSelector.getSelectedItem();
+        switch (mode) {
+          case "Normal":
+            keyChords.normalModeKeyChords = keyChordsHash;
+            break;
+          case "Visual":
+            keyChords.visualModeKeyChords = keyChordsHash;
+            break;
+          case "Insert":
+            keyChords.insertModeKeyChords = keyChordsHash;
+            break;
+        }
+      });
+    panel.keyChordsTable.getColumnModel().getColumn(0).setPreferredWidth(150);
+    panel.keyChordsTable.getColumnModel().getColumn(1).setPreferredWidth(150);
+  }
 
   /**
    * Implementors should override this to return the name of the view as shown in
@@ -258,16 +219,11 @@ class VimishOptionsController implements IPreferencesController {
   }
 
   /**
-   * Restore preferences controlled by this view to their current persisted state.
-   */
-  @Override
-  public void undoChanges() {
-  };
-
-  /**
    * Restore preferences controlled by this view to their default state.
    */
   @Override
   public void restoreDefaults() {
+    configuration.loadDefaults();
+    showData();
   };
 }
