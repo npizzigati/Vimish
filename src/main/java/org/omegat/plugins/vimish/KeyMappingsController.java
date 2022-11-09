@@ -33,6 +33,10 @@ class KeyMappingsController {
   }
 
   void process(String keyString) {
+    if (keyMappingsHash == null || keyMappingsHash.isEmpty()) {
+      keyEquivalenciesRouter.applyAsKeySequence(keyString);
+      return;
+    }
     // Pass keyString on to next stage (sequence evaluation) if
     // sequence evaluation already in progress, i.e., this is not
     // the first key in the key sequence being evaluated by

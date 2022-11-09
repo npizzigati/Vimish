@@ -27,6 +27,10 @@ class KeyChordsController {
   }
 
   void process(String keyString) {
+    if (keyChordsHash == null || keyChordsHash.isEmpty()) {
+      keyEquivalenciesRouter.sendToKeyMapper(keyString);
+      return;
+    }
     keyChordUnderway.add(keyString);
     if (keyChordUnderway.size() == 2) {
       String keyChordMatch = retrieveMatchingKeyChord(keyChordUnderway, keyChordsHash.keySet());
