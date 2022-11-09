@@ -31,7 +31,7 @@ class KeyChordsController {
     if (keyChordUnderway.size() == 2) {
       String keyChordMatch = retrieveMatchingKeyChord(keyChordUnderway, keyChordsHash.keySet());
       // We also verify that characters in keyChordUnderway are unique
-      // since it makes no sence to have a key chord with two
+      // since it makes no sense to have a key chord with two
       // of the same characters
       if (keyChordMatch == null || keyChordUnderway.get(0) == keyChordUnderway.get(1)) {
         timer.stop();
@@ -53,7 +53,7 @@ class KeyChordsController {
             // completed
             String result = keyChordUnderway.get(0);
             // Result in this case will be a single key
-            // since we're limited our total key chord size to 2
+            // since we've limited our total key chord size to 2
             keyEquivalenciesRouter.sendToKeyMapper(result);
             reset();
           }
