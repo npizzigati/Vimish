@@ -49,11 +49,17 @@ class Registers {
   }
 
   private void store(String registerKey, String content) {
-    registerData.put(registerKey, content);
+    if (Util.isLowerCase(registerKey)) {
+      registerData.put(registerKey, content);
+    } else {
+      String lowerCaseRegKey = registerKey.toLowerCase();
+      String currentContent = retrieve(lowerCaseRegKey);
+      registerData.put(lowerCaseRegKey, currentContent + content);
+    }
   }
 
   String retrieve(String registerKey) {
-    return registerData.getOrDefault(registerKey, "");
+    return registerData.getOrDefault(registerKey.toLowerCase(), "");
   }
 
   void shiftContents() {
