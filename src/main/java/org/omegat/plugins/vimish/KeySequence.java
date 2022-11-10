@@ -531,6 +531,20 @@ class KeySequence {
       return remainder;
     }
 
+    matcher = getNormalMatcher("^<TAB>(.*)", sequence);
+    if (matcher.find()) {
+      String remainder = matcher.group(1);
+      actions.visualModeTab();
+      return remainder;
+    }
+
+    matcher = getNormalMatcher("^<S-TAB>(.*)", sequence);
+    if (matcher.find()) {
+      String remainder = matcher.group(1);
+      actions.visualModeShiftTab();
+      return remainder;
+    }
+
     if (sequence.matches(".*<ESC><ESC>")) {
       return "";
     }

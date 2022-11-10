@@ -1231,6 +1231,22 @@ class Actions {
     }
   }
 
+  void visualModeTab() {
+    if (editor.getSettings().isUseTabForAdvance() == true) {
+      Mode.NORMAL.activate();
+      clearVisualMarks();
+      editor.nextEntry();
+    }
+  }
+
+  void visualModeShiftTab() {
+    if (editor.getSettings().isUseTabForAdvance() == true) {
+      Mode.NORMAL.activate();
+      clearVisualMarks();
+      editor.prevEntry();
+    }
+  }
+
   void replaceModeInsertText(String text) {
     int currentIndex = getCaretIndex();
     String currentTranslation = editor.getCurrentTranslation();
