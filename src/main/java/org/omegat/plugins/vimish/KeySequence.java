@@ -194,7 +194,8 @@ class KeySequence {
     }
 
     // dd/cc/yy full-line operation
-    matcher = getNormalMatcher("^(\"([\\w\\-\"]))?(dd|cc|yy)(.*)", sequence);
+    // Ignore count since there are no line-wise actions in Vimish
+    matcher = getNormalMatcher("^(\"([\\w\\-\"]))?\\d*(dd|cc|yy)(.*)", sequence);
     if (matcher.find()) {
       String registerKey = matcher.group(2);
       String operator = matcher.group(3);
@@ -252,6 +253,31 @@ class KeySequence {
       actions.normalModeForwardChar("d", count, registerKey);
       String lastChangeSequence = "x";
       lastChange = new LastChange(lastChangeSequence, registerKey, count);
+      return remainder;
+    }
+
+    // s
+    matcher = getNormalMatcher("^(\"([\\w\\-\"]))?(\\d*)s(.*)", sequence);
+    if (matcher.find()) {
+      String registerKey = matcher.group(2);
+      String countString = matcher.group(3);
+      String remainder = matcher.group(4);
+      int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
+      actions.normalModeForwardChar("c", count, registerKey);
+      String lastChangeSequence = "s";
+      lastChange = new LastChange(lastChangeSequence, registerKey, count);
+      return remainder;
+    }
+
+    // S
+    // Ignore count since there are no line-wise actions in Vimish
+    matcher = getNormalMatcher("^(\"([\\w\\-\"]))?\\d*S(.*)", sequence);
+    if (matcher.find()) {
+      String registerKey = matcher.group(2);
+      String remainder = matcher.group(3);
+      actions.normalModeFullLineOperation("cc", registerKey);
+      String lastChangeSequence = "S";
+      lastChange = new LastChange(lastChangeSequence, registerKey, null);
       return remainder;
     }
 
@@ -525,12 +551,12 @@ class KeySequence {
       return remainder;
     }
 
-    matcher = getVisualMatcher("^(\"([\\w\\-\"]))?([DCY])(.*)", sequence);
+    matcher = getVisualMatcher("^(\"([\\w\\-\"]))?([DCSY])(.*)", sequence);
     if (matcher.find()) {
       String registerKey = matcher.group(2);
       String operator = matcher.group(3);
       String remainder = matcher.group(4);
-      actions.visualModeBigDCY(operator, registerKey);
+      actions.visualModeBigDCSY(operator, registerKey);
       return remainder;
     }
 
@@ -567,7 +593,7 @@ class KeySequence {
       return remainder;
     }
 
-    matcher = getVisualMatcher("^(\"([\\w\\-\"]))?([dxcy])(.*)", sequence);
+    matcher = getVisualMatcher("^(\"([\\w\\-\"]))?([dxcsy])(.*)", sequence);
     if (matcher.find()) {
       String registerKey = matcher.group(2);
       String operator = matcher.group(3);

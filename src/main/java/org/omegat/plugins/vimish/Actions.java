@@ -135,6 +135,7 @@ class Actions {
       Mode.NORMAL.activate();
       break;
     case "c":
+    case "s":
       visualModeDelete(registerKey);
       Mode.INSERT.activate();
       break;
@@ -304,10 +305,14 @@ class Actions {
     setCaretIndex(startIndex);
   }
 
-  void visualModeBigDCY(String operator, String registerKey) {
+  void visualModeBigDCSY(String operator, String registerKey) {
     String currentTranslation = editor.getCurrentTranslation();
     Mode.NORMAL.activate();
     clearVisualMarks();
+    // "S" is the same as "C" in visual mode
+    if (operator.equals("S")) {
+      operator = "C";
+    }
     executeForwardAction(operator.toLowerCase(), MotionType.OTHER, currentTranslation, 0, currentTranslation.length(), registerKey);
     if (operator.equals("Y")) {
       setCaretIndex(0);
