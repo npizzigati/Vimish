@@ -376,6 +376,21 @@ class Actions {
     }
   }
 
+  void normalModeFullLineOperation(String operator, String registerKey) {
+    String currentTranslation = editor.getCurrentTranslation();
+    switch (operator) {
+    case "dd":
+      executeForwardAction("d", MotionType.OTHER, currentTranslation, 0, currentTranslation.length(), registerKey);
+      break;
+    case "cc":
+      executeForwardAction("c", MotionType.OTHER, currentTranslation, 0, currentTranslation.length(), registerKey);
+      break;
+    case "yy":
+      executeForwardAction("y", MotionType.OTHER, currentTranslation, 0, currentTranslation.length(), registerKey);
+      break;
+    }
+  }
+
   void visualModePut(String registerKey, int count) {
     Registers registers = Registers.getRegisters();
     String text;

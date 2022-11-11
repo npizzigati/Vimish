@@ -193,6 +193,21 @@ class KeySequence {
       return remainder;
     }
 
+    // dd/cc/yy full-line operation
+    matcher = getNormalMatcher("^(\"([\\w\\-\"]))?(dd|cc|yy)(.*)", sequence);
+    if (matcher.find()) {
+      String registerKey = matcher.group(2);
+      String operator = matcher.group(3);
+      String remainder = matcher.group(4);
+      actions.normalModeFullLineOperation(operator, registerKey);
+      if (operator.equals("dd") || operator.equals("cc")) {
+        String lastChangeSequence = operator;
+        lastChange = new LastChange(lastChangeSequence, registerKey, null);
+      }
+      return remainder;
+    }
+
+    // Big D/C rest-of-line operations, and big Y full-line operation
     matcher = getNormalMatcher("^(\"([\\w\\-\"]))?([DCY])(.*)", sequence);
     if (matcher.find()) {
       String registerKey = matcher.group(2);
