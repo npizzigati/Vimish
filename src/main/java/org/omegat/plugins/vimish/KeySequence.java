@@ -15,6 +15,30 @@ class KeySequence {
   private List<Matcher> visualMatchers = new ArrayList<>();
   private List<Matcher> normalMatchers = new ArrayList<>();
 
+  private class LastChange {
+    String baseSequence;
+    String registerKey;
+    Integer count;
+
+    LastChange(String baseSequence, String registerKey, Integer count) {
+      this.baseSequence = baseSequence;
+      this.count = count;
+    }
+
+    void append(String key) {
+      baseSequence += key;
+    }
+
+    void deleteLastKey() {
+      if (!Util.isEmpty(baseSequence)) {
+        baseSequence = baseSequence.substring(0, baseSequence.length() - 1);
+      }
+    }
+  }
+
+  private LastChange lastChange;
+  private LastChange pendingLastChange;
+
   KeySequence(Actions actions) {
     this.actions = actions;
     configuration = Configuration.getConfiguration();
@@ -103,6 +127,10 @@ class KeySequence {
       } else {
         actions.normalModeGoToChar(count, operator, motion, character, registerKey, RepeatType.NONE);
       }
+      if (operator.equals("d") || operator.equals("c")) {
+        String lastChangeSequence = operator + motion + character;
+        lastChange = new LastChange(lastChangeSequence, registerKey, count);
+      }
       return remainder;
     }
 
@@ -118,6 +146,10 @@ class KeySequence {
       int count = determineTotalCount(countString1, countString2);
       Mode.SEARCH.activate();
       actions.activateSearch(count, operator, searchOperator, registerKey, Mode.NORMAL);
+      if (operator.equals("d") || operator.equals("c")) {
+        String lastChangeSequence = operator + searchOperator;
+        pendingLastChange = new LastChange(lastChangeSequence, registerKey, count);
+      }
       return remainder;
     }
 
@@ -125,10 +157,12 @@ class KeySequence {
     matcher = getNormalMatcher("^(\\d*)r(.)(.*)", sequence);
     if (matcher.find()) {
       String countString = matcher.group(1);
-      String key = matcher.group(2);
+      String character = matcher.group(2);
       String remainder = matcher.group(3);
       int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
-      actions.normalModeReplace(key, count);
+      actions.normalModeReplace(character, count);
+      String lastChangeSequence = "r" + character;
+      lastChange = new LastChange(lastChangeSequence, null, count);
       return remainder;
     }
 
@@ -137,6 +171,8 @@ class KeySequence {
     if (matcher.find()) {
       String remainder = matcher.group(1);
       Mode.REPLACE.activate();
+      String lastChangeSequence = "R";
+      lastChange = new LastChange(lastChangeSequence, null, null);
       return remainder;
     }
 
@@ -150,6 +186,10 @@ class KeySequence {
       String object = matcher.group(5);
       String remainder = matcher.group(6);
       actions.normalModeTextObjectSelection(operator, selector, object, registerKey);
+      if (operator.equals("d") || operator.equals("c")) {
+        String lastChangeSequence = operator + selector + object;
+        lastChange = new LastChange(lastChangeSequence, registerKey, null);
+      }
       return remainder;
     }
 
@@ -159,6 +199,10 @@ class KeySequence {
       String operator = matcher.group(3);
       String remainder = matcher.group(4);
       actions.normalModeBigDCY(operator, registerKey);
+      if (operator.equals("D") || operator.equals("C")) {
+        String lastChangeSequence = operator;
+        lastChange = new LastChange(lastChangeSequence, registerKey, null);
+      }
       return remainder;
     }
 
@@ -177,6 +221,10 @@ class KeySequence {
       String motion = matcher.group(4);
       String remainder = matcher.group(5);
       actions.normalModeOperateToSegmentBoundary(operator, motion, registerKey);
+      if (operator.equals("d") || operator.equals("c")) {
+        String lastChangeSequence = operator + motion;
+        lastChange = new LastChange(lastChangeSequence, registerKey, null);
+      }
       return remainder;
     }
 
@@ -187,13 +235,17 @@ class KeySequence {
       String remainder = matcher.group(4);
       int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
       actions.normalModeForwardChar("d", count, registerKey);
+      String lastChangeSequence = "x";
+      lastChange = new LastChange(lastChangeSequence, registerKey, count);
       return remainder;
     }
 
-    matcher = getNormalMatcher("^i(.*)", sequence);
+    matcher = getNormalMatcher("^\\d*i(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
       Mode.INSERT.activate();
+      String lastChangeSequence = "i";
+      lastChange = new LastChange(lastChangeSequence, null, null);
       return remainder;
     }
 
@@ -202,6 +254,8 @@ class KeySequence {
       String remainder = matcher.group(1);
       actions.normalModeAppendAfterCursor();
       Mode.INSERT.activate();
+      String lastChangeSequence = "a";
+      lastChange = new LastChange(lastChangeSequence, null, null);
       return remainder;
     }
 
@@ -211,6 +265,8 @@ class KeySequence {
       String remainder = matcher.group(2);
       int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
       actions.normalModeToggleCase(count);
+      String lastChangeSequence = "~";
+      lastChange = new LastChange(lastChangeSequence, null, count);
       return remainder;
     }
 
@@ -223,8 +279,6 @@ class KeySequence {
 
     matcher = getNormalMatcher("^(\\d*)v(.*)", sequence);
     if (matcher.find()) {
-      String entireMatch = matcher.group(0);
-      Log.log("entireMatch: " + entireMatch);
       String countString = matcher.group(1);
       Log.log("countString: " + countString);
       int count = (countString.equals("") || countString == null) ? 0 : Integer.parseInt(countString, 10);
@@ -243,11 +297,13 @@ class KeySequence {
       String countString1 = matcher.group(1);
       String registerKey = matcher.group(3);
       String countString2 = matcher.group(4);
-      String operator = matcher.group(5);
+      String putOperator = matcher.group(5);
       String remainder = matcher.group(6);
 
       int totalCount = determineTotalCount(countString1, countString2);
-      actions.normalModePut(registerKey, operator, totalCount);
+      actions.normalModePut(registerKey, putOperator, totalCount);
+      String lastChangeSequence = putOperator;
+      lastChange = new LastChange(lastChangeSequence, registerKey, totalCount);
       return remainder;
     }
 
@@ -262,6 +318,10 @@ class KeySequence {
       String remainder = matcher.group(7);
       int totalCount = determineTotalCount(countString1, countString2);
       actions.repeatSearch(totalCount, repeatMotion, operator, registerKey);
+      if (operator.equals("d") || operator.equals("c")) {
+        String lastChangeSequence = operator + repeatMotion;
+        lastChange = new LastChange(lastChangeSequence, registerKey, totalCount);
+      }
       return remainder;
     }
 
@@ -276,6 +336,10 @@ class KeySequence {
       String remainder = matcher.group(7);
       int totalCount = determineTotalCount(countString1, countString2);
       actions.repeatFind(totalCount, repeatMotion, operator, registerKey);
+      if (operator.equals("d") || operator.equals("c")) {
+        String lastChangeSequence = operator + repeatMotion;
+        lastChange = new LastChange(lastChangeSequence, registerKey, totalCount);
+      }
       return remainder;
     }
 
@@ -299,6 +363,10 @@ class KeySequence {
       } else if (motion.toLowerCase().equals("b")) {
         actions.normalModeBackwardWord(operator, motion, totalCount, registerKey);
       }
+      if (operator.equals("d") || operator.equals("c")) {
+        String lastChangeSequence = operator + motion;
+        lastChange = new LastChange(lastChangeSequence, registerKey, totalCount);
+      }
       return remainder;
 
       // We are currently ignoring motion keys j/k and uppercase
@@ -321,6 +389,30 @@ class KeySequence {
       String remainder = matcher.group(1);
       actions.normalModeShiftTab();
       return remainder;
+    }
+
+    // Repeat last change
+    matcher = getNormalMatcher("^(\\d*)\\.(.*)", sequence);
+    if (matcher.find()) {
+      String countString = matcher.group(1);
+      String remainder = matcher.group(2);
+      if (lastChange == null) {
+        return remainder;
+      }
+      String newCountString = countString;
+      if (Util.isEmpty(newCountString)) {
+        if (lastChange.count == null) {
+          newCountString = "";
+        } else {
+          newCountString = Integer.toString(lastChange.count);
+        }
+      }
+      String registerKey = lastChange.registerKey;
+      if (Util.isEmpty(registerKey)) {
+        registerKey = "";
+      }
+      // Add escape after base sequence to be sure we are back in normal mode when done
+      return registerKey + newCountString + lastChange.baseSequence + "<ESC>" + remainder;
     }
 
     if (sequence.matches(".*<ESC><ESC>")) {
@@ -581,6 +673,9 @@ class KeySequence {
         case "<BACKSPACE>":
           actions.replaceModeBackspace();
           Log.log("Backspace evaluated");
+          if (lastChange != null) {
+            lastChange.append(key);
+          }
           break;
         case "<TAB>":
           actions.replaceModeTab();
@@ -597,6 +692,9 @@ class KeySequence {
         case "<DEL>":
           actions.replaceModeDelete();
           Log.log("Delete evaluated");
+          if (lastChange != null) {
+            lastChange.append(key);
+          }
           break;
       }
       newSequence = remainder;
@@ -604,6 +702,9 @@ class KeySequence {
       String character = sequence.substring(0, 1);
       String remainder = sequence.substring(1);
       actions.replaceModeInsertText(character);
+      if (lastChange != null) {
+        lastChange.append(character);
+      }
       newSequence = remainder;
     }
 
@@ -627,6 +728,9 @@ class KeySequence {
         case "<BACKSPACE>":
           actions.insertModeBackspace();
           Log.log("Backspace evaluated");
+          if (lastChange != null) {
+            lastChange.append(key);
+          }
           break;
         case "<TAB>":
           actions.insertModeTab();
@@ -643,6 +747,9 @@ class KeySequence {
         case "<DEL>":
           actions.insertModeDelete();
           Log.log("Delete evaluated");
+          if (lastChange != null) {
+            lastChange.append(key);
+          }
           break;
       }
       newSequence = remainder;
@@ -650,6 +757,9 @@ class KeySequence {
       String character = sequence.substring(0, 1);
       String remainder = sequence.substring(1);
       actions.insertModeInsertText(character);
+      if (lastChange != null) {
+        lastChange.append(character);
+      }
       newSequence = remainder;
     }
 
@@ -669,17 +779,28 @@ class KeySequence {
       String key = matcher.group(1);
       String remainder = matcher.group(2);
       switch (key) {
+        case "<DEL>":
         case "<BACKSPACE>":
-          actions.searchModeBackspace();
+          boolean canceled = actions.searchModeBackspace();
+          if (canceled) {
+            pendingLastChange = null;
+          } else if (pendingLastChange != null) {
+            pendingLastChange.deleteLastKey();
+          }
           break;
         case "<ENTER>":
           actions.searchModeExecuteSearch();
+          if (pendingLastChange != null) {
+            pendingLastChange.append(key);
+            lastChange = pendingLastChange;
+            pendingLastChange = null;
+          }
           break;
         case "<TAB>":
         case "<S-TAB>":
-        case "<DEL>":
         case "<ESC>":
           actions.searchModeFinalizeSearch(false);
+          pendingLastChange = null;
           break;
       }
       newSequence = remainder;
@@ -687,6 +808,9 @@ class KeySequence {
       String character = sequence.substring(0, 1);
       String remainder = sequence.substring(1);
       actions.searchModeAddChar(character);
+      if (pendingLastChange != null) {
+        pendingLastChange.append(character);
+      }
       newSequence = remainder;
     }
     return newSequence;

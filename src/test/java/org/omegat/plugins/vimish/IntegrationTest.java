@@ -40,6 +40,15 @@ class ActionsTest {
 
     int insertText(final String text) {
       int index = getCaretPosition();
+      // If we are in insert mode at end of content, caret
+      // position will initially be 1 beyond end (content
+      // length). We need to move it back before inserting to
+      // avoid out of bounds error.
+      if (index > content.length()) {
+        index = content.length();
+      }
+      Log.log("caretPos: " + index);
+      Log.log("length: " + content.length());
       content = content.substring(0, index) + text + content.substring(index);
       int newIndex = index + text.length();
       return newIndex;
@@ -47,12 +56,10 @@ class ActionsTest {
 
     void setCaretPosition(final CaretPosition pos) {
       caretPos = extractCaretIndex(pos);
-      getCaretPosition();
     }
 
     void setCaretPosition(final int idx) {
       caretPos = idx;
-      getCaretPosition();
     }
 
     int getCaretPosition() {
@@ -100,6 +107,13 @@ class ActionsTest {
   @ParameterizedTest
   @CsvFileSource(resources = "/multiple_actions_data.csv", numLinesToSkip = 1)
   void testMultipleActions(final String initialMode, final String initialCaretPos, final String initialContent, final String sequence,
+                              final String expectedMode, final String expectedCaretPos, final String expectedContent) {
+    performTest(initialMode, initialCaretPos, initialContent, sequence, expectedMode, expectedCaretPos, expectedContent);
+  }
+
+  @ParameterizedTest
+  @CsvFileSource(resources = "/multiple_actions_repeat_last_change_data.csv", numLinesToSkip = 1)
+  void testMultipleActionsRepeatLastChange(final String initialMode, final String initialCaretPos, final String initialContent, final String sequence,
                               final String expectedMode, final String expectedCaretPos, final String expectedContent) {
     performTest(initialMode, initialCaretPos, initialContent, sequence, expectedMode, expectedCaretPos, expectedContent);
   }

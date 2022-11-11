@@ -434,13 +434,17 @@ class Actions {
     }
   }
 
-  void searchModeBackspace() {
+  boolean searchModeBackspace() {
+    boolean canceled = false;
     if (Util.isEmpty(pendingSearch.searchString)) {
       mainWindow.showStatusMessageRB(null);
       searchModeFinalizeSearch(false);
+      canceled = true;
+      return canceled;
     }
     pendingSearch.searchString = pendingSearch.searchString.substring(0, pendingSearch.searchString.length() - 1);
     mainWindow.showStatusMessageRB("PREFERENCES_SEARCH_HINT", pendingSearch.searchOperator + pendingSearch.searchString);
+    return canceled;
   }
 
   void searchModeAddChar(String character) {
