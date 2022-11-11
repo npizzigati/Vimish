@@ -392,6 +392,13 @@ class KeySequence {
       // return sequence.replaceFirst(entireMatchString, "");
     }
 
+    matcher = getNormalMatcher("^<BACKSPACE>(.*)", sequence);
+    if (matcher.find()) {
+      String remainder = matcher.group(1);
+      actions.normalModeBackwardChar(1);
+      return remainder;
+    }
+
     matcher = getNormalMatcher("^<TAB>(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
@@ -626,6 +633,13 @@ class KeySequence {
       // H/L/J/K, since these are not particularly useful for
       // translation segments (which contain no newlines)
       // NOTE: H/M/L (high/middle/low) may be useful for long segments
+    }
+
+    matcher = getVisualMatcher("^<BACKSPACE>(.*)", sequence);
+    if (matcher.find()) {
+      String remainder = matcher.group(1);
+      actions.visualModeBackwardChar(1);
+      return remainder;
     }
 
     // Text object selection
