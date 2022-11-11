@@ -418,10 +418,23 @@ class KeySequence {
       // return sequence.replaceFirst(entireMatchString, "");
     }
 
-    matcher = getNormalMatcher("^<BACKSPACE>(.*)", sequence);
+    // Backspace
+    matcher = getNormalMatcher("^(\\d*)<BACKSPACE>(.*)", sequence);
     if (matcher.find()) {
-      String remainder = matcher.group(1);
-      actions.normalModeBackwardChar(1);
+      String countString = matcher.group(1);
+      String remainder = matcher.group(2);
+      int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
+      actions.normalModeBackwardChar(count);
+      return remainder;
+    }
+
+    // Space
+    matcher = getNormalMatcher("^(\\d*) (.*)", sequence);
+    if (matcher.find()) {
+      String countString = matcher.group(1);
+      String remainder = matcher.group(2);
+      int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
+      actions.normalModeForwardChar(count);
       return remainder;
     }
 
@@ -661,10 +674,23 @@ class KeySequence {
       // NOTE: H/M/L (high/middle/low) may be useful for long segments
     }
 
-    matcher = getVisualMatcher("^<BACKSPACE>(.*)", sequence);
+    // Backspace
+    matcher = getVisualMatcher("^(\\d*)<BACKSPACE>(.*)", sequence);
     if (matcher.find()) {
-      String remainder = matcher.group(1);
-      actions.visualModeBackwardChar(1);
+      String countString = matcher.group(1);
+      String remainder = matcher.group(2);
+      int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
+      actions.visualModeBackwardChar(count);
+      return remainder;
+    }
+
+    // Space
+    matcher = getVisualMatcher("^(\\d*) (.*)", sequence);
+    if (matcher.find()) {
+      String countString = matcher.group(1);
+      String remainder = matcher.group(2);
+      int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
+      actions.visualModeForwardChar(count);
       return remainder;
     }
 

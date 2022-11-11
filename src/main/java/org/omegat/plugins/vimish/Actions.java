@@ -1194,6 +1194,10 @@ class Actions {
     }
   }
 
+  void normalModeForwardChar(int count) {
+    normalModeForwardChar("", count, "");
+  }
+
   void normalModeForwardChar(String operator, int count, String registerKey) {
     int currentIndex = getCaretIndex();
     String currentTranslation = editor.getCurrentTranslation();
