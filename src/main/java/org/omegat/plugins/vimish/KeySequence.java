@@ -652,14 +652,14 @@ class KeySequence {
       return remainder;
     }
 
-    matcher = getNormalMatcher("^<TAB>(.*)", sequence);
+    matcher = getVisualMatcher("^<TAB>(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
       actions.visualModeTab();
       return remainder;
     }
 
-    matcher = getNormalMatcher("^<S-TAB>(.*)", sequence);
+    matcher = getVisualMatcher("^<S-TAB>(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
       actions.visualModeShiftTab();
