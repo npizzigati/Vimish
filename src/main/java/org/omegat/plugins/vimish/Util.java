@@ -1,6 +1,8 @@
 package org.omegat.plugins.vimish;
 
 import java.util.Collections;
+import java.util.Map;
+import java.util.HashMap;
 import javax.swing.text.JTextComponent;
 
 
@@ -34,5 +36,30 @@ class Util {
 
   static boolean isLowerCase(String text) {
     return text.toLowerCase().equals(text);
+  }
+
+  /**
+   * Normalize all special keys in users hash to notation we use internally
+   */
+  static Map<String, String> normalizeHash(Map<String, String> userHash) {
+    if (userHash == null) {
+      return userHash;
+    }
+    Map<String, String> normalizedHash = new HashMap<String, String>();
+    userHash.forEach((k, v) -> {
+        String normalizedKey = normalizeString(k);
+        String normalizedValue = normalizeString(v);
+        normalizedHash.put(normalizedKey, normalizedValue);
+      });
+
+    return normalizedHash;
+  }
+
+  static String normalizeString(String str) {
+    str = str.replaceAll("(?i)(<ESC>|<ESCAPE>)", "<ESC>");
+    str = str.replaceAll("(?i)(<BS>|<BACKSPACE)", "<BACKSPACE>");
+    str = str.replaceAll("(?i)(<CR>|<RETURN>|<ENTER>)", "<ENTER>");
+    str = str.replaceAll("(?i)(<DEL>|<DELETE>)", "<DEL>");
+    return str;
   }
 }

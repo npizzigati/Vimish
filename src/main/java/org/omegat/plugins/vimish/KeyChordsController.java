@@ -110,13 +110,15 @@ class KeyChordsController {
 
   void refreshKeyChordsHash() {
     KeyChords allKeyChords = getAllKeyChords();
+    Map<String, String> userKeyChordsHash;
     if (Mode.NORMAL.isActive()) {
-      keyChordsHash = allKeyChords.normalModeKeyChords;
+      userKeyChordsHash = allKeyChords.normalModeKeyChords;
     } else if (Mode.VISUAL.isActive()){
-      keyChordsHash = allKeyChords.visualModeKeyChords;
+      userKeyChordsHash = allKeyChords.visualModeKeyChords;
     } else {
-      keyChordsHash = allKeyChords.insertModeKeyChords;
+      userKeyChordsHash = allKeyChords.insertModeKeyChords;
     }
+    keyChordsHash = Util.normalizeHash(userKeyChordsHash);
   }
 
   KeyChords getAllKeyChords() {

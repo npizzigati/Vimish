@@ -4,6 +4,7 @@ import java.awt.event.*;
 import javax.swing.Timer;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.ArrayList;
 
 import org.omegat.util.Log;
@@ -127,13 +128,15 @@ class KeyMappingsController {
 
   void refreshKeyMappingsHash() {
     KeyMappings allKeyMappings = getAllKeyMappings();
+    Map<String, String> userKeyMappingsHash;
     if (Mode.NORMAL.isActive()) {
-      keyMappingsHash = allKeyMappings.normalModeKeyMappings;
+      userKeyMappingsHash = allKeyMappings.normalModeKeyMappings;
     } else if (Mode.VISUAL.isActive()){
-      keyMappingsHash = allKeyMappings.visualModeKeyMappings;
+      userKeyMappingsHash = allKeyMappings.visualModeKeyMappings;
     } else {
-      keyMappingsHash = allKeyMappings.insertModeKeyMappings;
+      userKeyMappingsHash = allKeyMappings.insertModeKeyMappings;
     }
+    keyMappingsHash = Util.normalizeHash(userKeyMappingsHash);
   }
 
   private ActionListener createTaskPerformer() {
