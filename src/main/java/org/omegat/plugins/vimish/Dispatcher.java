@@ -9,10 +9,10 @@ import org.omegat.gui.editor.EditorTextArea3;
 import org.omegat.util.Log;
 
 class Dispatcher {
-  private KeyEquivalenciesRouter keyEquivalenciesRouter;
+  private PreRouter preRouter;
 
   Dispatcher() {
-    keyEquivalenciesRouter = new KeyEquivalenciesRouter();
+    preRouter = new PreRouter();
   }
 
   void installKeyEventDispatcher() {
@@ -60,7 +60,7 @@ class Dispatcher {
         String keyString = determineKeyString(event);
 
         // keyChordController.process(keyString);
-        keyEquivalenciesRouter.process(keyString);
+        preRouter.process(keyString);
 
         // consume key event
         return true;

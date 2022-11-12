@@ -11,8 +11,8 @@ import java.util.Map;
 class VimishOptionsController extends BasePreferencesController {
   private VimishOptionsPanel panel;
   private Configuration configuration;
-  private KeyMappings keyMappings;
-  private KeyChords keyChords;
+  private KeyMappings allKeyMappings;
+  private KeyChords allKeyChords;
   VimishTableModel keyMappingsTableModel;
   VimishTableModel keyChordsTableModel;
 
@@ -46,19 +46,19 @@ class VimishOptionsController extends BasePreferencesController {
       @SuppressWarnings("unchecked")
       JComboBox<String> comboBox = (JComboBox<String>) event.getSource();
       String mode = (String) comboBox.getSelectedItem();
-      Map<String, String> keyMappingsHash = null;
+      Map<String, String> selectedKeyMappings = null;
       switch (mode) {
         case "Normal":
-          keyMappingsHash = keyMappings.normalModeKeyMappings;
+          selectedKeyMappings = allKeyMappings.normalModeKeyMappings;
           break;
         case "Visual":
-          keyMappingsHash = keyMappings.visualModeKeyMappings;
+          selectedKeyMappings = allKeyMappings.visualModeKeyMappings;
           break;
         case "Insert":
-          keyMappingsHash = keyMappings.insertModeKeyMappings;
+          selectedKeyMappings = allKeyMappings.insertModeKeyMappings;
           break;
       }
-      keyMappingsTableModel.refreshWith(keyMappingsHash);
+      keyMappingsTableModel.refreshWith(selectedKeyMappings);
     });
     Dimension keyMappingsTableSize = panel.keyMappingsTable.getPreferredSize();
     panel.keyMappingsTable.setPreferredScrollableViewportSize(
@@ -82,19 +82,19 @@ class VimishOptionsController extends BasePreferencesController {
       @SuppressWarnings("unchecked")
       JComboBox<String> comboBox = (JComboBox<String>) event.getSource();
       String mode = (String) comboBox.getSelectedItem();
-      Map<String, String> keyChordsHash = null;
+      Map<String, String> selectedKeyChords = null;
       switch (mode) {
         case "Normal":
-          keyChordsHash = keyChords.normalModeKeyChords;
+          selectedKeyChords = allKeyChords.normalModeKeyChords;
           break;
         case "Visual":
-          keyChordsHash = keyChords.visualModeKeyChords;
+          selectedKeyChords = allKeyChords.visualModeKeyChords;
           break;
         case "Insert":
-          keyChordsHash = keyChords.insertModeKeyChords;
+          selectedKeyChords = allKeyChords.insertModeKeyChords;
           break;
       }
-      keyChordsTableModel.refreshWith(keyChordsHash);
+      keyChordsTableModel.refreshWith(selectedKeyChords);
     });
 
     Dimension keyChordsTableSize = panel.keyChordsTable.getPreferredSize();
@@ -123,32 +123,32 @@ class VimishOptionsController extends BasePreferencesController {
     boolean moveCursorBack;
     if (useDefaults) {
       moveCursorBack = configuration.DEFAULT_MOVE_CURSOR_BACK;
-      keyMappings = configuration.DEFAULT_KEY_MAPPINGS;
-      keyChords = configuration.DEFAULT_KEY_CHORDS;
+      allKeyMappings = configuration.DEFAULT_KEY_MAPPINGS;
+      allKeyChords = configuration.DEFAULT_KEY_CHORDS;
     } else {
       moveCursorBack = configuration.getConfigMoveCursorBack();
-      keyMappings = configuration.getKeyMappings();
-      keyChords = configuration.getKeyChords();
+      allKeyMappings = configuration.getKeyMappings();
+      allKeyChords = configuration.getKeyChords();
     }
     panel.moveCursorBackCheckBox.setSelected(moveCursorBack);
     keyMappingsTableModel =
-      new VimishTableModel(keyMappings.normalModeKeyMappings);
+      new VimishTableModel(allKeyMappings.normalModeKeyMappings);
     panel.keyMappingsTable.setModel(keyMappingsTableModel);
     panel.keyMappingsModeSelector.setSelectedIndex(0);
     keyMappingsTableModel.addTableModelListener(event -> {
-        Map<String, String> keyMappingsHash =
-          keyMappingsTableModel.getKeyEquivalenciesHash();
+        Map<String, String> keyMappings =
+          keyMappingsTableModel.getKeyTable();
         String mode =
           (String) panel.keyMappingsModeSelector.getSelectedItem();
         switch (mode) {
           case "Normal":
-            keyMappings.normalModeKeyMappings = keyMappingsHash;
+            allKeyMappings.normalModeKeyMappings = keyMappings;
             break;
           case "Visual":
-            keyMappings.visualModeKeyMappings = keyMappingsHash;
+            allKeyMappings.visualModeKeyMappings = keyMappings;
             break;
           case "Insert":
-            keyMappings.insertModeKeyMappings = keyMappingsHash;
+            allKeyMappings.insertModeKeyMappings = keyMappings;
             break;
         }
       });
@@ -156,23 +156,23 @@ class VimishOptionsController extends BasePreferencesController {
     panel.keyMappingsTable.getColumnModel().getColumn(1).setPreferredWidth(150);
 
     keyChordsTableModel =
-      new VimishTableModel(keyChords.normalModeKeyChords);
+      new VimishTableModel(allKeyChords.normalModeKeyChords);
     panel.keyChordsTable.setModel(keyChordsTableModel);
     panel.keyChordsModeSelector.setSelectedIndex(0);
     keyChordsTableModel.addTableModelListener(event -> {
         Map<String, String> keyChordsHash =
-          keyChordsTableModel.getKeyEquivalenciesHash();
+          keyChordsTableModel.getKeyTable();
         String mode =
           (String) panel.keyChordsModeSelector.getSelectedItem();
         switch (mode) {
           case "Normal":
-            keyChords.normalModeKeyChords = keyChordsHash;
+            allKeyChords.normalModeKeyChords = keyChordsHash;
             break;
           case "Visual":
-            keyChords.visualModeKeyChords = keyChordsHash;
+            allKeyChords.visualModeKeyChords = keyChordsHash;
             break;
           case "Insert":
-            keyChords.insertModeKeyChords = keyChordsHash;
+            allKeyChords.insertModeKeyChords = keyChordsHash;
             break;
         }
       });
@@ -207,12 +207,12 @@ class VimishOptionsController extends BasePreferencesController {
     ConfigurationData newData = new ConfigurationData();
 
     newData.moveCursorBack = panel.moveCursorBackCheckBox.isSelected();
-    newData.keyMappings = keyMappings;
-    newData.keyChords = keyChords;
+    newData.keyMappings = allKeyMappings;
+    newData.keyChords = allKeyChords;
     configuration.writeToFile(newData);
 
     // Flag key equivalency (chord, mapping, abbreviation) changes
-    configuration.flagKeyEquivalenciesRefreshNeeded();
+    configuration.flagKeyTablesRefreshNeeded();
   };
 
   /**

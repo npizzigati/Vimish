@@ -11,18 +11,18 @@ import org.omegat.util.Log;
 
 class KeyMappingsController {
   private List<String> keyMappingUnderway = new ArrayList<String>();
-  private Map<String, String> keyMappingsHash;
+  private Map<String, String> currentKeyMappings;
   private Timer timer;
-  private KeyEquivalenciesRouter keyEquivalenciesRouter;
+  private PreRouter preRouter;
   private Boolean isFirstKey = true;
   private Configuration configuration = Configuration.getConfiguration();
 
-  KeyMappingsController(KeyEquivalenciesRouter keyEquivalenciesRouter) {
-    this.keyEquivalenciesRouter = keyEquivalenciesRouter;
+  KeyMappingsController(PreRouter preRouter) {
+    this.preRouter = preRouter;
     // KeyMappings allKeyMappings = getAllKeyMappings();
     // // Set to normal mode key mappings to start
-    // keyMappingsHash = allKeyMappings.normalModeKeyMappings;
-    refreshKeyMappingsHash();
+    // keyMappings = allKeyMappings.normalModeKeyMappings;
+    refreshKeyMappings();
   }
 
   void processMultipleKeys(List<String> keyList) {
@@ -34,8 +34,8 @@ class KeyMappingsController {
   }
 
   void process(String keyString) {
-    if (keyMappingsHash == null || keyMappingsHash.isEmpty()) {
-      keyEquivalenciesRouter.applyAsKeySequence(keyString);
+    if (currentKeyMappings == null || currentKeyMappings.isEmpty()) {
+      preRouter.applyAsKeySequence(keyString);
       return;
     }
     // Pass keyString on to next stage (sequence evaluation) if
@@ -44,9 +44,9 @@ class KeyMappingsController {
     // KeySequence.apply (e.g., if user presses an "f" (find) and then
     // an "a", even if the user has "aa" in their remap list, we
     // will not wait for the next "a").
-    if (keyEquivalenciesRouter.isSequenceEvaluationInProgress()) {
+    if (preRouter.isSequenceEvaluationInProgress()) {
       Log.log("Sequence evaluation is in progress");
-      keyEquivalenciesRouter.applyAsKeySequence(keyString);
+      preRouter.applyAsKeySequence(keyString);
       return;
     }
     keyMappingUnderway.add(keyString);
@@ -63,15 +63,15 @@ class KeyMappingsController {
       // If there are no possible candidates in preceding keys
       // (because there has only been one key pressed)
       if (keyMappingUnderway.size() == 1) {
-        keyEquivalenciesRouter.applyAsKeySequence(String.join("", keyMappingUnderway));
+        preRouter.applyAsKeySequence(String.join("", keyMappingUnderway));
         reset();
       } else {
         // If there are possible candidates in preceding keys,
         // find the longest match and apply
         String longestMatch = getLongestMatch();
         if (longestMatch != null) {
-          String matchValue = keyMappingsHash.get(longestMatch);
-          keyEquivalenciesRouter.applyAsKeySequence(matchValue);
+          String matchValue = currentKeyMappings.get(longestMatch);
+          preRouter.applyAsKeySequence(matchValue);
           List<String> remainder = getRemainder(longestMatch);
           reset();
           // Send the rest of the keys after the match for
@@ -79,7 +79,7 @@ class KeyMappingsController {
           processMultipleKeys(remainder);
         } else {
           // If there is no match, send all keys in keyMappingUnderway
-          keyEquivalenciesRouter.applyAsKeySequence(String.join("", keyMappingUnderway));
+          preRouter.applyAsKeySequence(String.join("", keyMappingUnderway));
           reset();
         }
       }
@@ -88,9 +88,9 @@ class KeyMappingsController {
       // If only one candidate is found and it's a full match,
       // send on the map value
       String candidate = String.join("", keyMappingUnderway);
-      String mapValue = keyMappingsHash.get(candidate);
+      String mapValue = currentKeyMappings.get(candidate);
       if (mapValue != null) {
-        keyEquivalenciesRouter.applyAsKeySequence(mapValue);
+        preRouter.applyAsKeySequence(mapValue);
         reset();
       }
     }
@@ -114,7 +114,7 @@ class KeyMappingsController {
   private List<String> getMatchCandidates() {
     List<String> candidates = new ArrayList<String>();
     String keyMappingUnderwayString = String.join("", keyMappingUnderway);
-    for (String mapKey : keyMappingsHash.keySet()) {
+    for (String mapKey : currentKeyMappings.keySet()) {
       if (mapKey.startsWith(keyMappingUnderwayString)) {
         candidates.add(mapKey);
       }
@@ -126,17 +126,17 @@ class KeyMappingsController {
     return configuration.getKeyMappings();
   }
 
-  void refreshKeyMappingsHash() {
+  void refreshKeyMappings() {
     KeyMappings allKeyMappings = getAllKeyMappings();
-    Map<String, String> userKeyMappingsHash;
+    Map<String, String> userKeyMappings;
     if (Mode.NORMAL.isActive()) {
-      userKeyMappingsHash = allKeyMappings.normalModeKeyMappings;
+      userKeyMappings = allKeyMappings.normalModeKeyMappings;
     } else if (Mode.VISUAL.isActive()){
-      userKeyMappingsHash = allKeyMappings.visualModeKeyMappings;
+      userKeyMappings = allKeyMappings.visualModeKeyMappings;
     } else {
-      userKeyMappingsHash = allKeyMappings.insertModeKeyMappings;
+      userKeyMappings = allKeyMappings.insertModeKeyMappings;
     }
-    keyMappingsHash = Util.normalizeHash(userKeyMappingsHash);
+    currentKeyMappings = Util.normalizeTable(userKeyMappings);
   }
 
   private ActionListener createTaskPerformer() {
@@ -146,9 +146,9 @@ class KeyMappingsController {
         // Upon timeout, pick the longest candidate that also
         // matches keyMappingUnderway and send for evaluation
         String longestMatch = getLongestMatch();
-        String matchValue = keyMappingsHash.get(longestMatch);
+        String matchValue = currentKeyMappings.get(longestMatch);
         if (matchValue != null) {
-          keyEquivalenciesRouter.applyAsKeySequence(matchValue);
+          preRouter.applyAsKeySequence(matchValue);
           List<String> remainder = getRemainder(longestMatch);
           reset();
 
@@ -158,7 +158,7 @@ class KeyMappingsController {
 
         } else {
           // If there is no match, send all keys in keyMappingUnderway
-          keyEquivalenciesRouter.applyAsKeySequence(String.join("", keyMappingUnderway));
+          preRouter.applyAsKeySequence(String.join("", keyMappingUnderway));
           reset();
         }
       }
@@ -169,7 +169,7 @@ class KeyMappingsController {
 
   private String getLongestMatch() {
     String longestMatch = null;
-    List<String> candidates = new ArrayList<String>(keyMappingsHash.keySet());
+    List<String> candidates = new ArrayList<String>(currentKeyMappings.keySet());
     candidates.sort((a, b) -> Integer.compare(b.length(), a.length()));
 
     String keyMappingUnderwayString = String.join("", keyMappingUnderway);

@@ -24,7 +24,7 @@ enum Mode {
 
     // Flag for KeySequenceController to change the
     // mappings/chords/abbreviations to the correct mode
-    Configuration.getConfiguration().flagKeyEquivalenciesRefreshNeeded();
+    Configuration.getConfiguration().flagKeyTablesRefreshNeeded();
   }
 
   boolean isActive() {

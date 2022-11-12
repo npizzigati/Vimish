@@ -13,8 +13,8 @@ import javax.swing.table.AbstractTableModel;
 public class VimishTableModel extends AbstractTableModel {
   private List<String[]> keyValuePairs;
 
-  public VimishTableModel(Map<String, String> keyEquivalenciesHash) {
-    this.keyValuePairs = getKeyValuePairs(keyEquivalenciesHash);
+  public VimishTableModel(Map<String, String> keyTable) {
+    this.keyValuePairs = getKeyValuePairs(keyTable);
   }
 
   // public VimishTableModel(List<String[]> keyValuePairs) {
@@ -36,17 +36,17 @@ public class VimishTableModel extends AbstractTableModel {
     return this;
   }
 
-  public void refreshWith(Map<String, String> keyEquivalenciesHash) {
-    this.keyValuePairs = getKeyValuePairs(keyEquivalenciesHash);
+  public void refreshWith(Map<String, String> keyTable) {
+    this.keyValuePairs = getKeyValuePairs(keyTable);
     fireTableDataChanged();
   }
 
-  public Map<String, String> getKeyEquivalenciesHash() {
-    Map<String, String> keyEquivalenciesHash = new LinkedHashMap<String, String>();
+  public Map<String, String> getKeyTable() {
+    Map<String, String> keyTable = new LinkedHashMap<String, String>();
     keyValuePairs.forEach(array -> {
-      keyEquivalenciesHash.put(array[0], array[1]);
+      keyTable.put(array[0], array[1]);
     });
-    return keyEquivalenciesHash;
+    return keyTable;
   }
 
   public int getRowCount() {
@@ -84,11 +84,11 @@ public class VimishTableModel extends AbstractTableModel {
       return true;
   }
 
-  private List<String[]> getKeyValuePairs(Map<String, String> keyMappingsHash) {
+  private List<String[]> getKeyValuePairs(Map<String, String> keyMappings) {
     List<String[]> keyValuePairs = new LinkedList<String[]>();
 
-    if (keyMappingsHash != null) {
-      keyMappingsHash.forEach((k, v) -> {
+    if (keyMappings != null) {
+      keyMappings.forEach((k, v) -> {
         keyValuePairs.add(new String[] { k, v });
       });
     }

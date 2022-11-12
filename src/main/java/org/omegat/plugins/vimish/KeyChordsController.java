@@ -12,13 +12,13 @@ import org.omegat.util.Log;
 
 class KeyChordsController {
   private List<String> keyChordUnderway = new ArrayList<String>();
-  private Map<String, String> keyChordsHash;
+  private Map<String, String> currentKeyChords;
   private Timer timer;
-  private KeyEquivalenciesRouter keyEquivalenciesRouter;
+  private PreRouter preRouter;
   private Configuration configuration = Configuration.getConfiguration();
 
-  KeyChordsController(KeyEquivalenciesRouter keyEquivalenciesRouter) {
-    this.keyEquivalenciesRouter = keyEquivalenciesRouter;
+  KeyChordsController(PreRouter preRouter) {
+    this.preRouter = preRouter;
     refreshKeyChordsHash();
   }
 
@@ -27,29 +27,29 @@ class KeyChordsController {
   }
 
   void process(String keyString) {
-    if (keyChordsHash == null || keyChordsHash.isEmpty()) {
-      keyEquivalenciesRouter.sendToKeyMapper(keyString);
+    if (currentKeyChords == null || currentKeyChords.isEmpty()) {
+      preRouter.sendToKeyMapper(keyString);
       return;
     }
     keyChordUnderway.add(keyString);
     if (keyChordUnderway.size() == 2) {
-      String keyChordMatch = retrieveMatchingKeyChord(keyChordUnderway, keyChordsHash.keySet());
+      String keyChordMatch = retrieveMatchingKeyChord(keyChordUnderway, currentKeyChords.keySet());
       // We also verify that characters in keyChordUnderway are unique
       // since it makes no sense to have a key chord with two
       // of the same characters
       if (keyChordMatch == null || keyChordUnderway.get(0) == keyChordUnderway.get(1)) {
         timer.stop();
-        keyEquivalenciesRouter.sendMultipleKeysToKeyMapper(keyChordUnderway);
+        preRouter.sendMultipleKeysToKeyMapper(keyChordUnderway);
         reset();
       } else {
         timer.stop();
-        String keyChordTranslation = keyChordsHash.get(keyChordMatch);
+        String keyChordTranslation = currentKeyChords.get(keyChordMatch);
         String result = keyChordTranslation;
-        keyEquivalenciesRouter.applyAsKeySequence(result);
+        preRouter.applyAsKeySequence(result);
         reset();
       }
     } else {
-      if (isInOneOfTheKeyChords(keyChordUnderway, keyChordsHash.keySet())) {
+      if (isInOneOfTheKeyChords(keyChordUnderway, currentKeyChords.keySet())) {
         ActionListener taskPerformer = new ActionListener() {
           public void actionPerformed(ActionEvent _event) {
             Log.log("Key chord timed out");
@@ -58,7 +58,7 @@ class KeyChordsController {
             String result = keyChordUnderway.get(0);
             // Result in this case will be a single key
             // since we've limited our total key chord size to 2
-            keyEquivalenciesRouter.sendToKeyMapper(result);
+            preRouter.sendToKeyMapper(result);
             reset();
           }
         };
@@ -69,7 +69,7 @@ class KeyChordsController {
         timer.start();
       } else {
         String result = keyChordUnderway.get(0);
-        keyEquivalenciesRouter.sendToKeyMapper(result);
+        preRouter.sendToKeyMapper(result);
         reset();
       }
     }
@@ -118,7 +118,7 @@ class KeyChordsController {
     } else {
       userKeyChordsHash = allKeyChords.insertModeKeyChords;
     }
-    keyChordsHash = Util.normalizeHash(userKeyChordsHash);
+    currentKeyChords = Util.normalizeTable(userKeyChordsHash);
   }
 
   KeyChords getAllKeyChords() {

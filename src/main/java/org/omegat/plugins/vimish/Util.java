@@ -41,7 +41,7 @@ class Util {
   /**
    * Normalize all special keys in users hash to notation we use internally
    */
-  static Map<String, String> normalizeHash(Map<String, String> userHash) {
+  static Map<String, String> normalizeTable(Map<String, String> userHash) {
     if (userHash == null) {
       return userHash;
     }
