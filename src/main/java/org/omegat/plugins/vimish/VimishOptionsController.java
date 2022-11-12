@@ -10,7 +10,7 @@ import java.util.Map;
 
 class VimishOptionsController extends BasePreferencesController {
   private VimishOptionsPanel panel;
-  private Configuration configuration = Configuration.getConfiguration();
+  private Configuration configuration;
   private KeyMappings keyMappings;
   private KeyChords keyChords;
   VimishTableModel keyMappingsTableModel;
@@ -18,6 +18,10 @@ class VimishOptionsController extends BasePreferencesController {
 
   private final String VIEW_NAME = "Vimish";
   private final int MAX_ROW_COUNT = 4;
+
+  VimishOptionsController() {
+    configuration = Configuration.getConfiguration();
+  }
 
   /**
    * Get the GUI (the "view") controlled by this controller. This should not be a
@@ -112,13 +116,21 @@ class VimishOptionsController extends BasePreferencesController {
   @Override
   protected void initFromPrefs() {
     configuration.refresh();
-    showData();
+    showData(false);
   }
 
-  private void showData() {
-    boolean moveCursorBack = configuration.getConfigMoveCursorBack();
+  private void showData(boolean useDefaults) {
+    boolean moveCursorBack;
+    if (useDefaults) {
+      moveCursorBack = configuration.DEFAULT_MOVE_CURSOR_BACK;
+      keyMappings = configuration.DEFAULT_KEY_MAPPINGS;
+      keyChords = configuration.DEFAULT_KEY_CHORDS;
+    } else {
+      moveCursorBack = configuration.getConfigMoveCursorBack();
+      keyMappings = configuration.getKeyMappings();
+      keyChords = configuration.getKeyChords();
+    }
     panel.moveCursorBackCheckBox.setSelected(moveCursorBack);
-    keyMappings = configuration.getKeyMappings();
     keyMappingsTableModel =
       new VimishTableModel(keyMappings.normalModeKeyMappings);
     panel.keyMappingsTable.setModel(keyMappingsTableModel);
@@ -143,7 +155,6 @@ class VimishOptionsController extends BasePreferencesController {
     panel.keyMappingsTable.getColumnModel().getColumn(0).setPreferredWidth(150);
     panel.keyMappingsTable.getColumnModel().getColumn(1).setPreferredWidth(150);
 
-    keyChords = configuration.getKeyChords();
     keyChordsTableModel =
       new VimishTableModel(keyChords.normalModeKeyChords);
     panel.keyChordsTable.setModel(keyChordsTableModel);
@@ -223,7 +234,6 @@ class VimishOptionsController extends BasePreferencesController {
    */
   @Override
   public void restoreDefaults() {
-    configuration.loadDefaults();
-    showData();
+    showData(true);
   };
 }

@@ -53,10 +53,6 @@ class Configuration {
     readFromFile();
   }
 
-  void loadDefaults() {
-    configurationData = getDefaultConfigurationData();
-  }
-
   public void flagKeyEquivalenciesRefreshNeeded() {
     keyEquivalenciesNeedRefreshing = true;
   }
