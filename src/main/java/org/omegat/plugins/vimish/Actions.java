@@ -127,6 +127,14 @@ class Actions {
     VimishVisualMarker.toggleMarkOrientation();
   }
 
+  void visualModeAppendAfterCursor() {
+    int currentIndex = getCaretIndex();
+    setCaretIndex(currentIndex + 1);
+    clearVisualMarks();
+    Mode.INSERT.activate();
+  }
+
+
   void visualModeOperate(String operator, String registerKey) {
     switch (operator) {
     case "d":
@@ -438,6 +446,13 @@ class Actions {
   void normalModeAppendAfterCursor() {
     int currentIndex = getCaretIndex();
     setCaretIndex(currentIndex + 1);
+    Mode.INSERT.activate();
+  }
+
+  void normalModeAppendAtEnd() {
+    int length = editor.getCurrentTranslation().length();
+    setCaretIndex(length);
+    Mode.INSERT.activate();
   }
 
   void activateSearch(int count, String operator, String searchOperator,

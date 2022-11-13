@@ -290,12 +290,22 @@ class KeySequence {
       return remainder;
     }
 
+    // Append
     matcher = getNormalMatcher("^\\d*a(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
       actions.normalModeAppendAfterCursor();
-      Mode.INSERT.activate();
       String lastChangeSequence = "a";
+      lastChange = new LastChange(lastChangeSequence, null, null);
+      return remainder;
+    }
+
+    // Append at end
+    matcher = getNormalMatcher("^\\d*A(.*)", sequence);
+    if (matcher.find()) {
+      String remainder = matcher.group(1);
+      actions.normalModeAppendAtEnd();
+      String lastChangeSequence = "A";
       lastChange = new LastChange(lastChangeSequence, null, null);
       return remainder;
     }
@@ -613,6 +623,18 @@ class KeySequence {
       String remainder = matcher.group(4);
       actions.visualModeOperate(operator, registerKey);
       actions.clearVisualMarks();
+      return remainder;
+    }
+
+    // Append
+    matcher = getVisualMatcher("^\\d*A(.*)", sequence);
+    if (matcher.find()) {
+      String remainder = matcher.group(1);
+      actions.visualModeAppendAfterCursor();
+      // Visual mode "A" behaves like normal mode "a" (insert
+      // mode started at caret position + 1)
+      String lastChangeSequence = "a";
+      lastChange = new LastChange(lastChangeSequence, null, null);
       return remainder;
     }
 
