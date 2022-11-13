@@ -1386,4 +1386,13 @@ class Actions {
   int getCaretIndex() {
     return editor.getCurrentPositionInEntryTranslation();
   }
+
+  /**
+   * Workaround for caret being invisible when editor window starts up.
+   * Moving the caret causes it to be drawn properly.
+   */
+  void wiggleCaret() {
+    normalModeForwardChar(1);
+    normalModeBackwardChar(1);
+  }
 }

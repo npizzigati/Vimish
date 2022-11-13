@@ -17,6 +17,7 @@ class PreRouter {
 
   PreRouter() {
     configuration = Configuration.getConfiguration();
+    actions.wiggleCaret();
   }
 
   boolean isSequenceEvaluationInProgress() {
