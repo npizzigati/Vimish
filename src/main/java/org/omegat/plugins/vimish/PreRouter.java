@@ -8,14 +8,19 @@ import org.omegat.util.Log;
 import java.util.List;
 
 class PreRouter {
-  private EditorController editor = (EditorController) Core.getEditor();
-  private Actions actions = new Actions(editor, (MainWindow) Core.getMainWindow());
-  private KeySequence keySequence = new KeySequence(actions);
-  private KeyMappingsController keyMappingsController = new KeyMappingsController(this);
-  private KeyChordsController keyChordsController = new KeyChordsController(this);
+  private EditorController editor;
+  private Actions actions;
+  private KeySequence keySequence;
+  private KeyMappingsController keyMappingsController;
+  private KeyChordsController keyChordsController;
   private Configuration configuration;
 
   PreRouter() {
+    editor = (EditorController) Core.getEditor();
+    actions = new Actions(editor, (MainWindow) Core.getMainWindow());
+    keySequence = new KeySequence(actions);
+    keyMappingsController = new KeyMappingsController(this);
+    keyChordsController = new KeyChordsController(this);
     configuration = Configuration.getConfiguration();
     actions.wiggleCaret();
   }
