@@ -581,6 +581,15 @@ class KeySequence {
       return remainder;
     }
 
+    // Toggle case
+    matcher = getVisualMatcher("^\\d*~(.*)", sequence);
+    if (matcher.find()) {
+      String remainder = matcher.group(1);
+      actions.visualModeSwitchCase("");
+      return remainder;
+    }
+
+
     // Switch selection end
     matcher = getVisualMatcher("^[oO](.*)", sequence);
     if (matcher.find()) {

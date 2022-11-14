@@ -839,10 +839,16 @@ class Actions {
     Integer endIndex = VimishVisualMarker.getMarkEnd();
     String currentTranslation = editor.getCurrentTranslation();
     String selection = currentTranslation.substring(startIndex, endIndex);
-    if (operator.equals("u")) {
-      selection = selection.toLowerCase();
-    } else {
+    switch (operator) {
+    case "U":
       selection = selection.toUpperCase();
+      break;
+    case "u":
+      selection = selection.toLowerCase();
+      break;
+    case "":
+      selection = toggleCase(selection);
+      break;
     }
     editor.replacePartOfText(selection, startIndex, endIndex);
     // Replacement operation will place caret at end of replaced
@@ -852,6 +858,19 @@ class Actions {
     } else {
       setCaretIndex(startIndex);
     }
+  }
+
+  String toggleCase(String selection) {
+    String toggledSelection = "";
+    String[] characters = selection.split("");
+    for (String character : characters) {
+      if (Util.isLowerCase(character)) {
+        toggledSelection += character.toUpperCase();
+      } else {
+        toggledSelection += character.toLowerCase();
+      }
+    }
+    return toggledSelection;
   }
 
   void normalModeToggleCase(int count) {
