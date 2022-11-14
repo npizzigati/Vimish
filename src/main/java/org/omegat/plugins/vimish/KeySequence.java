@@ -88,8 +88,7 @@ class KeySequence {
     // changed -- i.e., some portion of the sequence has
     // triggered a match in the evaluate... methods above and the
     // sequence is now the remainder of the previous sequence.
-    // Count number of actions applied to prevent runaway
-    if (sequence.equals("") || actionsCount > 25) {
+    if (sequence.equals("")) {
       actionsCount = 0;
       return;
     }
@@ -573,11 +572,16 @@ class KeySequence {
     }
 
     // u/U - upcase/downcase
-    matcher = getVisualMatcher("^([uU])(.*)", sequence);
+    matcher = getVisualMatcher("^\\d*([uU])(.*)", sequence);
     if (matcher.find()) {
       String operator = matcher.group(1);
       String remainder = matcher.group(2);
+      // Need to get visual selection size before performing
+      // action, since after action size will be 0
+      int visualSelectionSize = actions.getVisualSelectionSize();
       actions.visualModeSwitchCase(operator);
+      String lastChangeSequence = visualSelectionSize + "v" + operator;
+      lastChange = new LastChange(lastChangeSequence, null, null);
       return remainder;
     }
 
@@ -585,7 +589,10 @@ class KeySequence {
     matcher = getVisualMatcher("^\\d*~(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
+      int visualSelectionSize = actions.getVisualSelectionSize();
       actions.visualModeSwitchCase("");
+      String lastChangeSequence = visualSelectionSize + "v" + "~";
+      lastChange = new LastChange(lastChangeSequence, null, null);
       return remainder;
     }
 
@@ -603,11 +610,14 @@ class KeySequence {
     matcher = getVisualMatcher("^\\d*r(.)(.*)", sequence);
     if (matcher.find()) {
       // Numbers before r will be ignored
-      String key = matcher.group(1);
+      String character = matcher.group(1);
       String remainder = matcher.group(2);
-      actions.visualModeReplace(key);
+      int visualSelectionSize = actions.getVisualSelectionSize();
+      actions.visualModeReplace(character);
       Mode.NORMAL.activate();
       actions.clearVisualMarks();
+      String lastChangeSequence = visualSelectionSize + "v" + "r" + character;
+      lastChange = new LastChange(lastChangeSequence, null, null);
       return remainder;
     }
 
@@ -616,7 +626,10 @@ class KeySequence {
       String registerKey = matcher.group(2);
       String operator = matcher.group(3);
       String remainder = matcher.group(4);
+      int visualSelectionSize = actions.getVisualSelectionSize();
       actions.visualModeBigDCSY(operator, registerKey);
+      String lastChangeSequence = visualSelectionSize + "v" + operator;
+      lastChange = new LastChange(lastChangeSequence, registerKey, null);
       return remainder;
     }
 
@@ -629,6 +642,7 @@ class KeySequence {
     }
 
 
+    // TODO: Does this still need fixing?
     // This regex does not account for the fact that an escape
     // will not always take you to normal mode (e.g.
     // it can also escape from another operation, like in the case of
@@ -642,7 +656,7 @@ class KeySequence {
       return remainder;
     }
 
-    // What other key combinations should make us escape back
+    // TODO: What other key combinations should make us escape back
     // to normal mode?
     // I can also combine these cases in a single if statement
     matcher = getVisualMatcher("^\\d*v(.*)", sequence);
@@ -658,8 +672,13 @@ class KeySequence {
       String registerKey = matcher.group(2);
       String operator = matcher.group(3);
       String remainder = matcher.group(4);
+      int visualSelectionSize = actions.getVisualSelectionSize();
       actions.visualModeOperate(operator, registerKey);
       actions.clearVisualMarks();
+      if (!operator.equals("y")) {
+        String lastChangeSequence = visualSelectionSize + "v" + "operator";
+        lastChange = new LastChange(lastChangeSequence, registerKey, null);
+      }
       return remainder;
     }
 

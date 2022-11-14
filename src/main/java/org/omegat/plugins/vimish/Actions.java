@@ -851,13 +851,9 @@ class Actions {
       break;
     }
     editor.replacePartOfText(selection, startIndex, endIndex);
-    // Replacement operation will place caret at end of replaced
-    // text -- we need to put it back in proper place
-    if (VimishVisualMarker.getMarkOrientation() == MarkOrientation.RIGHT) {
-      setCaretIndex(endIndex - 1);
-    } else {
-      setCaretIndex(startIndex);
-    }
+    setCaretIndex(startIndex);
+    clearVisualMarks();
+    Mode.NORMAL.activate();
   }
 
   String toggleCase(String selection) {
@@ -1433,6 +1429,12 @@ class Actions {
    */
   int getCaretIndex() {
     return editor.getCurrentPositionInEntryTranslation();
+  }
+
+  int getVisualSelectionSize() {
+    Integer startIndex = VimishVisualMarker.getMarkStart();
+    Integer endIndex = VimishVisualMarker.getMarkEnd();
+    return endIndex - startIndex;
   }
 
   /**
