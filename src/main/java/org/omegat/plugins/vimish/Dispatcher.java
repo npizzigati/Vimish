@@ -111,10 +111,6 @@ class Dispatcher {
       case KeyEvent.VK_DELETE:
         keyString = "<DEL>";
         break;
-      case KeyEvent.VK_LEFT:
-        break;
-      case KeyEvent.VK_RIGHT:
-        break;
       default:
         keyString = String.valueOf(keyChar);
         break;
