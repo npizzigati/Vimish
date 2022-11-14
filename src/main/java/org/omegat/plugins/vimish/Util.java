@@ -60,6 +60,8 @@ class Util {
     str = str.replaceAll("(?i)(<BS>|<BACKSPACE)", "<BACKSPACE>");
     str = str.replaceAll("(?i)(<CR>|<RETURN>|<ENTER>)", "<ENTER>");
     str = str.replaceAll("(?i)(<DEL>|<DELETE>)", "<DEL>");
+    str = str.replaceAll("(?i)(<LEFT>)", "<LEFT>");
+    str = str.replaceAll("(?i)(<RIGHT>)", "<RIGHT>");
     return str;
   }
 }

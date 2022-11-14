@@ -438,6 +438,26 @@ class KeySequence {
       return remainder;
     }
 
+    // Left
+    matcher = getNormalMatcher("^(\\d*)<LEFT>(.*)", sequence);
+    if (matcher.find()) {
+      String countString = matcher.group(1);
+      String remainder = matcher.group(2);
+      int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
+      actions.normalModeBackwardChar(count);
+      return remainder;
+    }
+
+    // Right
+    matcher = getNormalMatcher("^(\\d*)<RIGHT>(.*)", sequence);
+    if (matcher.find()) {
+      String countString = matcher.group(1);
+      String remainder = matcher.group(2);
+      int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
+      actions.normalModeForwardChar(count);
+      return remainder;
+    }
+
     // Space
     matcher = getNormalMatcher("^(\\d*) (.*)", sequence);
     if (matcher.find()) {
@@ -706,6 +726,26 @@ class KeySequence {
       return remainder;
     }
 
+    // Left
+    matcher = getVisualMatcher("^(\\d*)<LEFT>(.*)", sequence);
+    if (matcher.find()) {
+      String countString = matcher.group(1);
+      String remainder = matcher.group(2);
+      int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
+      actions.visualModeBackwardChar(count);
+      return remainder;
+    }
+
+    // Right
+    matcher = getVisualMatcher("^(\\d*)<RIGHT>(.*)", sequence);
+    if (matcher.find()) {
+      String countString = matcher.group(1);
+      String remainder = matcher.group(2);
+      int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
+      actions.visualModeForwardChar(count);
+      return remainder;
+    }
+
     // Space
     matcher = getVisualMatcher("^(\\d*) (.*)", sequence);
     if (matcher.find()) {
@@ -761,8 +801,8 @@ class KeySequence {
 
   private String evaluateReplaceSequence() {
     String newSequence = sequence;
-    if (sequence.matches("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<S-TAB>|<ENTER>).*")) {
-      Matcher matcher = Pattern.compile("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<S-TAB>|<ENTER>)(.*)").matcher(sequence);
+    if (sequence.matches("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<S-TAB>|<ENTER>|<LEFT>|<RIGHT>).*")) {
+      Matcher matcher = Pattern.compile("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<S-TAB>|<ENTER>|<LEFT>|<RIGHT>)(.*)").matcher(sequence);
       matcher.find();
       String key = matcher.group(1);
       String remainder = matcher.group(2);
@@ -792,6 +832,18 @@ class KeySequence {
           actions.replaceModeEnter();
           Log.log("Enter evaluated");
           break;
+        case "<LEFT>":
+          actions.insertModeBackwardChar(1);
+          if (lastChange != null) {
+            lastChange.append(key);
+          }
+          break;
+        case "<RIGHT>":
+          actions.insertModeForwardChar(1);
+          if (lastChange != null) {
+            lastChange.append(key);
+          }
+          break;
         case "<DEL>":
           actions.replaceModeDelete();
           Log.log("Delete evaluated");
@@ -816,8 +868,8 @@ class KeySequence {
 
   private String evaluateInsertSequence() {
     String newSequence = sequence;
-    if (sequence.matches("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<S-TAB>|<ENTER>).*")) {
-      Matcher matcher = Pattern.compile("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<S-TAB>|<ENTER>)(.*)").matcher(sequence);
+    if (sequence.matches("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<S-TAB>|<ENTER>|<LEFT>|<RIGHT>).*")) {
+      Matcher matcher = Pattern.compile("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<S-TAB>|<ENTER>|<LEFT>|<RIGHT>)(.*)").matcher(sequence);
       matcher.find();
       String key = matcher.group(1);
       String remainder = matcher.group(2);
@@ -846,6 +898,18 @@ class KeySequence {
         case "<ENTER>":
           actions.insertModeEnter();
           Log.log("Enter evaluated");
+          break;
+        case "<LEFT>":
+          actions.insertModeBackwardChar(1);
+          if (lastChange != null) {
+            lastChange.append(key);
+          }
+          break;
+        case "<RIGHT>":
+          actions.insertModeForwardChar(1);
+          if (lastChange != null) {
+            lastChange.append(key);
+          }
           break;
         case "<DEL>":
           actions.insertModeDelete();

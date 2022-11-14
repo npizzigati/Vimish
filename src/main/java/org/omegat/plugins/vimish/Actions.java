@@ -1375,6 +1375,20 @@ class Actions {
     }
   }
 
+  void insertModeForwardChar(int count) {
+    int currentIndex = getCaretIndex();
+    String currentTranslation = editor.getCurrentTranslation();
+    int length = currentTranslation.length();
+    int newIndex = (length - currentIndex >= count) ? currentIndex + count : length;
+    setCaretIndex(newIndex);
+  }
+
+  void insertModeBackwardChar(int count) {
+    int currentIndex = getCaretIndex();
+    int newIndex = (currentIndex >= count) ? currentIndex - count : 0;
+    setCaretIndex(newIndex);
+  }
+
   private void insertTextAtIndex(String text, int index) {
     setCaretIndex(index);
     editor.insertText(text);

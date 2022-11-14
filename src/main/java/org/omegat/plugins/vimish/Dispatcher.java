@@ -42,18 +42,32 @@ class Dispatcher {
           return false;
         }
 
-        // Don't consume action-key keyPressed events (e.g. arrow
-        // keys, page up, page down, home, end, etc.), except for
-        // INSERT key (to prevent problems with caret)
+        // Don't consume action-key keyPressed events (e.g. page
+        // up, page down, home, end, etc.), except for INSERT key
+        // (to prevent problems with caret). Also exclude arrow
+        // keys, since these will be processed below.
         if (event.isActionKey() && event.getID() == KeyEvent.KEY_PRESSED
-            && event.getKeyCode() != KeyEvent.VK_INSERT) {
+            && event.getKeyCode() != KeyEvent.VK_INSERT
+            && event.getKeyCode() != KeyEvent.VK_RIGHT
+            && event.getKeyCode() != KeyEvent.VK_LEFT) {
           return false;
         }
 
         // Consume other non-keyTyped events, to prevent
         // duplication of events in the form of keyPressed and
-        // keyReleased events
-        if (!(event.getID() == KeyEvent.KEY_TYPED)) {
+        // keyReleased events. Exclude arrow keys, since they don't have
+        // an associated keyTyped event.
+        if (event.getID() != KeyEvent.KEY_TYPED
+            && event.getKeyCode() != KeyEvent.VK_RIGHT
+            && event.getKeyCode() != KeyEvent.VK_LEFT) {
+          return true;
+        }
+
+        // Consume the keyReleased events that have passed thru
+        // to this point (i.e. the arrow key keyReleased events)
+        // We will let the arrow key keyPressed events pass thru
+        // to be processed below.
+        if (event.getID() == KeyEvent.KEY_RELEASED) {
           return true;
         }
 
@@ -71,27 +85,40 @@ class Dispatcher {
   private String determineKeyString(KeyEvent event) {
     String keyString = null;
     char keyChar = event.getKeyChar();
+    int keyCode = event.getKeyCode();
     boolean shiftPressed = false;
-
-    switch((int)keyChar) {
-    case KeyEvent.VK_ESCAPE:
-      keyString = "<ESC>";
-      break;
-    case KeyEvent.VK_BACK_SPACE:
-      keyString = "<BACKSPACE>";
-      break;
-    case KeyEvent.VK_ENTER:
-      keyString = "<ENTER>";
-      break;
-    case KeyEvent.VK_TAB:
-      keyString = "<TAB>";
-      break;
-    case KeyEvent.VK_DELETE:
-      keyString = "<DEL>";
-      break;
-    default:
-      keyString = String.valueOf(keyChar);
-      break;
+    // Handle arrow keys first, which only have reliable key
+    // codes (the result of getKeyChar() is meaningless for
+    // action keys)
+    if (keyCode == KeyEvent.VK_LEFT) {
+      keyString = "<LEFT>";
+    } else if (keyCode == KeyEvent.VK_RIGHT) {
+      keyString = "<RIGHT>";
+    } else {
+      switch((int)keyChar) {
+      case KeyEvent.VK_ESCAPE:
+        keyString = "<ESC>";
+        break;
+      case KeyEvent.VK_BACK_SPACE:
+        keyString = "<BACKSPACE>";
+        break;
+      case KeyEvent.VK_ENTER:
+        keyString = "<ENTER>";
+        break;
+      case KeyEvent.VK_TAB:
+        keyString = "<TAB>";
+        break;
+      case KeyEvent.VK_DELETE:
+        keyString = "<DEL>";
+        break;
+      case KeyEvent.VK_LEFT:
+        break;
+      case KeyEvent.VK_RIGHT:
+        break;
+      default:
+        keyString = String.valueOf(keyChar);
+        break;
+      }
     }
 
     if ((event.getModifiersEx() & InputEvent.SHIFT_DOWN_MASK) != 0) {
