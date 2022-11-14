@@ -118,8 +118,11 @@ class KeySequence {
      *
      * The order of subsequent regexes shouldn't matter
      **/
-    // To or till find
-    matcher = getNormalMatcher("^(\"([\\w\\-\"]))?(\\d*)([dcy]?)(\\d*)([fFTt])(.)(.*)", sequence);
+    // To or till find In the regex, "\u2732" is our special
+    // character delimiter; we use this to prevent special
+    // characters from being confused with actual characters in
+    // the text; here, we are finding any character except that delimiter
+    matcher = getNormalMatcher("^(\"([\\w\\-\"]))?(\\d*)([dcy]?)(\\d*)([fFTt])([^\\u2732])(.*)", sequence);
     if (matcher.find()) {
       String registerKey = matcher.group(2);
       String countString1 = matcher.group(3);
@@ -161,7 +164,7 @@ class KeySequence {
     }
 
     // r - little "r" replace
-    matcher = getNormalMatcher("^(\\d*)r(.)(.*)", sequence);
+    matcher = getNormalMatcher("^(\\d*)r([^\\u2732])(.*)", sequence);
     if (matcher.find()) {
       String countString = matcher.group(1);
       String character = matcher.group(2);
