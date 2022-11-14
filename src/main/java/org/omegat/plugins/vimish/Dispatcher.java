@@ -91,25 +91,25 @@ class Dispatcher {
     // codes (the result of getKeyChar() is meaningless for
     // action keys)
     if (keyCode == KeyEvent.VK_LEFT) {
-      keyString = "<LEFT>";
+      keyString = "\u2732LEFT\u2732";
     } else if (keyCode == KeyEvent.VK_RIGHT) {
-      keyString = "<RIGHT>";
+      keyString = "\u2732RIGHT\u2732";
     } else {
       switch((int)keyChar) {
       case KeyEvent.VK_ESCAPE:
-        keyString = "<ESC>";
+        keyString = "\u2732ESC\u2732";
         break;
       case KeyEvent.VK_BACK_SPACE:
-        keyString = "<BACKSPACE>";
+        keyString = "\u2732BACKSPACE\u2732";
         break;
       case KeyEvent.VK_ENTER:
-        keyString = "<ENTER>";
+        keyString = "\u2732ENTER\u2732";
         break;
       case KeyEvent.VK_TAB:
-        keyString = "<TAB>";
+        keyString = "\u2732TAB\u2732";
         break;
       case KeyEvent.VK_DELETE:
-        keyString = "<DEL>";
+        keyString = "\u2732DEL\u2732";
         break;
       default:
         keyString = String.valueOf(keyChar);
@@ -121,8 +121,8 @@ class Dispatcher {
       shiftPressed = true;
     }
 
-    if (shiftPressed && keyString.equals("<TAB>")) {
-      keyString = "<S-TAB>";
+    if (shiftPressed && keyString.equals("\u2732TAB\u2732")) {
+      keyString = "\u2732S-TAB\u2732";
     }
 
     return keyString;

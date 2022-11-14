@@ -436,7 +436,7 @@ class KeySequence {
     }
 
     // Backspace
-    matcher = getNormalMatcher("^(\\d*)<BACKSPACE>(.*)", sequence);
+    matcher = getNormalMatcher("^(\\d*)\\u2732BACKSPACE\\u2732(.*)", sequence);
     if (matcher.find()) {
       String countString = matcher.group(1);
       String remainder = matcher.group(2);
@@ -446,7 +446,7 @@ class KeySequence {
     }
 
     // Left
-    matcher = getNormalMatcher("^(\\d*)<LEFT>(.*)", sequence);
+    matcher = getNormalMatcher("^(\\d*)\\u2732LEFT\\u2732(.*)", sequence);
     if (matcher.find()) {
       String countString = matcher.group(1);
       String remainder = matcher.group(2);
@@ -456,7 +456,7 @@ class KeySequence {
     }
 
     // Right
-    matcher = getNormalMatcher("^(\\d*)<RIGHT>(.*)", sequence);
+    matcher = getNormalMatcher("^(\\d*)\\u2732RIGHT\\u2732(.*)", sequence);
     if (matcher.find()) {
       String countString = matcher.group(1);
       String remainder = matcher.group(2);
@@ -475,14 +475,14 @@ class KeySequence {
       return remainder;
     }
 
-    matcher = getNormalMatcher("^<TAB>(.*)", sequence);
+    matcher = getNormalMatcher("^\\u2732TAB\\u2732(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
       actions.normalModeTab();
       return remainder;
     }
 
-    matcher = getNormalMatcher("^<S-TAB>(.*)", sequence);
+    matcher = getNormalMatcher("^\\u2732S-TAB\\u2732(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
       actions.normalModeShiftTab();
@@ -510,10 +510,10 @@ class KeySequence {
         registerKey = "";
       }
       // Add escape after base sequence to be sure we are back in normal mode when done
-      return registerKey + newCountString + lastChange.baseSequence + "<ESC>" + remainder;
+      return registerKey + newCountString + lastChange.baseSequence + "\u2732ESC\u2732" + remainder;
     }
 
-    if (sequence.matches(".*<ESC><ESC>")) {
+    if (sequence.matches(".*\\u2732ESC\\u2732\\u2732ESC\\u2732")) {
       return "";
     }
 
@@ -546,8 +546,8 @@ class KeySequence {
      * The order of subsequent regexes shouldn't matter
      **/
     // To or till
-    // matcher = Pattern.compile("^(\\d*)([fFTt])(.)(.*)").matcher(sequence);
-    matcher = getVisualMatcher("^(\\d*)([fFTt])(.)(.*)", sequence);
+    // matcher = Pattern.compile("^(\\d*)([fFTt])([^\\u2732])(.*)").matcher(sequence);
+    matcher = getVisualMatcher("^(\\d*)([fFTt])([^\\u2732])(.*)", sequence);
     if (matcher.find()) {
       String countString = matcher.group(1);
       String motion = matcher.group(2);
@@ -607,7 +607,7 @@ class KeySequence {
 
 
     // r - little "r" replace
-    matcher = getVisualMatcher("^\\d*r(.)(.*)", sequence);
+    matcher = getVisualMatcher("^\\d*r([^\\u2732])(.*)", sequence);
     if (matcher.find()) {
       // Numbers before r will be ignored
       String character = matcher.group(1);
@@ -646,8 +646,8 @@ class KeySequence {
     // This regex does not account for the fact that an escape
     // will not always take you to normal mode (e.g.
     // it can also escape from another operation, like in the case of
-    // a<ESC> or i<ESC>
-    matcher = getVisualMatcher("^<ESC>(.*)", sequence);
+    // a\u2732ESC\u2732 or i\u2732ESC\u2732
+    matcher = getVisualMatcher("^\\u2732ESC\\u2732(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
 
@@ -753,7 +753,7 @@ class KeySequence {
     }
 
     // Backspace
-    matcher = getVisualMatcher("^(\\d*)<BACKSPACE>(.*)", sequence);
+    matcher = getVisualMatcher("^(\\d*)\\u2732BACKSPACE\\u2732(.*)", sequence);
     if (matcher.find()) {
       String countString = matcher.group(1);
       String remainder = matcher.group(2);
@@ -763,7 +763,7 @@ class KeySequence {
     }
 
     // Left
-    matcher = getVisualMatcher("^(\\d*)<LEFT>(.*)", sequence);
+    matcher = getVisualMatcher("^(\\d*)\\u2732LEFT\\u2732(.*)", sequence);
     if (matcher.find()) {
       String countString = matcher.group(1);
       String remainder = matcher.group(2);
@@ -773,7 +773,7 @@ class KeySequence {
     }
 
     // Right
-    matcher = getVisualMatcher("^(\\d*)<RIGHT>(.*)", sequence);
+    matcher = getVisualMatcher("^(\\d*)\\u2732RIGHT\\u2732(.*)", sequence);
     if (matcher.find()) {
       String countString = matcher.group(1);
       String remainder = matcher.group(2);
@@ -802,21 +802,21 @@ class KeySequence {
       return remainder;
     }
 
-    matcher = getVisualMatcher("^<TAB>(.*)", sequence);
+    matcher = getVisualMatcher("^\\u2732TAB\\u2732(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
       actions.visualModeTab();
       return remainder;
     }
 
-    matcher = getVisualMatcher("^<S-TAB>(.*)", sequence);
+    matcher = getVisualMatcher("^\\u2732S-TAB\\u2732(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
       actions.visualModeShiftTab();
       return remainder;
     }
 
-    if (sequence.matches(".*<ESC><ESC>")) {
+    if (sequence.matches(".*\\u2732ESC\\u2732\\u2732ESC\\u2732")) {
       return "";
     }
 
@@ -837,50 +837,50 @@ class KeySequence {
 
   private String evaluateReplaceSequence() {
     String newSequence = sequence;
-    if (sequence.matches("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<S-TAB>|<ENTER>|<LEFT>|<RIGHT>).*")) {
-      Matcher matcher = Pattern.compile("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<S-TAB>|<ENTER>|<LEFT>|<RIGHT>)(.*)").matcher(sequence);
+    if (sequence.matches("^(\\u2732ESC\\u2732|\\u2732BACKSPACE\\u2732|\\u2732DEL\\u2732|\\u2732TAB\\u2732|\\u2732S-TAB\\u2732|\\u2732ENTER\\u2732|\\u2732LEFT\\u2732|\\u2732RIGHT\\u2732).*")) {
+      Matcher matcher = Pattern.compile("^(\\u2732ESC\\u2732|\\u2732BACKSPACE\\u2732|\\u2732DEL\\u2732|\\u2732TAB\\u2732|\\u2732S-TAB\\u2732|\\u2732ENTER\\u2732|\\u2732LEFT\\u2732|\\u2732RIGHT\\u2732)(.*)").matcher(sequence);
       matcher.find();
       String key = matcher.group(1);
       String remainder = matcher.group(2);
       switch (key) {
-        case "<ESC>":
+        case "\u2732ESC\u2732":
           Mode.NORMAL.activate();
           if (configuration.getConfigMoveCursorBack() || actions.isCaretPastLastIndex()) {
             actions.normalModeBackwardChar(1);
           }
           break;
-        case "<BACKSPACE>":
+        case "\u2732BACKSPACE\u2732":
           actions.replaceModeBackspace();
           Log.log("Backspace evaluated");
           if (lastChange != null) {
             lastChange.append(key);
           }
           break;
-        case "<TAB>":
+        case "\u2732TAB\u2732":
           actions.replaceModeTab();
           Log.log("Tab evaluated");
           break;
-        case "<S-TAB>":
+        case "\u2732S-TAB\u2732":
           actions.replaceModeShiftTab();
           Log.log("Shift-Tab evaluated");
           break;
-        case "<ENTER>":
+        case "\u2732ENTER\u2732":
           actions.replaceModeEnter();
           Log.log("Enter evaluated");
           break;
-        case "<LEFT>":
+        case "\u2732LEFT\u2732":
           actions.insertModeBackwardChar(1);
           if (lastChange != null) {
             lastChange.arrowKeyReset();
           }
           break;
-        case "<RIGHT>":
+        case "\u2732RIGHT\u2732":
           actions.insertModeForwardChar(1);
           if (lastChange != null) {
             lastChange.arrowKeyReset();
           }
           break;
-        case "<DEL>":
+        case "\u2732DEL\u2732":
           actions.replaceModeDelete();
           Log.log("Delete evaluated");
           if (lastChange != null) {
@@ -904,50 +904,50 @@ class KeySequence {
 
   private String evaluateInsertSequence() {
     String newSequence = sequence;
-    if (sequence.matches("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<S-TAB>|<ENTER>|<LEFT>|<RIGHT>).*")) {
-      Matcher matcher = Pattern.compile("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<S-TAB>|<ENTER>|<LEFT>|<RIGHT>)(.*)").matcher(sequence);
+    if (sequence.matches("^(\\u2732ESC\\u2732|\\u2732BACKSPACE\\u2732|\\u2732DEL\\u2732|\\u2732TAB\\u2732|\\u2732S-TAB\\u2732|\\u2732ENTER\\u2732|\\u2732LEFT\\u2732|\\u2732RIGHT\\u2732).*")) {
+      Matcher matcher = Pattern.compile("^(\\u2732ESC\\u2732|\\u2732BACKSPACE\\u2732|\\u2732DEL\\u2732|\\u2732TAB\\u2732|\\u2732S-TAB\\u2732|\\u2732ENTER\\u2732|\\u2732LEFT\\u2732|\\u2732RIGHT\\u2732)(.*)").matcher(sequence);
       matcher.find();
       String key = matcher.group(1);
       String remainder = matcher.group(2);
       switch (key) {
-        case "<ESC>":
+        case "\u2732ESC\u2732":
           Mode.NORMAL.activate();
           if (configuration.getConfigMoveCursorBack() || actions.isCaretPastLastIndex()) {
             actions.normalModeBackwardChar(1);
           }
           break;
-        case "<BACKSPACE>":
+        case "\u2732BACKSPACE\u2732":
           actions.insertModeBackspace();
           Log.log("Backspace evaluated");
           if (lastChange != null) {
             lastChange.append(key);
           }
           break;
-        case "<TAB>":
+        case "\u2732TAB\u2732":
           actions.insertModeTab();
           Log.log("Tab evaluated");
           break;
-        case "<S-TAB>":
+        case "\u2732S-TAB\u2732":
           actions.insertModeShiftTab();
           Log.log("Shift-Tab evaluated");
           break;
-        case "<ENTER>":
+        case "\u2732ENTER\u2732":
           actions.insertModeEnter();
           Log.log("Enter evaluated");
           break;
-        case "<LEFT>":
+        case "\u2732LEFT\u2732":
           actions.insertModeBackwardChar(1);
           if (lastChange != null) {
             lastChange.arrowKeyReset();
           }
           break;
-        case "<RIGHT>":
+        case "\u2732RIGHT\u2732":
           actions.insertModeForwardChar(1);
           if (lastChange != null) {
             lastChange.arrowKeyReset();
           }
           break;
-        case "<DEL>":
+        case "\u2732DEL\u2732":
           actions.insertModeDelete();
           Log.log("Delete evaluated");
           if (lastChange != null) {
@@ -976,14 +976,14 @@ class KeySequence {
 
   private String evaluateSearchSequence() {
     String newSequence = sequence;
-    if (sequence.matches("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<S-TAB>|<ENTER>).*")) {
-      Matcher matcher = Pattern.compile("^(<ESC>|<BACKSPACE>|<DEL>|<TAB>|<S-TAB>|<ENTER>)(.*)").matcher(sequence);
+    if (sequence.matches("^(\\u2732ESC\\u2732|\\u2732BACKSPACE\\u2732|\\u2732DEL\\u2732|\\u2732TAB\\u2732|\\u2732S-TAB\\u2732|\\u2732ENTER\\u2732).*")) {
+      Matcher matcher = Pattern.compile("^(\\u2732ESC\\u2732|\\u2732BACKSPACE\\u2732|\\u2732DEL\\u2732|\\u2732TAB\\u2732|\\u2732S-TAB\\u2732|\\u2732ENTER\\u2732)(.*)").matcher(sequence);
       matcher.find();
       String key = matcher.group(1);
       String remainder = matcher.group(2);
       switch (key) {
-        case "<DEL>":
-        case "<BACKSPACE>":
+        case "\u2732DEL\u2732":
+        case "\u2732BACKSPACE\u2732":
           boolean canceled = actions.searchModeBackspace();
           if (canceled) {
             pendingLastChange = null;
@@ -991,7 +991,7 @@ class KeySequence {
             pendingLastChange.deleteLastKey();
           }
           break;
-        case "<ENTER>":
+        case "\u2732ENTER\u2732":
           actions.searchModeExecuteSearch();
           if (pendingLastChange != null) {
             pendingLastChange.append(key);
@@ -999,9 +999,9 @@ class KeySequence {
             pendingLastChange = null;
           }
           break;
-        case "<TAB>":
-        case "<S-TAB>":
-        case "<ESC>":
+        case "\u2732TAB\u2732":
+        case "\u2732S-TAB\u2732":
+        case "\u2732ESC\u2732":
           actions.searchModeFinalizeSearch(false);
           pendingLastChange = null;
           break;

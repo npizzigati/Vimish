@@ -123,7 +123,8 @@ class ActionsTest {
     TestEditor testEditor = new TestEditor(initialContent, Integer.valueOf(initialCaretPos));
     setupStandInMethods(testEditor);
     Mode.valueOf(initialMode).activate();
-    keySequence.apply(sequence);
+    String normalizedSequence = Util.normalizeString(sequence);
+    keySequence.apply(normalizedSequence);
     assertEquals(expectedContent, testEditor.getContent());
     assertTrue(Mode.valueOf(expectedMode).isActive());
     assertEquals(Integer.valueOf(expectedCaretPos), testEditor.getCaretPosition());

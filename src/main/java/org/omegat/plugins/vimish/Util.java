@@ -56,12 +56,14 @@ class Util {
   }
 
   static String normalizeString(String str) {
-    str = str.replaceAll("(?i)(<ESC>|<ESCAPE>)", "<ESC>");
-    str = str.replaceAll("(?i)(<BS>|<BACKSPACE)", "<BACKSPACE>");
-    str = str.replaceAll("(?i)(<CR>|<RETURN>|<ENTER>)", "<ENTER>");
-    str = str.replaceAll("(?i)(<DEL>|<DELETE>)", "<DEL>");
-    str = str.replaceAll("(?i)(<LEFT>)", "<LEFT>");
-    str = str.replaceAll("(?i)(<RIGHT>)", "<RIGHT>");
+    str = str.replaceAll("(?i)(<ESC>|<ESCAPE>)", "\u2732ESC\u2732");
+    str = str.replaceAll("(?i)(<BS>|<BACKSPACE)", "\u2732BACKSPACE\u2732");
+    str = str.replaceAll("(?i)(<CR>|<RETURN>|<ENTER>)", "\u2732ENTER\u2732");
+    str = str.replaceAll("(?i)(<DEL>|<DELETE>)", "\u2732DEL\u2732");
+    str = str.replaceAll("(?i)(<LEFT>)", "\u2732LEFT\u2732");
+    str = str.replaceAll("(?i)(<RIGHT>)", "\u2732RIGHT\u2732");
+    str = str.replaceAll("(?i)(<TAB>)", "\u2732TAB\u2732");
+    str = str.replaceAll("(?i)(<S-TAB>)", "\u2732S-TAB\u2732");
     return str;
   }
 }
