@@ -29,6 +29,14 @@ class KeySequence {
       baseSequence += key;
     }
 
+    /**
+     * Using the arrow keys in insert or replace mode will reset
+     * the base sequence to "i"
+     */
+    void arrowKeyReset() {
+      baseSequence = "i";
+    }
+
     void deleteLastKey() {
       if (!Util.isEmpty(baseSequence)) {
         baseSequence = baseSequence.substring(0, baseSequence.length() - 1);
@@ -835,13 +843,13 @@ class KeySequence {
         case "<LEFT>":
           actions.insertModeBackwardChar(1);
           if (lastChange != null) {
-            lastChange.append(key);
+            lastChange.arrowKeyReset();
           }
           break;
         case "<RIGHT>":
           actions.insertModeForwardChar(1);
           if (lastChange != null) {
-            lastChange.append(key);
+            lastChange.arrowKeyReset();
           }
           break;
         case "<DEL>":
@@ -902,13 +910,13 @@ class KeySequence {
         case "<LEFT>":
           actions.insertModeBackwardChar(1);
           if (lastChange != null) {
-            lastChange.append(key);
+            lastChange.arrowKeyReset();
           }
           break;
         case "<RIGHT>":
           actions.insertModeForwardChar(1);
           if (lastChange != null) {
-            lastChange.append(key);
+            lastChange.arrowKeyReset();
           }
           break;
         case "<DEL>":
