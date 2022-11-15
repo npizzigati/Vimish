@@ -247,7 +247,9 @@ class Actions {
       return;
     }
 
-    int newIndex = (length - currentIndex >= count) ? currentIndex + count : length - 1;
+    int newIndex = (count < length - currentIndex) ? currentIndex + count : length - 1;
+    Log.log("currentIndex: " + currentIndex);
+    Log.log("newIndex: " + newIndex);
 
     visualModeForwardMove(currentIndex, newIndex);
   }
@@ -1431,12 +1433,6 @@ class Actions {
    */
   int getCaretIndex() {
     return editor.getCurrentPositionInEntryTranslation();
-  }
-
-  int getVisualSelectionSize() {
-    Integer startIndex = VimishVisualMarker.getMarkStart();
-    Integer endIndex = VimishVisualMarker.getMarkEnd();
-    return endIndex - startIndex;
   }
 
   /**

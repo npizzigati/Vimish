@@ -19,10 +19,17 @@ class KeySequence {
     String baseSequence;
     String registerKey;
     Integer count;
+    Integer visualSelectionSize;
 
-    LastChange(String baseSequence, String registerKey, Integer count) {
+    LastChange(String baseSequence, String registerKey, Integer count, Integer visualSelectionSize) {
       this.baseSequence = baseSequence;
+      this.registerKey = registerKey;
       this.count = count;
+      this.visualSelectionSize = visualSelectionSize;
+    }
+
+    boolean isVisualChange() {
+      return visualSelectionSize != null;
     }
 
     void append(String key) {
@@ -139,7 +146,7 @@ class KeySequence {
       }
       if (operator.equals("d") || operator.equals("c")) {
         String lastChangeSequence = operator + motion + character;
-        lastChange = new LastChange(lastChangeSequence, registerKey, count);
+        lastChange = new LastChange(lastChangeSequence, registerKey, count, null);
       }
       return remainder;
     }
@@ -158,7 +165,7 @@ class KeySequence {
       actions.activateSearch(count, operator, searchOperator, registerKey, Mode.NORMAL);
       if (operator.equals("d") || operator.equals("c")) {
         String lastChangeSequence = operator + searchOperator;
-        pendingLastChange = new LastChange(lastChangeSequence, registerKey, count);
+        pendingLastChange = new LastChange(lastChangeSequence, registerKey, count, null);
       }
       return remainder;
     }
@@ -172,7 +179,7 @@ class KeySequence {
       int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
       actions.normalModeReplace(character, count);
       String lastChangeSequence = "r" + character;
-      lastChange = new LastChange(lastChangeSequence, null, count);
+      lastChange = new LastChange(lastChangeSequence, null, count, null);
       return remainder;
     }
 
@@ -182,7 +189,7 @@ class KeySequence {
       String remainder = matcher.group(1);
       Mode.REPLACE.activate();
       String lastChangeSequence = "R";
-      lastChange = new LastChange(lastChangeSequence, null, null);
+      lastChange = new LastChange(lastChangeSequence, null, null, null);
       return remainder;
     }
 
@@ -198,7 +205,7 @@ class KeySequence {
       actions.normalModeTextObjectSelection(operator, selector, object, registerKey);
       if (operator.equals("d") || operator.equals("c")) {
         String lastChangeSequence = operator + selector + object;
-        lastChange = new LastChange(lastChangeSequence, registerKey, null);
+        lastChange = new LastChange(lastChangeSequence, registerKey, null, null);
       }
       return remainder;
     }
@@ -213,7 +220,7 @@ class KeySequence {
       actions.normalModeFullLineOperation(operator, registerKey);
       if (operator.equals("dd") || operator.equals("cc")) {
         String lastChangeSequence = operator;
-        lastChange = new LastChange(lastChangeSequence, registerKey, null);
+        lastChange = new LastChange(lastChangeSequence, registerKey, null, null);
       }
       return remainder;
     }
@@ -227,7 +234,7 @@ class KeySequence {
       actions.normalModeBigDCY(operator, registerKey);
       if (operator.equals("D") || operator.equals("C")) {
         String lastChangeSequence = operator;
-        lastChange = new LastChange(lastChangeSequence, registerKey, null);
+        lastChange = new LastChange(lastChangeSequence, registerKey, null, null);
       }
       return remainder;
     }
@@ -249,7 +256,7 @@ class KeySequence {
       actions.normalModeOperateToSegmentBoundary(operator, motion, registerKey);
       if (operator.equals("d") || operator.equals("c")) {
         String lastChangeSequence = operator + motion;
-        lastChange = new LastChange(lastChangeSequence, registerKey, null);
+        lastChange = new LastChange(lastChangeSequence, registerKey, null, null);
       }
       return remainder;
     }
@@ -262,7 +269,7 @@ class KeySequence {
       int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
       actions.normalModeForwardChar("d", count, registerKey);
       String lastChangeSequence = "x";
-      lastChange = new LastChange(lastChangeSequence, registerKey, count);
+      lastChange = new LastChange(lastChangeSequence, registerKey, count, null);
       return remainder;
     }
 
@@ -275,7 +282,7 @@ class KeySequence {
       int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
       actions.normalModeForwardChar("c", count, registerKey);
       String lastChangeSequence = "s";
-      lastChange = new LastChange(lastChangeSequence, registerKey, count);
+      lastChange = new LastChange(lastChangeSequence, registerKey, count, null);
       return remainder;
     }
 
@@ -287,7 +294,7 @@ class KeySequence {
       String remainder = matcher.group(3);
       actions.normalModeFullLineOperation("cc", registerKey);
       String lastChangeSequence = "S";
-      lastChange = new LastChange(lastChangeSequence, registerKey, null);
+      lastChange = new LastChange(lastChangeSequence, registerKey, null, null);
       return remainder;
     }
 
@@ -296,7 +303,7 @@ class KeySequence {
       String remainder = matcher.group(1);
       Mode.INSERT.activate();
       String lastChangeSequence = "i";
-      lastChange = new LastChange(lastChangeSequence, null, null);
+      lastChange = new LastChange(lastChangeSequence, null, null, null);
       return remainder;
     }
 
@@ -306,7 +313,7 @@ class KeySequence {
       String remainder = matcher.group(1);
       actions.normalModeAppendAfterCursor();
       String lastChangeSequence = "a";
-      lastChange = new LastChange(lastChangeSequence, null, null);
+      lastChange = new LastChange(lastChangeSequence, null, null, null);
       return remainder;
     }
 
@@ -316,7 +323,7 @@ class KeySequence {
       String remainder = matcher.group(1);
       actions.normalModeAppendAtEnd();
       String lastChangeSequence = "A";
-      lastChange = new LastChange(lastChangeSequence, null, null);
+      lastChange = new LastChange(lastChangeSequence, null, null, null);
       return remainder;
     }
 
@@ -327,7 +334,7 @@ class KeySequence {
       int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
       actions.normalModeToggleCase(count);
       String lastChangeSequence = "~";
-      lastChange = new LastChange(lastChangeSequence, null, count);
+      lastChange = new LastChange(lastChangeSequence, null, count, null);
       return remainder;
     }
 
@@ -364,7 +371,7 @@ class KeySequence {
       int totalCount = determineTotalCount(countString1, countString2);
       actions.normalModePut(registerKey, putOperator, totalCount);
       String lastChangeSequence = putOperator;
-      lastChange = new LastChange(lastChangeSequence, registerKey, totalCount);
+      lastChange = new LastChange(lastChangeSequence, registerKey, totalCount, null);
       return remainder;
     }
 
@@ -381,7 +388,7 @@ class KeySequence {
       actions.repeatSearch(totalCount, repeatMotion, operator, registerKey);
       if (operator.equals("d") || operator.equals("c")) {
         String lastChangeSequence = operator + repeatMotion;
-        lastChange = new LastChange(lastChangeSequence, registerKey, totalCount);
+        lastChange = new LastChange(lastChangeSequence, registerKey, totalCount, null);
       }
       return remainder;
     }
@@ -399,7 +406,7 @@ class KeySequence {
       actions.repeatFind(totalCount, repeatMotion, operator, registerKey);
       if (operator.equals("d") || operator.equals("c")) {
         String lastChangeSequence = operator + repeatMotion;
-        lastChange = new LastChange(lastChangeSequence, registerKey, totalCount);
+        lastChange = new LastChange(lastChangeSequence, registerKey, totalCount, null);
       }
       return remainder;
     }
@@ -426,7 +433,7 @@ class KeySequence {
       }
       if (operator.equals("d") || operator.equals("c")) {
         String lastChangeSequence = operator + motion;
-        lastChange = new LastChange(lastChangeSequence, registerKey, totalCount);
+        lastChange = new LastChange(lastChangeSequence, registerKey, totalCount, null);
       }
       return remainder;
 
@@ -509,11 +516,19 @@ class KeySequence {
         }
       }
       String registerKey = lastChange.registerKey;
+      String registerString;
       if (Util.isEmpty(registerKey)) {
-        registerKey = "";
+        registerString = "";
+      } else {
+        registerString = "\"" + registerKey;
+      }
+      String visualSelectionString = "";
+      if (lastChange.isVisualChange()) {
+        visualSelectionString = Integer.toString(lastChange.visualSelectionSize) + "v";
       }
       // Add escape after base sequence to be sure we are back in normal mode when done
-      return registerKey + newCountString + lastChange.baseSequence + "\u2732ESC\u2732" + remainder;
+      return registerString + newCountString + visualSelectionString +
+        lastChange.baseSequence + "\u2732ESC\u2732" + remainder;
     }
 
     if (sequence.matches(".*\\u2732ESC\\u2732\\u2732ESC\\u2732")) {
@@ -581,10 +596,9 @@ class KeySequence {
       String remainder = matcher.group(2);
       // Need to get visual selection size before performing
       // action, since after action size will be 0
-      int visualSelectionSize = actions.getVisualSelectionSize();
+      String lastChangeSequence = operator;
+      lastChange = new LastChange(lastChangeSequence, null, null, getVisualSelectionSize());
       actions.visualModeSwitchCase(operator);
-      String lastChangeSequence = visualSelectionSize + "v" + operator;
-      lastChange = new LastChange(lastChangeSequence, null, null);
       return remainder;
     }
 
@@ -592,10 +606,9 @@ class KeySequence {
     matcher = getVisualMatcher("^\\d*~(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
-      int visualSelectionSize = actions.getVisualSelectionSize();
+      String lastChangeSequence = "~";
+      lastChange = new LastChange(lastChangeSequence, null, null, getVisualSelectionSize());
       actions.visualModeSwitchCase("");
-      String lastChangeSequence = visualSelectionSize + "v" + "~";
-      lastChange = new LastChange(lastChangeSequence, null, null);
       return remainder;
     }
 
@@ -615,12 +628,11 @@ class KeySequence {
       // Numbers before r will be ignored
       String character = matcher.group(1);
       String remainder = matcher.group(2);
-      int visualSelectionSize = actions.getVisualSelectionSize();
-      actions.visualModeReplace(character);
       Mode.NORMAL.activate();
+      String lastChangeSequence = "r" + character;
+      lastChange = new LastChange(lastChangeSequence, null, null, getVisualSelectionSize());
+      actions.visualModeReplace(character);
       actions.clearVisualMarks();
-      String lastChangeSequence = visualSelectionSize + "v" + "r" + character;
-      lastChange = new LastChange(lastChangeSequence, null, null);
       return remainder;
     }
 
@@ -629,10 +641,9 @@ class KeySequence {
       String registerKey = matcher.group(2);
       String operator = matcher.group(3);
       String remainder = matcher.group(4);
-      int visualSelectionSize = actions.getVisualSelectionSize();
+      String lastChangeSequence = operator;
+      lastChange = new LastChange(lastChangeSequence, registerKey, null, getVisualSelectionSize());
       actions.visualModeBigDCSY(operator, registerKey);
-      String lastChangeSequence = visualSelectionSize + "v" + operator;
-      lastChange = new LastChange(lastChangeSequence, registerKey, null);
       return remainder;
     }
 
@@ -645,11 +656,6 @@ class KeySequence {
     }
 
 
-    // TODO: Does this still need fixing?
-    // This regex does not account for the fact that an escape
-    // will not always take you to normal mode (e.g.
-    // it can also escape from another operation, like in the case of
-    // a\u2732ESC\u2732 or i\u2732ESC\u2732
     matcher = getVisualMatcher("^\\u2732ESC\\u2732(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
@@ -675,13 +681,12 @@ class KeySequence {
       String registerKey = matcher.group(2);
       String operator = matcher.group(3);
       String remainder = matcher.group(4);
-      int visualSelectionSize = actions.getVisualSelectionSize();
+      if (!operator.equals("y")) {
+        String lastChangeSequence = operator;
+        lastChange = new LastChange(lastChangeSequence, registerKey, null, getVisualSelectionSize());
+      }
       actions.visualModeOperate(operator, registerKey);
       actions.clearVisualMarks();
-      if (!operator.equals("y")) {
-        String lastChangeSequence = visualSelectionSize + "v" + "operator";
-        lastChange = new LastChange(lastChangeSequence, registerKey, null);
-      }
       return remainder;
     }
 
@@ -689,11 +694,11 @@ class KeySequence {
     matcher = getVisualMatcher("^\\d*A(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
-      actions.visualModeAppendAfterCursor();
       // Visual mode "A" behaves like normal mode "a" (insert
       // mode started at caret position + 1)
       String lastChangeSequence = "a";
-      lastChange = new LastChange(lastChangeSequence, null, null);
+      lastChange = new LastChange(lastChangeSequence, null, null, null);
+      actions.visualModeAppendAfterCursor();
       return remainder;
     }
 
@@ -703,8 +708,12 @@ class KeySequence {
       String registerKey = matcher.group(3);
       String countString2 = matcher.group(4);
       String remainder = matcher.group(5);
-
       int totalCount = determineTotalCount(countString1, countString2);
+      String lastChangeSequence = "p";
+      // Repeating a visual paste does not use a visual
+      // selection, so we pass in null for that field in the
+      // LastChange constructor
+      lastChange = new LastChange(lastChangeSequence, registerKey, totalCount, null);
       actions.visualModePut(registerKey, totalCount);
       return remainder;
     }
@@ -1033,5 +1042,9 @@ class KeySequence {
       totalCount = count1 + count2;
     }
     return totalCount;
+  }
+
+  int getVisualSelectionSize() {
+    return VimishVisualMarker.getMarkEnd() - VimishVisualMarker.getMarkStart();
   }
 }
