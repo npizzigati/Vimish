@@ -139,12 +139,12 @@ class Actions {
     switch (operator) {
     case "d":
     case "x":
-      visualModeDelete(registerKey);
+      visualModeDeleteOrChange(registerKey, "d");
       Mode.NORMAL.activate();
       break;
     case "c":
     case "s":
-      visualModeDelete(registerKey);
+      visualModeDeleteOrChange(registerKey, "c");
       Mode.INSERT.activate();
       break;
     case "y":
@@ -163,7 +163,7 @@ class Actions {
     setCaretIndex(startIndex);
   }
 
-  void visualModeDelete(String registerKey) {
+  void visualModeDeleteOrChange(String registerKey, String operator) {
     // Delete all visually selected text
     Integer startIndex = VimishVisualMarker.getMarkStart();
     Integer endIndex = VimishVisualMarker.getMarkEnd();
@@ -172,11 +172,13 @@ class Actions {
     storeYankedOrDeletedText(deletedText, "d", registerKey);
     // Delete text
     editor.replacePartOfText("", startIndex, endIndex);
-    // If caret ends up on segment marker that is beyond last
-    // index, move it back one
-    int indexAfterDeletion = getCaretIndex();
-    if (indexAfterDeletion == editor.getCurrentTranslation().length()) {
-      setCaretIndex(indexAfterDeletion - 1);
+    // If operator is delete and caret ends up on segment marker
+    // that is beyond last index, move it back one
+    if (operator.equals("d")) {
+      int indexAfterDeletion = getCaretIndex();
+      if (indexAfterDeletion == editor.getCurrentTranslation().length()) {
+        setCaretIndex(indexAfterDeletion - 1);
+      }
     }
   }
 
