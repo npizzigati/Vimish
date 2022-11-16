@@ -4,7 +4,14 @@ import org.omegat.gui.preferences.BasePreferencesController;
 
 import java.awt.Component;
 import java.awt.Dimension;
+
+import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
+import javax.swing.JTextField;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
+import javax.swing.text.PlainDocument;
+import javax.swing.text.AttributeSet;
 
 import java.util.Map;
 
@@ -182,6 +189,10 @@ class VimishOptionsController extends BasePreferencesController {
       });
     panel.keyChordsTable.getColumnModel().getColumn(0).setPreferredWidth(150);
     panel.keyChordsTable.getColumnModel().getColumn(1).setPreferredWidth(150);
+    // Limit chords to two characters
+    JTextField jtf = new JTextField();
+    limitCharacters(jtf, 2);
+    panel.keyChordsTable.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(jtf));
   }
 
   /**
@@ -241,4 +252,17 @@ class VimishOptionsController extends BasePreferencesController {
   public void restoreDefaults() {
     showData(true);
   };
+
+  private void limitCharacters(JTextField textField, final int limit) {
+    PlainDocument document = (PlainDocument) textField.getDocument();
+    document.setDocumentFilter(new DocumentFilter() {
+      @Override
+      public void replace(DocumentFilter.FilterBypass fb, int offset,
+        int length, String text, AttributeSet attrs) throws BadLocationException {
+          String string = fb.getDocument().getText(0, fb.getDocument().getLength()) + text;
+          if (string.length() <= limit)
+            super.replace(fb, offset, length, text, attrs);
+        }
+    });
+  }
 }
