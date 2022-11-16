@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.FlowLayout;
+import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JScrollPane;
@@ -19,6 +20,7 @@ import javax.swing.border.TitledBorder;
 @SuppressWarnings("serial")
 class VimishOptionsPanel extends JPanel {
   JCheckBox moveCursorBackCheckBox;
+  JCheckBox useSystemClipboardCheckBox;
   // key mappings
   JTable keyMappingsTable;
   JComboBox<String> keyMappingsModeSelector;
@@ -44,8 +46,11 @@ class VimishOptionsPanel extends JPanel {
 
     TitledBorder generalOptionsTitle = BorderFactory.createTitledBorder("General Options");
 
+    useSystemClipboardCheckBox = new JCheckBox("Use system clipboard (link unnamed register to system clipboard)");
     moveCursorBackCheckBox = new JCheckBox("Move cursor back one position when exiting insert mode (Vim default)");
+    generalOptionsPanel.add(useSystemClipboardCheckBox);
     generalOptionsPanel.add(moveCursorBackCheckBox);
+    generalOptionsPanel.setLayout(new BoxLayout(generalOptionsPanel, BoxLayout.Y_AXIS));
     generalOptionsPanel.setBorder(generalOptionsTitle);
     add(generalOptionsPanel, BorderLayout.NORTH);
 

@@ -121,16 +121,20 @@ class VimishOptionsController extends BasePreferencesController {
 
   private void showData(boolean useDefaults) {
     boolean moveCursorBack;
+    boolean useSystemClipboard;
     if (useDefaults) {
       moveCursorBack = configuration.DEFAULT_MOVE_CURSOR_BACK;
+      useSystemClipboard = configuration.DEFAULT_USE_SYSTEM_CLIPBOARD;
       allKeyMappings = configuration.DEFAULT_KEY_MAPPINGS;
       allKeyChords = configuration.DEFAULT_KEY_CHORDS;
     } else {
       moveCursorBack = configuration.getConfigMoveCursorBack();
+      useSystemClipboard = configuration.getUseSystemClipboard();
       allKeyMappings = configuration.getKeyMappings();
       allKeyChords = configuration.getKeyChords();
     }
     panel.moveCursorBackCheckBox.setSelected(moveCursorBack);
+    panel.useSystemClipboardCheckBox.setSelected(useSystemClipboard);
     keyMappingsTableModel =
       new VimishTableModel(allKeyMappings.normalModeKeyMappings);
     panel.keyMappingsTable.setModel(keyMappingsTableModel);
@@ -207,6 +211,7 @@ class VimishOptionsController extends BasePreferencesController {
     ConfigurationData newData = new ConfigurationData();
 
     newData.moveCursorBack = panel.moveCursorBackCheckBox.isSelected();
+    newData.useSystemClipboard = panel.useSystemClipboardCheckBox.isSelected();
     newData.keyMappings = allKeyMappings;
     newData.keyChords = allKeyChords;
     configuration.writeToFile(newData);

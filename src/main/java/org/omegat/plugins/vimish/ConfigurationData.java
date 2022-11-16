@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 class ConfigurationData {
   public boolean moveCursorBack;
+  public boolean useSystemClipboard;
   public KeyMappings keyMappings;
   public KeyChords keyChords;
   public Map<String, String> abbreviations;

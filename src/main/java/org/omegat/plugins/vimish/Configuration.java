@@ -34,6 +34,7 @@ class Configuration {
     "could not be loaded. Default configuration will be used.";
 
   boolean DEFAULT_MOVE_CURSOR_BACK = true;
+  boolean DEFAULT_USE_SYSTEM_CLIPBOARD = true;
   KeyMappings DEFAULT_KEY_MAPPINGS = new KeyMappings();
   KeyChords DEFAULT_KEY_CHORDS = new KeyChords();
   Map<String, String> DEFAULT_ABBREVIATIONS = new HashMap<String, String>();
@@ -67,6 +68,10 @@ class Configuration {
 
   boolean getConfigMoveCursorBack() {
     return configurationData.moveCursorBack;
+  }
+
+  boolean getUseSystemClipboard() {
+    return configurationData.useSystemClipboard;
   }
 
   KeyMappings getKeyMappings() {
@@ -127,6 +132,7 @@ class Configuration {
   private ConfigurationData getDefaultConfigurationData() {
     ConfigurationData configurationData = new ConfigurationData();
     configurationData.moveCursorBack = DEFAULT_MOVE_CURSOR_BACK;
+    configurationData.useSystemClipboard = DEFAULT_USE_SYSTEM_CLIPBOARD;
     configurationData.keyMappings = DEFAULT_KEY_MAPPINGS;
     configurationData.keyChords = DEFAULT_KEY_CHORDS;
     configurationData.abbreviations = DEFAULT_ABBREVIATIONS;
