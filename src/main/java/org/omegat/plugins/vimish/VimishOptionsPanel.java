@@ -16,9 +16,11 @@ import javax.swing.JLabel;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.border.TitledBorder;
+import javax.swing.border.EmptyBorder;
 
 @SuppressWarnings("serial")
 class VimishOptionsPanel extends JPanel {
+  BorderLayout borderLayout;
   JCheckBox moveCursorBackCheckBox;
   JCheckBox useSystemClipboardCheckBox;
   // key mappings
@@ -37,7 +39,10 @@ class VimishOptionsPanel extends JPanel {
   JTable abbreviationTable;
 
   VimishOptionsPanel() {
-    setLayout(new BorderLayout());
+    BorderLayout borderLayout = new BorderLayout();
+    borderLayout.setVgap(10);
+    setLayout(borderLayout);
+    setBorder(new EmptyBorder(10, 5, 20, 5));
     initComponents();
   }
 
@@ -55,7 +60,9 @@ class VimishOptionsPanel extends JPanel {
     add(generalOptionsPanel, BorderLayout.NORTH);
 
     // Center panel to hold the tables
-    JPanel allTablesPanel = new JPanel(new GridLayout(0, 1));
+    GridLayout allTablesLayout = new GridLayout(0, 1);
+    JPanel allTablesPanel = new JPanel(allTablesLayout);
+    allTablesLayout.setVgap(10);
     add(allTablesPanel);
 
     // Key mappings table, selector and buttons
