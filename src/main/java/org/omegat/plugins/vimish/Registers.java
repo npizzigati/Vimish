@@ -3,15 +3,24 @@ package org.omegat.plugins.vimish;
 // import org.omegat.util.Log;
 
 import java.util.HashMap;
+import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Clipboard;
+import java.io.IOException;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import org.omegat.util.Log;
 
 class Registers {
   private static Registers instance;
 
+  private Clipboard systemClipboard;
   private HashMap<String, String> registerData =
       new HashMap<String, String>();
 
-  private Registers() {}
+  private Registers() {
+    systemClipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+  }
 
   static Registers getRegisters() {
     if (instance == null) {
@@ -49,6 +58,10 @@ class Registers {
   }
 
   private void store(String registerKey, String content) {
+    if (registerKey.equals("*") | registerKey.equals("+")) {
+      writeToSystemClipboard(content);
+      return;
+    }
     if (Util.isLowerCase(registerKey)) {
       registerData.put(registerKey, content);
     } else {
@@ -59,6 +72,9 @@ class Registers {
   }
 
   String retrieve(String registerKey) {
+    if (registerKey.equals("*") || registerKey.equals("+")) {
+      return readSystemClipboard();
+    }
     return registerData.getOrDefault(registerKey.toLowerCase(), "");
   }
 
@@ -70,5 +86,19 @@ class Registers {
       String previousRegisterContent = retrieve(previousRegisterKey);
       store(currentRegisterKey, previousRegisterContent);
     }
+  }
+
+  void writeToSystemClipboard(String content) {
+    systemClipboard.setContents(new StringSelection(content), null);
+  }
+
+  String readSystemClipboard() {
+    String contents = "";
+    try {
+      contents = (String) systemClipboard.getData(DataFlavor.stringFlavor);
+    } catch (IOException | UnsupportedFlavorException e) {
+      Log.log("Unable to access system clipboard: " + e);
+    }
+    return contents;
   }
 }
