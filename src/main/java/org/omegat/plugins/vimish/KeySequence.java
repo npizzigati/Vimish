@@ -499,6 +499,13 @@ class KeySequence {
       return remainder;
     }
 
+    matcher = getNormalMatcher("^\\u2732ENTER\\u2732(.*)", sequence);
+    if (matcher.find()) {
+      String remainder = matcher.group(1);
+      actions.executeEnter();
+      return remainder;
+    }
+
     // Repeat last change
     matcher = getNormalMatcher("^(\\d*)\\.(.*)", sequence);
     if (matcher.find()) {
@@ -828,6 +835,13 @@ class KeySequence {
       return remainder;
     }
 
+    matcher = getVisualMatcher("^\\u2732ENTER\\u2732(.*)", sequence);
+    if (matcher.find()) {
+      String remainder = matcher.group(1);
+      actions.executeEnter();
+      return remainder;
+    }
+
     if (sequence.matches(".*\\u2732ESC\\u2732\\u2732ESC\\u2732")) {
       return "";
     }
@@ -877,7 +891,7 @@ class KeySequence {
           Log.log("Shift-Tab evaluated");
           break;
         case "\u2732ENTER\u2732":
-          actions.replaceModeEnter();
+          actions.executeEnter();
           Log.log("Enter evaluated");
           break;
         case "\u2732LEFT\u2732":
@@ -944,7 +958,7 @@ class KeySequence {
           Log.log("Shift-Tab evaluated");
           break;
         case "\u2732ENTER\u2732":
-          actions.insertModeEnter();
+          actions.executeEnter();
           Log.log("Enter evaluated");
           break;
         case "\u2732LEFT\u2732":

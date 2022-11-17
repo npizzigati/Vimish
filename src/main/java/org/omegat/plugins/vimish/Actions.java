@@ -3,6 +3,9 @@ package org.omegat.plugins.vimish;
 import org.omegat.gui.main.MainWindow;
 import org.omegat.gui.editor.EditorController;
 import org.omegat.gui.editor.IEditor.CaretPosition;
+import org.omegat.core.CoreEvents;
+import org.omegat.core.data.SourceTextEntry;
+import org.omegat.core.events.IEntryEventListener;
 import org.omegat.util.Log;
 
 import java.awt.Container;
@@ -47,6 +50,7 @@ class Actions {
     this.mainWindow = mainWindow;
     this.editor = editor;
     configuration = Configuration.getConfiguration();
+    installEntryListener();
   }
 
   class Search {
@@ -1282,31 +1286,49 @@ class Actions {
   }
 
   void normalModeTab() {
-    if (editor.getSettings().isUseTabForAdvance() == true) {
-      editor.nextEntry();
+    if (editor.getSettings().isUseTabForAdvance()) {
+      goToNextSegment();
     }
   }
 
   void normalModeShiftTab() {
-    if (editor.getSettings().isUseTabForAdvance() == true) {
-      editor.prevEntry();
+    if (editor.getSettings().isUseTabForAdvance()) {
+      goToPrevSegment();
+    }
+  }
+
+  void executeEnter() {
+    if (editor.getSettings().isUseTabForAdvance()) {
+      mainWindow.showTimedStatusMessageRB("ETA_WARNING_TAB_ADVANCE");
+    } else {
+      goToNextSegment();
     }
   }
 
   void visualModeTab() {
-    if (editor.getSettings().isUseTabForAdvance() == true) {
-      Mode.NORMAL.activate();
-      clearVisualMarks();
-      editor.nextEntry();
+    if (editor.getSettings().isUseTabForAdvance()) {
+      goToNextSegment();
     }
   }
 
   void visualModeShiftTab() {
-    if (editor.getSettings().isUseTabForAdvance() == true) {
-      Mode.NORMAL.activate();
-      clearVisualMarks();
-      editor.prevEntry();
+    if (editor.getSettings().isUseTabForAdvance()) {
+      goToPrevSegment();
     }
+  }
+
+  void goToNextSegment() {
+    if (Mode.VISUAL.isActive()) {
+      Mode.NORMAL.activate();
+    }
+      editor.nextEntry();
+  }
+
+  void goToPrevSegment() {
+    if (Mode.VISUAL.isActive()) {
+      Mode.NORMAL.activate();
+    }
+    editor.prevEntry();
   }
 
   void replaceModeInsertText(String text) {
@@ -1337,12 +1359,8 @@ class Actions {
     editor.replacePartOfText("", currentIndex, currentIndex + 1);
   }
 
-  void replaceModeEnter() {
-    editor.insertText("\n");
-  }
-
   void replaceModeTab() {
-    if (editor.getSettings().isUseTabForAdvance() == true) {
+    if (editor.getSettings().isUseTabForAdvance()) {
       editor.nextEntry();
     } else {
       editor.insertText("\t");
@@ -1350,7 +1368,7 @@ class Actions {
   }
 
   void replaceModeShiftTab() {
-    if (editor.getSettings().isUseTabForAdvance() == true) {
+    if (editor.getSettings().isUseTabForAdvance()) {
       editor.prevEntry();
     }
   }
@@ -1376,12 +1394,8 @@ class Actions {
     editor.replacePartOfText("", currentIndex, currentIndex + 1);
   }
 
-  void insertModeEnter() {
-    editor.insertText("\n");
-  }
-
   void insertModeTab() {
-    if (editor.getSettings().isUseTabForAdvance() == true) {
+    if (editor.getSettings().isUseTabForAdvance()) {
       editor.nextEntry();
     } else {
       editor.insertText("\t");
@@ -1389,7 +1403,7 @@ class Actions {
   }
 
   void insertModeShiftTab() {
-    if (editor.getSettings().isUseTabForAdvance() == true) {
+    if (editor.getSettings().isUseTabForAdvance()) {
       editor.prevEntry();
     }
   }
@@ -1454,5 +1468,21 @@ class Actions {
   void wiggleCaret() {
     normalModeForwardChar(1);
     normalModeBackwardChar(1);
+  }
+
+  private void installEntryListener() {
+    CoreEvents.registerEntryEventListener(new IEntryEventListener() {
+      @Override
+      public void onNewFile(String activeFileName) {
+      };
+
+      @Override
+      /**
+        * Clear visual marks whenever going to next or previous segment
+        */
+      public void onEntryActivated(SourceTextEntry newEntry) {
+        clearVisualMarks();
+      }
+    });
   }
 }
