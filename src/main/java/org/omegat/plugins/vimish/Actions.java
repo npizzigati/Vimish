@@ -1298,6 +1298,9 @@ class Actions {
   }
 
   void executeEnter() {
+    // TODO: When we start handling Ctrl key combinations, we
+    // will also have to handle Ctrl-Enter. For now, that key
+    // combo is passed on to OmegaT.
     if (editor.getSettings().isUseTabForAdvance()) {
       mainWindow.showTimedStatusMessageRB("ETA_WARNING_TAB_ADVANCE");
     } else {
