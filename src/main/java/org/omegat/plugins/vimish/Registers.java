@@ -13,6 +13,7 @@ import org.omegat.util.Log;
 
 class Registers {
   private static Registers instance;
+  private Configuration configuration;
 
   private Clipboard systemClipboard;
   private HashMap<String, String> registerData =
@@ -20,6 +21,7 @@ class Registers {
 
   private Registers() {
     systemClipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+    configuration = Configuration.getConfiguration();
   }
 
   static Registers getRegisters() {

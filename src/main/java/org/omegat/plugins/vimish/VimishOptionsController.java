@@ -136,7 +136,7 @@ class VimishOptionsController extends BasePreferencesController {
       allKeyChords = configuration.DEFAULT_KEY_CHORDS;
     } else {
       moveCursorBack = configuration.getConfigMoveCursorBack();
-      useSystemClipboard = configuration.getUseSystemClipboard();
+      useSystemClipboard = configuration.getConfigUseSystemClipboard();
       allKeyMappings = configuration.getKeyMappings();
       allKeyChords = configuration.getKeyChords();
     }

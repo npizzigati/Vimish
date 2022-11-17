@@ -17,6 +17,7 @@ class Actions {
   private Search pendingSearch;
   private Search executedSearch;
   private Find executedFind;
+  private Configuration configuration;
   // private JFrame searchPopup;
   // private JLabel searchPopupLabel;
   private Pattern beginningOfWordPattern = Pattern.compile("(^[\\p{L}\\d\\p{P}])|((?<=[^\\p{L}\\d])[\\p{L}\\d])|(?<=[\\p{L}\\d\\s])([^\\p{L}\\d\\s])|(.$)");
@@ -45,6 +46,7 @@ class Actions {
   Actions(EditorController editor, MainWindow mainWindow) {
     this.mainWindow = mainWindow;
     this.editor = editor;
+    configuration = Configuration.getConfiguration();
   }
 
   class Search {
@@ -409,15 +411,7 @@ class Actions {
   }
 
   void visualModePut(String registerKey, int count) {
-    Registers registers = Registers.getRegisters();
-    String text;
-    if (Util.isEmpty(registerKey)) {
-      text = registers.retrieve("\"");
-    } else if (registerKey.equals("_")) {
-      text = "";
-    } else {
-      text = registers.retrieve(registerKey);
-    }
+    String text = retrieveRegisterContent(registerKey);
     text = Util.repeat(text, count);
     Integer startIndex = VimishVisualMarker.getMarkStart();
     Integer endIndex = VimishVisualMarker.getMarkEnd();
@@ -428,15 +422,7 @@ class Actions {
   }
 
   void normalModePut(String registerKey, String operator, int count) {
-    Registers registers = Registers.getRegisters();
-    String text;
-    if (Util.isEmpty(registerKey)) {
-      text = registers.retrieve("\"");
-    } else if (registerKey.equals("_")) {
-      text = "";
-    } else {
-      text = registers.retrieve(registerKey);
-    }
+    String text = retrieveRegisterContent(registerKey);
     text = Util.repeat(text, count);
     int index = getCaretIndex();
     if (operator.equals("P")) {
@@ -1144,8 +1130,9 @@ class Actions {
   }
 
   void storeYankedOrDeletedText(String yankedOrDeletedText, String operator, String registerKey) {
+    registerKey = determineFinalRegisterKey(registerKey);
     // Do nothing if yanking to Vim's "null" register ("_")
-    if (!Util.isEmpty(registerKey) && registerKey.equals("_")) {
+    if (registerKey.equals("_")) {
       return;
     }
     String currentTranslation = editor.getCurrentTranslation();
@@ -1165,6 +1152,19 @@ class Actions {
       registers.storeYank(registerKey, yankedOrDeletedText);
       break;
     }
+  }
+
+  String determineFinalRegisterKey(String registerKey) {
+    if (!Util.isEmpty(registerKey)) {
+      return registerKey;
+    }
+    boolean useSystemClipboard = configuration.getConfigUseSystemClipboard();
+    if (useSystemClipboard) {
+      registerKey = "*";
+    } else {
+      registerKey = "\"";
+    }
+    return registerKey;
   }
 
   void executeForwardAction(String operator, MotionType motionType, String currentTranslation,
@@ -1433,6 +1433,18 @@ class Actions {
    */
   int getCaretIndex() {
     return editor.getCurrentPositionInEntryTranslation();
+  }
+
+  String retrieveRegisterContent(String registerKey) {
+    registerKey = determineFinalRegisterKey(registerKey);
+    Registers registers = Registers.getRegisters();
+    String text;
+    if (registerKey.equals("_")) {
+      text = "";
+    } else {
+      text = registers.retrieve(registerKey);
+    }
+    return text;
   }
 
   /**

@@ -70,7 +70,7 @@ class Configuration {
     return configurationData.moveCursorBack;
   }
 
-  boolean getUseSystemClipboard() {
+  boolean getConfigUseSystemClipboard() {
     return configurationData.useSystemClipboard;
   }
 
