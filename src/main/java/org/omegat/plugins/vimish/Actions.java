@@ -358,6 +358,9 @@ class Actions {
   }
 
   void normalModeOperateToSegmentBoundary(String operator, String motion, String registerKey) {
+    if (Util.isEmpty(operator)) {
+      normalModeGoToSegmentBoundary(motion);
+    }
     int currentIndex = getCaretIndex();
     String currentTranslation = editor.getCurrentTranslation();
     if (motion.equals("$")) {

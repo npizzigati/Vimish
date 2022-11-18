@@ -247,15 +247,7 @@ class KeySequence {
       return remainder;
     }
 
-    matcher = getNormalMatcher("^([$0])(.*)", sequence);
-    if (matcher.find()) {
-      String motion = matcher.group(1);
-      String remainder = matcher.group(2);
-      actions.normalModeGoToSegmentBoundary(motion);
-      return remainder;
-    }
-
-    matcher = getNormalMatcher("^(\"([\\w\\-\"*+]))?([dcy])([$0])(.*)", sequence);
+    matcher = getNormalMatcher("^(\"([\\w\\-\"*+]))?([dcy]?)([$0])(.*)", sequence);
     if (matcher.find()) {
       String registerKey = matcher.group(2);
       String operator = matcher.group(3);
