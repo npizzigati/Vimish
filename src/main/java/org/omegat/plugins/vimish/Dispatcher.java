@@ -22,14 +22,6 @@ class Dispatcher {
       @Override
       public boolean dispatchKeyEvent(KeyEvent event) {
 
-        // Temporary logging
-        if (event.getID() == KeyEvent.KEY_TYPED) {
-          Log.log("Key typed event char: " + event.getKeyChar()
-                  + "(int)char: " + (int)event.getKeyChar() + " code: " + event.getKeyCode());
-        } else if (event.getID() == KeyEvent.KEY_PRESSED) {
-          Log.log("Key pressed event: " + event.getKeyCode());
-        }
-
         // Don't consume keys entered outside main editing area
         if (isOutsideMainEditingArea(event)) {
           return false;

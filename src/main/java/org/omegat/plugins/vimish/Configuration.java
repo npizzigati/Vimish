@@ -96,7 +96,6 @@ class Configuration {
   }
 
   void readFromFile() {
-    Log.log("Reading configuration from file");
     if (configurationFile.exists()) {
       try {
         configurationData = objectMapper.readValue(configurationFile, ConfigurationData.class);
@@ -117,7 +116,6 @@ class Configuration {
   }
 
   void writeToFile(ConfigurationData newData) {
-    Log.log("Writing configuration to file");
     try {
       objectMapper.writeValue(configurationFile, newData);
     } catch(JsonProcessingException jpe) {

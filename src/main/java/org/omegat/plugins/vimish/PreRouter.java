@@ -30,7 +30,6 @@ class PreRouter {
   }
 
   void process(String keyString) {
-    Log.log("Going to process keyString: " + keyString);
     if (configuration.keyTablesNeedRefreshing()) {
       configuration.flagKeyTablesRefreshNotified();
       keyMappingsController.refreshKeyMappings();

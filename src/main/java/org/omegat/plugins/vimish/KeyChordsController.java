@@ -52,7 +52,6 @@ class KeyChordsController {
       if (isInOneOfTheKeyChords(keyChordUnderway, currentKeyChords.keySet())) {
         ActionListener taskPerformer = new ActionListener() {
           public void actionPerformed(ActionEvent _event) {
-            Log.log("Key chord timed out");
             // This will run if timer times out before chord
             // completed
             String result = keyChordUnderway.get(0);

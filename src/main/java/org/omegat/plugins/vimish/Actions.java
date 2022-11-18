@@ -100,7 +100,6 @@ class Actions {
     // segment end marker)
     int caretIndex = getCaretIndex();
     if (caretIndex == editor.getCurrentTranslation().length()) {
-      Log.log("moving index back in forward char");
       setCaretIndex(caretIndex - 1);
     }
   }
@@ -129,7 +128,6 @@ class Actions {
     Integer markStartIndex = VimishVisualMarker.getMarkStart();
     Integer markEndIndex = VimishVisualMarker.getMarkEnd();
     int currentIndex = getCaretIndex();
-    Log.log("st: " + markStartIndex + ", ei: " + markEndIndex + ", ci: " + currentIndex);
     // Do nothing if visual selection is a single character
     if (markEndIndex - markStartIndex < 2) {
       return;
@@ -240,7 +238,6 @@ class Actions {
     }
 
     int newIndex = (currentIndex > count) ? currentIndex - count : 0;
-    Log.log("newIndex: " + newIndex);
     visualModeBackwardMove(currentIndex, newIndex);
   }
 
@@ -263,8 +260,6 @@ class Actions {
     }
 
     int newIndex = (count < length - currentIndex) ? currentIndex + count : length - 1;
-    Log.log("currentIndex: " + currentIndex);
-    Log.log("newIndex: " + newIndex);
 
     visualModeForwardMove(currentIndex, newIndex);
   }
@@ -1207,7 +1202,6 @@ class Actions {
         yankedOrDeletedText = currentTranslation.substring(currentIndex, newIndex);
       }
       if (operator.equals("d")) {
-        Log.log("deleting, newIndex: " + newIndex);
         yankedOrDeletedText = currentTranslation.substring(currentIndex, newIndex);
         editor.replacePartOfText("", currentIndex, newIndex);
       } else if (operator.equals("c")) {
@@ -1234,7 +1228,6 @@ class Actions {
     // Move caret back one if it ends up one past last index (on
     // segment end marker) and operation is not a yank or a change
     if (!operator.equals("y") && !operator.equals("c") && newIndex == length && getCaretIndex() != 0) {
-      Log.log("moving index back in forward char");
       setCaretIndex(getCaretIndex() - 1);
     }
   }

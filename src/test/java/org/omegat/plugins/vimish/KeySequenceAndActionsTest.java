@@ -47,8 +47,6 @@ class ActionsTest {
       if (index > content.length()) {
         index = content.length();
       }
-      Log.log("caretPos: " + index);
-      Log.log("length: " + content.length());
       content = content.substring(0, index) + text + content.substring(index);
       int newIndex = index + text.length();
       return newIndex;
@@ -75,7 +73,6 @@ class ActionsTest {
 
   @BeforeEach
   void setUp() {
-    Log.log(System.currentTimeMillis() + " Starting test case: ");
     mockEditor = mock(EditorController.class);
     mockMainWindow = mock(MainWindow.class);
     actions = new Actions(mockEditor, mockMainWindow);

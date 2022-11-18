@@ -65,7 +65,6 @@ class KeySequence {
 
   void apply(String keyString) {
     sequence += keyString;
-    Log.log("sequence: " + sequence);
 
     // Test sequence with each new keyString addition, so see if
     // it could still potentially match one of the action sequences.
@@ -354,7 +353,6 @@ class KeySequence {
     matcher = getNormalMatcher("^(\\d*)v(.*)", sequence);
     if (matcher.find()) {
       String countString = matcher.group(1);
-      Log.log("countString: " + countString);
       int count = (countString.equals("") || countString == null) ? 0 : Integer.parseInt(countString, 10);
       String remainder = matcher.group(2);
       actions.beginSingleCharVisualSelection();
@@ -552,12 +550,8 @@ class KeySequence {
     // the regexp if additional characters were added to it), we
     // should return the sequence as is, for further user input
     // to be added
-    Log.log("Normal matchers:");
     for (Matcher m : normalMatchers) {
-      Log.log(m.toString());
       if (m.hitEnd()) {
-        Log.log("Partial match found: " + m.toString());
-        Log.log("normalMatchers length: " + normalMatchers.size());
         return sequence;
       }
     }
@@ -893,22 +887,18 @@ class KeySequence {
           break;
         case "\u2732BACKSPACE\u2732":
           actions.replaceModeBackspace();
-          Log.log("Backspace evaluated");
           if (lastChange != null) {
             lastChange.append(key);
           }
           break;
         case "\u2732TAB\u2732":
           actions.replaceModeTab();
-          Log.log("Tab evaluated");
           break;
         case "\u2732S-TAB\u2732":
           actions.replaceModeShiftTab();
-          Log.log("Shift-Tab evaluated");
           break;
         case "\u2732ENTER\u2732":
           actions.executeEnter();
-          Log.log("Enter evaluated");
           break;
         case "\u2732LEFT\u2732":
           actions.insertModeBackwardChar(1);
@@ -924,7 +914,6 @@ class KeySequence {
           break;
         case "\u2732DEL\u2732":
           actions.replaceModeDelete();
-          Log.log("Delete evaluated");
           if (lastChange != null) {
             lastChange.append(key);
           }
@@ -960,22 +949,18 @@ class KeySequence {
           break;
         case "\u2732BACKSPACE\u2732":
           actions.insertModeBackspace();
-          Log.log("Backspace evaluated");
           if (lastChange != null) {
             lastChange.append(key);
           }
           break;
         case "\u2732TAB\u2732":
           actions.insertModeTab();
-          Log.log("Tab evaluated");
           break;
         case "\u2732S-TAB\u2732":
           actions.insertModeShiftTab();
-          Log.log("Shift-Tab evaluated");
           break;
         case "\u2732ENTER\u2732":
           actions.executeEnter();
-          Log.log("Enter evaluated");
           break;
         case "\u2732LEFT\u2732":
           actions.insertModeBackwardChar(1);
@@ -991,7 +976,6 @@ class KeySequence {
           break;
         case "\u2732DEL\u2732":
           actions.insertModeDelete();
-          Log.log("Delete evaluated");
           if (lastChange != null) {
             lastChange.append(key);
           }

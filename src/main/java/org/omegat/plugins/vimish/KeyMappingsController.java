@@ -45,7 +45,6 @@ class KeyMappingsController {
     // an "a", even if the user has "aa" in their remap list, we
     // will not wait for the next "a").
     if (preRouter.isSequenceEvaluationInProgress()) {
-      Log.log("Sequence evaluation is in progress");
       preRouter.applyAsKeySequence(keyString);
       return;
     }
