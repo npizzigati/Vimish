@@ -247,6 +247,7 @@ class KeySequence {
       return remainder;
     }
 
+    // $/0/gg segment boundary motions
     matcher = getNormalMatcher("^(\"([\\w\\-\"*+]))?([dcy]?)([$0]|gg)(.*)", sequence);
     if (matcher.find()) {
       String registerKey = matcher.group(2);
@@ -261,6 +262,7 @@ class KeySequence {
       return remainder;
     }
 
+    // x
     matcher = getNormalMatcher("^(\"([\\w\\-\"*+]))?(\\d*)x(.*)", sequence);
     if (matcher.find()) {
       String registerKey = matcher.group(2);
@@ -298,6 +300,7 @@ class KeySequence {
       return remainder;
     }
 
+    // Enter insert mode
     matcher = getNormalMatcher("^\\d*i(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
@@ -327,6 +330,7 @@ class KeySequence {
       return remainder;
     }
 
+    // Toggle case
     matcher = getNormalMatcher("^(\\d*)~(.*)", sequence);
     if (matcher.find()) {
       String countString = matcher.group(1);
@@ -338,6 +342,7 @@ class KeySequence {
       return remainder;
     }
 
+    // Undo
     matcher = getNormalMatcher("^u(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
@@ -345,6 +350,7 @@ class KeySequence {
       return remainder;
     }
 
+    // Enter visual mode
     matcher = getNormalMatcher("^(\\d*)v(.*)", sequence);
     if (matcher.find()) {
       String countString = matcher.group(1);
@@ -410,8 +416,8 @@ class KeySequence {
       return remainder;
     }
 
-      // Handle h/l/wW/eE motions (character left and right)
-      // with no operator or with d/c/y operators
+    // Character-wise and word-wise h/l/w/W/e/E/b/B/ge/gE motions
+    // with no operator or with d/c/y operators
     matcher = getNormalMatcher("^(\"([\\w\\-\"*+]))?(\\d*)([dcy]?)(\\d*)([hlwWeEbB]|ge|gE)(.*)", sequence);
     if (matcher.find()) {
       String registerKey = matcher.group(2);
@@ -437,11 +443,6 @@ class KeySequence {
         lastChange = new LastChange(lastChangeSequence, registerKey, totalCount, null);
       }
       return remainder;
-
-      // We are currently ignoring motion keys j/k and uppercase
-      // H/L/J/K, since these are not particularly useful for
-      // translation segments (which contain no newlines)
-      // NOTE: H/M/L (high/middle/low) may be useful for long segments
 
       // return sequence.replaceFirst(entireMatchString, "");
     }
@@ -486,6 +487,7 @@ class KeySequence {
       return remainder;
     }
 
+    // Tab
     matcher = getNormalMatcher("^\\u2732TAB\\u2732(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
@@ -493,6 +495,7 @@ class KeySequence {
       return remainder;
     }
 
+    // Shift-Tab
     matcher = getNormalMatcher("^\\u2732S-TAB\\u2732(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
@@ -500,6 +503,7 @@ class KeySequence {
       return remainder;
     }
 
+    // Enter
     matcher = getNormalMatcher("^\\u2732ENTER\\u2732(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
@@ -644,6 +648,7 @@ class KeySequence {
       return remainder;
     }
 
+    // D/C/S/Y
     matcher = getVisualMatcher("^(\"([\\w\\-\"*+]))?([DCSY])(.*)", sequence);
     if (matcher.find()) {
       String registerKey = matcher.group(2);
@@ -655,6 +660,10 @@ class KeySequence {
       return remainder;
     }
 
+    // gg
+    // Even though this is a line-wise operation (and we have
+    // no newlines to deal with in OmegaT segments), it is useful
+    // since it sends the cursor to the first index
     matcher = getVisualMatcher("^([$0]|gg)(.*)", sequence);
     if (matcher.find()) {
       String motion = matcher.group(1);
@@ -663,7 +672,7 @@ class KeySequence {
       return remainder;
     }
 
-
+    // Esc
     matcher = getVisualMatcher("^\\u2732ESC\\u2732(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
@@ -673,9 +682,7 @@ class KeySequence {
       return remainder;
     }
 
-    // TODO: What other key combinations should make us escape back
-    // to normal mode?
-    // I can also combine these cases in a single if statement
+    // v (toggle out of visual mode)
     matcher = getVisualMatcher("^\\d*v(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
@@ -684,6 +691,7 @@ class KeySequence {
       return remainder;
     }
 
+    // d/x/c/s/y operations
     matcher = getVisualMatcher("^(\"([\\w\\-\"*+]))?([dxcsy])(.*)", sequence);
     if (matcher.find()) {
       String registerKey = matcher.group(2);
@@ -710,6 +718,7 @@ class KeySequence {
       return remainder;
     }
 
+    // Put
     matcher = getVisualMatcher("^(\\d*)(\"([0-9a-zA-Z\\-\"*+]))?(\\d*)[pP](.*)", sequence);
     if (matcher.find()) {
       String countString1 = matcher.group(1);
@@ -749,7 +758,7 @@ class KeySequence {
     }
 
 
-    // Character-wise and word-wise motions/operations
+    // Character-wise and word-wise motions
     matcher = getVisualMatcher("^(\\d*)([hlwWeEbB]|ge|gE)(.*)", sequence);
     if (matcher.find()) {
       String countString = matcher.group(1);
@@ -824,6 +833,7 @@ class KeySequence {
       return remainder;
     }
 
+    // Tab
     matcher = getVisualMatcher("^\\u2732TAB\\u2732(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
@@ -831,6 +841,7 @@ class KeySequence {
       return remainder;
     }
 
+    // Shift-Tab
     matcher = getVisualMatcher("^\\u2732S-TAB\\u2732(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
@@ -838,6 +849,7 @@ class KeySequence {
       return remainder;
     }
 
+    // Enter
     matcher = getVisualMatcher("^\\u2732ENTER\\u2732(.*)", sequence);
     if (matcher.find()) {
       String remainder = matcher.group(1);
@@ -845,6 +857,7 @@ class KeySequence {
       return remainder;
     }
 
+    // Two successive escapes
     if (sequence.matches(".*\\u2732ESC\\u2732\\u2732ESC\\u2732")) {
       return "";
     }
