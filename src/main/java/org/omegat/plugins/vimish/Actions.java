@@ -106,9 +106,16 @@ class Actions {
   }
 
   void beginSingleCharVisualSelection() {
-    int currentIndex = getCaretIndex();
-    VimishVisualMarker.setMarkStart(currentIndex);
-    VimishVisualMarker.setMarkEnd(currentIndex + 1);
+    Mode.VISUAL.activate();
+    int startIndex = getCaretIndex();
+    // If caret is on end segment marker, move it back one before
+    // marking visual selection
+    if (startIndex == editor.getCurrentTranslation().length()) {
+      setCaretIndex(startIndex - 1);
+      startIndex -= 1;
+    }
+    VimishVisualMarker.setMarkStart(startIndex);
+    VimishVisualMarker.setMarkEnd(startIndex + 1);
     VimishVisualMarker.setMarkOrientation(MarkOrientation.RIGHT);
     editor.remarkOneMarker(VimishVisualMarker.class.getName());
   }

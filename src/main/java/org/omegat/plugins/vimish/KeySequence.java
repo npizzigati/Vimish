@@ -351,7 +351,6 @@ class KeySequence {
       Log.log("countString: " + countString);
       int count = (countString.equals("") || countString == null) ? 0 : Integer.parseInt(countString, 10);
       String remainder = matcher.group(2);
-      Mode.VISUAL.activate();
       actions.beginSingleCharVisualSelection();
       if (count > 0) {
         actions.visualModeForwardChar(count - 1);
