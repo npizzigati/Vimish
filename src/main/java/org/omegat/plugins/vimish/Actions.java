@@ -59,7 +59,6 @@ class Actions {
     int count;
     String operator;
     String registerKey;
-
     Search(String searchString, String searchOperator, Mode preSearchMode,
            int count, String operator, String registerKey) {
       this.searchString = searchString;
@@ -74,7 +73,6 @@ class Actions {
   class Find {
     String findString;
     String findOperator;
-
     Find(String findString, String findOperator) {
       this.findString = findString;
       this.findOperator = findOperator;
@@ -84,7 +82,6 @@ class Actions {
   class EndIndexResult {
     int endIndex;
     boolean isEndIndexExpanded;
-
     EndIndexResult(int endIndex, boolean isEndIndexExpanded) {
       this.endIndex = endIndex;
       this.isEndIndexExpanded = isEndIndexExpanded;
@@ -197,7 +194,6 @@ class Actions {
     }
     Integer markStart = VimishVisualMarker.getMarkStart();
     Integer markEnd = VimishVisualMarker.getMarkEnd();
-
     if (markStart <= newIndex) {
       VimishVisualMarker.setMarkEnd(newIndex + 1);
     } else {
@@ -209,10 +205,8 @@ class Actions {
         // Also set mark orientation
         VimishVisualMarker.setMarkOrientation(MarkOrientation.LEFT);
       }
-
       VimishVisualMarker.setMarkStart(newIndex);
     }
-
     editor.remarkOneMarker(VimishVisualMarker.class.getName());
     setCaretIndex(newIndex);
   }
@@ -227,12 +221,10 @@ class Actions {
     } else {
       currentIndex = markEnd - 1;
     }
-
     // Do nothing if currentIndex is 0
     if (currentIndex == 0) {
       return;
     }
-
     int newIndex = (currentIndex > count) ? currentIndex - count : 0;
     visualModeBackwardMove(currentIndex, newIndex);
   }
@@ -242,21 +234,17 @@ class Actions {
     Integer markEnd = VimishVisualMarker.getMarkEnd();
     MarkOrientation markOrientation = VimishVisualMarker.getMarkOrientation();
     int currentIndex;
-
     if (markOrientation == MarkOrientation.LEFT) {
       currentIndex = markStart;
     } else {
       currentIndex = markEnd - 1;
     }
     int length = editor.getCurrentTranslation().length();
-
     // Do nothing if already at last index
     if (currentIndex == length - 1) {
       return;
     }
-
     int newIndex = (count < length - currentIndex) ? currentIndex + count : length - 1;
-
     visualModeForwardMove(currentIndex, newIndex);
   }
 
@@ -509,7 +497,6 @@ class Actions {
       }
     }
     editor.replacePartOfText(toggledString, startIndex, endIndex);
-
     // Move caret back one if it ends up past last index (on
     // segment end marker)
     if (endIndex == currentTranslation.length()) {
@@ -638,9 +625,7 @@ class Actions {
     int currentIndex = getCaretIndex();
     String currentTranslation = editor.getCurrentTranslation();
     int length = currentTranslation.length();
-
     int newIndex = getForwardWordIndex(currentIndex, motion, count, currentTranslation);
-
     // If this is a "w" motion and new index lands on last
     // character in segment and there is an operator, we need to
     // change the algorithm we use to get the new index, to
@@ -650,13 +635,11 @@ class Actions {
       normalModeForwardWord(operator, newMotion, count, registerKey);
       return;
     }
-
     // For d/c/y operations with the "e" motion, we need to
     // increment the new index by one to ensure selection is correct
     if (!Util.isEmpty(operator) && motion.toLowerCase().equals("e")) {
       newIndex++;
     }
-
     executeForwardAction(operator, MotionType.FORWARD_WORD, currentTranslation, currentIndex, newIndex, registerKey);
   }
 
@@ -678,9 +661,7 @@ class Actions {
       return;
     }
     String currentTranslation = editor.getCurrentTranslation();
-
     int newIndex = getBackwardWordIndex(currentIndex, totalCount, motion, currentTranslation);
-
     executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
   }
 
@@ -919,10 +900,8 @@ class Actions {
           }
           break;
       }
-
       startIndex--;
     }
-
     if (selector.equals("i")) {
       return startIndex;
     }
@@ -961,7 +940,6 @@ class Actions {
     } else {
       return startIndex;
     }
-
   }
 
   EndIndexResult getObjectEndIndex(int currentIndex, String currentTranslation, ObjectType objectType, String selector,
