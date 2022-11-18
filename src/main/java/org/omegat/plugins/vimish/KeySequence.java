@@ -413,7 +413,7 @@ class KeySequence {
 
       // Handle h/l/wW/eE motions (character left and right)
       // with no operator or with d/c/y operators
-    matcher = getNormalMatcher("^(\"([\\w\\-\"*+]))?(\\d*)([dcy]?)(\\d*)([hlwWeEbB])(.*)", sequence);
+    matcher = getNormalMatcher("^(\"([\\w\\-\"*+]))?(\\d*)([dcy]?)(\\d*)([hlwWeEbB]|ge|gE)(.*)", sequence);
     if (matcher.find()) {
       String registerKey = matcher.group(2);
       String countString1 = matcher.group(3);
@@ -430,6 +430,8 @@ class KeySequence {
         actions.normalModeForwardWord(operator, motion, totalCount, registerKey);
       } else if (motion.toLowerCase().equals("b")) {
         actions.normalModeBackwardWord(operator, motion, totalCount, registerKey);
+      } else if (motion.toLowerCase().equals("ge")) {
+        actions.normalModeBackwardWordEnd(operator, motion, totalCount, registerKey);
       }
       if (operator.equals("d") || operator.equals("c")) {
         String lastChangeSequence = operator + motion;
@@ -748,8 +750,8 @@ class KeySequence {
     }
 
 
-    // Handle h/l motions (character left and right)
-    matcher = getVisualMatcher("^(\\d*)([hlwWeEbB])(.*)", sequence);
+    // Character-wise and word-wise motions/operations
+    matcher = getVisualMatcher("^(\\d*)([hlwWeEbB]|ge|gE)(.*)", sequence);
     if (matcher.find()) {
       String countString = matcher.group(1);
       String motion = matcher.group(2);
@@ -763,6 +765,8 @@ class KeySequence {
         actions.visualModeForwardWord(motion, count);
       } else if (motion.toLowerCase().equals("b")) {
         actions.visualModeBackwardWord(motion, count);
+      } else if (motion.toLowerCase().equals("ge")) {
+        actions.visualModeBackwardWordEnd(motion, count);
       }
       return remainder;
       // We are currently ignoring motion keys j/k and uppercase

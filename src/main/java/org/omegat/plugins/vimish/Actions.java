@@ -28,7 +28,9 @@ class Actions {
   private Pattern beginningOfWordBackPattern = Pattern.compile("(^[\\p{L}\\d\\p{P}])|((?<=[^\\p{L}\\d])[\\p{L}\\d])|(?<=[\\p{L}\\d\\s])([^\\p{L}\\d\\s])");
   private Pattern beginningOfWordBackBigBPattern = Pattern.compile("((?<=[\\s])[\\p{L}\\d\\p{P}])|(^.)");
   private Pattern endOfWordPattern = Pattern.compile("([\\p{L}\\d](?=[^\\p{L}\\d]))|([^\\p{L}\\d\\s])(?=[\\p{L}\\d\\s])|(.$)");
+  private Pattern endOfWordBackPattern = Pattern.compile("([\\p{L}\\d](?=[^\\p{L}\\d]))|([^\\p{L}\\d\\s])(?=[\\p{L}\\d\\s])|(^.)");
   private Pattern endOfWordBigEPattern = Pattern.compile("([\\p{L}\\d\\p{P}](?=[\\s]))|(.$)");
+  private Pattern endOfWordBackBigEPattern = Pattern.compile("([\\p{L}\\d\\p{P}](?=[\\s]))|(^.)");
 
   private enum MotionType {
     TO_OR_TILL,
@@ -267,6 +269,16 @@ class Actions {
     }
     String currentTranslation = editor.getCurrentTranslation();
     int newIndex = getBackwardWordIndex(currentIndex, totalCount, motion, currentTranslation);
+    visualModeBackwardMove(currentIndex, newIndex);
+  }
+
+  void visualModeBackwardWordEnd(String motion, int totalCount) {
+    int currentIndex = getCaretIndex();
+    if (currentIndex == 0) {
+      return;
+    }
+    String currentTranslation = editor.getCurrentTranslation();
+    int newIndex = getBackwardWordEndIndex(currentIndex, totalCount, motion, currentTranslation);
     visualModeBackwardMove(currentIndex, newIndex);
   }
 
@@ -1233,6 +1245,7 @@ class Actions {
         Mode.INSERT.activate();
       }
     }
+    adjustCaretBack(operator);
   }
 
   void normalModeForwardChar(int count) {
@@ -1265,6 +1278,29 @@ class Actions {
     return allMatchIndexes.isEmpty() ? currentIndex : allMatchIndexes.get(matchPosition);
   }
 
+  int getBackwardWordEndIndex(int currentIndex, int count, String motion, String currentTranslation) {
+    Pattern pattern = endOfWordBackPattern;
+    if (motion.equals("gE")) {
+      pattern = endOfWordBackBigEPattern;
+    }
+    String textFromStart;
+    if (currentIndex == currentTranslation.length()) {
+      textFromStart = currentTranslation.substring(0, currentIndex);
+    } else {
+      textFromStart = currentTranslation.substring(0, currentIndex + 1);
+    }
+    Matcher m = pattern.matcher(textFromStart);
+    ArrayList<Integer> allMatchIndexes = new ArrayList<>();
+    while (m.find()) {
+      allMatchIndexes.add(m.start());
+    }
+    int matchPosition = allMatchIndexes.size() - count;
+    if (matchPosition < 0) {
+      matchPosition = 0;
+    }
+    return allMatchIndexes.isEmpty() ? currentIndex : allMatchIndexes.get(matchPosition);
+  }
+
   void normalModeBackwardWord(String operator, String motion, int totalCount, String registerKey) {
     int currentIndex = getCaretIndex();
     if (currentIndex == 0) {
@@ -1274,6 +1310,23 @@ class Actions {
 
     int newIndex = getBackwardWordIndex(currentIndex, totalCount, motion, currentTranslation);
 
+    executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
+  }
+
+  void normalModeBackwardWordEnd(String operator, String motion, int totalCount, String registerKey) {
+    int currentIndex = getCaretIndex();
+    if (currentIndex == 0) {
+      return;
+    }
+    String currentTranslation = editor.getCurrentTranslation();
+
+    int newIndex = getBackwardWordEndIndex(currentIndex, totalCount, motion, currentTranslation);
+
+    // Add one to current index if not already at segment marker,
+    // since ge/gE actions are inclusive
+    if (currentIndex != currentTranslation.length()) {
+      currentIndex += 1;
+    }
     executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
   }
 
@@ -1474,6 +1527,19 @@ class Actions {
   void wiggleCaret() {
     normalModeForwardChar(1);
     normalModeBackwardChar(1);
+  }
+
+  /**
+   * Move caret back one if it ends up one past last index (on
+   * segment end marker) and operation is not a yank or a change
+   */
+  void adjustCaretBack(String operator) {
+    String currentTranslation = editor.getCurrentTranslation();
+    int postOpCaretIndex = getCaretIndex();
+    if (!operator.equals("y") && !operator.equals("c") &&
+        postOpCaretIndex == currentTranslation.length() && postOpCaretIndex != 0) {
+      setCaretIndex(getCaretIndex() - 1);
+    }
   }
 
   private void installEntryListener() {
