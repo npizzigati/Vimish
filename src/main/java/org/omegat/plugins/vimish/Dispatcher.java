@@ -74,11 +74,7 @@ class Dispatcher {
         String keyString = determineKeyString(event);
 
         // keyChordController.process(keyString);
-        try {
-          preRouter.process(keyString);
-        } catch (IndexOutOfBoundsException | NullPointerException e) {
-          Log.log("Could not process key entered: " + e);
-        }
+        preRouter.process(keyString);
 
         // consume key event
         return true;

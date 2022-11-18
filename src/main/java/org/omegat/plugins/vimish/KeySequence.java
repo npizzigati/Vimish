@@ -72,18 +72,26 @@ class KeySequence {
     // If not, abort and return
     actionsCount += 1;
     String newSequence = sequence;
-    if (Mode.NORMAL.isActive()) {
-      newSequence = evaluateNormalSequence();
-      normalMatchers.clear();
-    } else if (Mode.VISUAL.isActive()) {
-      newSequence = evaluateVisualSequence();
-      visualMatchers.clear();
-    } else if (Mode.INSERT.isActive()) {
-      newSequence = evaluateInsertSequence();
-    } else if (Mode.REPLACE.isActive()) {
-      newSequence = evaluateReplaceSequence();
-    } else if (Mode.SEARCH.isActive()) {
-      newSequence = evaluateSearchSequence();
+
+    try {
+      if (Mode.NORMAL.isActive()) {
+        newSequence = evaluateNormalSequence();
+        normalMatchers.clear();
+      } else if (Mode.VISUAL.isActive()) {
+        newSequence = evaluateVisualSequence();
+        visualMatchers.clear();
+      } else if (Mode.INSERT.isActive()) {
+        newSequence = evaluateInsertSequence();
+      } else if (Mode.REPLACE.isActive()) {
+        newSequence = evaluateReplaceSequence();
+      } else if (Mode.SEARCH.isActive()) {
+        newSequence = evaluateSearchSequence();
+      }
+    } catch (Exception e) {
+      Log.log("Error in key processing:");
+      Log.log(e);
+      sequence = "";
+      return;
     }
 
     boolean didSequenceChange = !sequence.equals(newSequence);
