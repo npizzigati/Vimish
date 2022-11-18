@@ -144,7 +144,6 @@ class Actions {
     Mode.INSERT.activate();
   }
 
-
   void visualModeOperate(String operator, String registerKey) {
     switch (operator) {
     case "d":
@@ -348,6 +347,32 @@ class Actions {
     }
   }
 
+  void visualModeGoToChar(int count, String motion, String character, RepeatType repeatType) {
+    // Store new executed find if this is not a repeat
+    if (repeatType == RepeatType.NONE) {
+      executedFind = new Find(character, motion);
+    }
+    int currentIndex = getCaretIndex();
+    String currentTranslation = editor.getCurrentTranslation();
+    // If motion is lowercase (f/t) and is repeated with a ";"
+    // or not repeated at all, or if it's uppercase and the
+    // motion is reversed (repeated with an ","), this is a
+    // forward motion
+    if ((Util.isLowerCase(motion) && repeatType != RepeatType.REVERSE) || (!Util.isLowerCase(motion) && repeatType == RepeatType.REVERSE)) {
+      int newIndex = getForwardToCharIndex(count, currentIndex, motion, character, currentTranslation, repeatType);
+      if (newIndex == -1) {
+        return;
+      }
+      visualModeForwardMove(currentIndex, newIndex);
+    } else {
+      int newIndex = getBackwardToCharIndex(count, currentIndex, motion, character, currentTranslation, repeatType);
+      if (newIndex == -1) {
+        return;
+      }
+      visualModeBackwardMove(currentIndex, newIndex);
+    }
+  }
+
   void visualModeGoToSegmentBoundary(String motion) {
     int currentIndex = getCaretIndex();
     String currentTranslation = editor.getCurrentTranslation();
@@ -356,6 +381,91 @@ class Actions {
     } else {
       visualModeBackwardMove(currentIndex, 0);
     }
+  }
+
+  void visualModeTab() {
+    if (editor.getSettings().isUseTabForAdvance()) {
+      goToNextSegment();
+    }
+  }
+
+  void visualModeShiftTab() {
+    if (editor.getSettings().isUseTabForAdvance()) {
+      goToPrevSegment();
+    }
+  }
+
+  void visualModeTextObjectSelection(String selector, String delimiter) {
+    int currentIndex = getCaretIndex();
+    String currentTranslation = editor.getCurrentTranslation();
+    int endIndex = currentIndex;
+    int startIndex = currentIndex;
+
+    ObjectType objectType;
+    if (delimiter.toLowerCase().equals("w")) {
+      objectType = getObjectType(currentIndex, currentTranslation);
+    } else {
+      objectType = ObjectType.OTHER;
+    }
+    EndIndexResult endIndexResult = getObjectEndIndex(currentIndex, currentTranslation, objectType, selector,
+        delimiter);
+    endIndex = endIndexResult.endIndex;
+    boolean isEndIndexExpanded = endIndexResult.isEndIndexExpanded;
+    startIndex = getObjectStartIndex(currentIndex, currentTranslation, objectType, selector, delimiter,
+        isEndIndexExpanded);
+
+    MarkOrientation markOrientation = VimishVisualMarker.getMarkOrientation();
+    boolean isSelectionSingleChar = VimishVisualMarker.getMarkStart() + 1 == VimishVisualMarker.getMarkEnd();
+    if (isSelectionSingleChar) {
+      // If there is no visually marked text before selection, mark will
+      // be in the forward direction
+      VimishVisualMarker.setMarkStart(startIndex);
+      VimishVisualMarker.setMarkEnd(endIndex + 1);
+      editor.remarkOneMarker(VimishVisualMarker.class.getName());
+      VimishVisualMarker.setMarkOrientation(MarkOrientation.RIGHT);
+      setCaretIndex(endIndex);
+    } else if (markOrientation == MarkOrientation.LEFT) {
+      VimishVisualMarker.setMarkStart(startIndex);
+      editor.remarkOneMarker(VimishVisualMarker.class.getName());
+      setCaretIndex(startIndex);
+    } else {
+      VimishVisualMarker.setMarkEnd(endIndex + 1);
+      editor.remarkOneMarker(VimishVisualMarker.class.getName());
+      setCaretIndex(endIndex);
+    }
+  }
+
+  void visualModeSwitchCase(String operator) {
+    Integer startIndex = VimishVisualMarker.getMarkStart();
+    Integer endIndex = VimishVisualMarker.getMarkEnd();
+    String currentTranslation = editor.getCurrentTranslation();
+    String selection = currentTranslation.substring(startIndex, endIndex);
+    switch (operator) {
+    case "U":
+      selection = selection.toUpperCase();
+      break;
+    case "u":
+      selection = selection.toLowerCase();
+      break;
+    case "":
+      selection = toggleCase(selection);
+      break;
+    }
+    editor.replacePartOfText(selection, startIndex, endIndex);
+    setCaretIndex(startIndex);
+    clearVisualMarks();
+    Mode.NORMAL.activate();
+  }
+
+  void visualModePut(String registerKey, int count) {
+    String text = retrieveRegisterContent(registerKey);
+    text = Util.repeat(text, count);
+    Integer startIndex = VimishVisualMarker.getMarkStart();
+    Integer endIndex = VimishVisualMarker.getMarkEnd();
+    editor.replacePartOfText(text, startIndex, endIndex);
+    clearVisualMarks();
+    Mode.NORMAL.activate();
+    setCaretIndex(getCaretIndex() - 1);
   }
 
   void normalModeGoToSegmentBoundary(String motion) {
@@ -381,6 +491,78 @@ class Actions {
       }
     } else {
       executeBackwardAction(operator, currentTranslation, currentIndex, 0, registerKey);
+    }
+  }
+
+  void normalModeToggleCase(int count) {
+    String currentTranslation = editor.getCurrentTranslation();
+    int startIndex = getCaretIndex();
+    int length = currentTranslation.length();
+    int endIndex = (startIndex + count > length - 1) ? length - 1 : startIndex + count;
+    String toggledString = "";
+    for (int i = startIndex; i < endIndex; i++) {
+      char character = currentTranslation.charAt(i);
+      if (Character.isLowerCase(character)) {
+        toggledString += Character.toString(character).toUpperCase();
+      } else {
+        toggledString += Character.toString(character).toLowerCase();
+      }
+    }
+    editor.replacePartOfText(toggledString, startIndex, endIndex);
+
+    // Move caret back one if it ends up past last index (on
+    // segment end marker)
+    if (endIndex == currentTranslation.length()) {
+      setCaretIndex(getCaretIndex() - 1);
+    }
+  }
+
+  void normalModeTextObjectSelection(String operator, String selector, String delimiter, String registerKey) {
+    int currentIndex = getCaretIndex();
+    String currentTranslation = editor.getCurrentTranslation();
+    int endIndex = currentIndex;
+    int startIndex = currentIndex;
+
+    ObjectType objectType;
+    if (delimiter.toLowerCase().equals("w")) {
+      objectType = getObjectType(currentIndex, currentTranslation);
+    } else {
+      objectType = ObjectType.OTHER;
+    }
+    EndIndexResult endIndexResult = getObjectEndIndex(currentIndex, currentTranslation, objectType, selector,
+        delimiter);
+    endIndex = endIndexResult.endIndex;
+    boolean isEndIndexExpanded = endIndexResult.isEndIndexExpanded;
+    startIndex = getObjectStartIndex(currentIndex, currentTranslation, objectType, selector, delimiter,
+        isEndIndexExpanded);
+    setCaretIndex(startIndex);
+    executeForwardAction(operator, MotionType.OTHER, currentTranslation, startIndex, endIndex + 1, registerKey);
+  }
+
+  void normalModeGoToChar(int count, String operator, String motion, String character,
+                          String registerKey, RepeatType repeatType) {
+    // Store new executed find if this is not a repeat
+    if (repeatType == RepeatType.NONE) {
+      executedFind = new Find(character, motion);
+    }
+    int currentIndex = getCaretIndex();
+    String currentTranslation = editor.getCurrentTranslation();
+    // If motion is lowercase (f/t) and is repeated with a ";"
+    // or not repeated at all, or if it's uppercase and the
+    // motion is reversed (repeated with an ","), this is a
+    // forward motion
+    if ((Util.isLowerCase(motion) && repeatType != RepeatType.REVERSE) || (!Util.isLowerCase(motion) && repeatType == RepeatType.REVERSE)) {
+      int newIndex = getForwardToCharIndex(count, currentIndex, motion, character, currentTranslation, repeatType);
+      if (newIndex == -1) {
+          return;
+      }
+      executeForwardAction(operator, MotionType.TO_OR_TILL, currentTranslation, currentIndex, newIndex + 1, registerKey);
+    } else {
+      int newIndex = getBackwardToCharIndex(count, currentIndex, motion, character, currentTranslation, repeatType);
+      if (newIndex == -1) {
+        return;
+      }
+      executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
     }
   }
 
@@ -428,17 +610,6 @@ class Actions {
     }
   }
 
-  void visualModePut(String registerKey, int count) {
-    String text = retrieveRegisterContent(registerKey);
-    text = Util.repeat(text, count);
-    Integer startIndex = VimishVisualMarker.getMarkStart();
-    Integer endIndex = VimishVisualMarker.getMarkEnd();
-    editor.replacePartOfText(text, startIndex, endIndex);
-    clearVisualMarks();
-    Mode.NORMAL.activate();
-    setCaretIndex(getCaretIndex() - 1);
-  }
-
   void normalModePut(String registerKey, String operator, int count) {
     String text = retrieveRegisterContent(registerKey);
     text = Util.repeat(text, count);
@@ -461,6 +632,96 @@ class Actions {
     int length = editor.getCurrentTranslation().length();
     setCaretIndex(length);
     Mode.INSERT.activate();
+  }
+
+  void normalModeForwardWord(String operator, String motion, int count, String registerKey) {
+    int currentIndex = getCaretIndex();
+    String currentTranslation = editor.getCurrentTranslation();
+    int length = currentTranslation.length();
+
+    int newIndex = getForwardWordIndex(currentIndex, motion, count, currentTranslation);
+
+    // If this is a "w" motion and new index lands on last
+    // character in segment and there is an operator, we need to
+    // change the algorithm we use to get the new index, to
+    // assure the selection endpoint is correct
+    if (!Util.isEmpty(operator) && newIndex == length - 1 && motion.toLowerCase().equals("w")) {
+      String newMotion = (motion.equals("w") ? "e" : "E");
+      normalModeForwardWord(operator, newMotion, count, registerKey);
+      return;
+    }
+
+    // For d/c/y operations with the "e" motion, we need to
+    // increment the new index by one to ensure selection is correct
+    if (!Util.isEmpty(operator) && motion.toLowerCase().equals("e")) {
+      newIndex++;
+    }
+
+    executeForwardAction(operator, MotionType.FORWARD_WORD, currentTranslation, currentIndex, newIndex, registerKey);
+  }
+
+  void normalModeForwardChar(int count) {
+    normalModeForwardChar("", count, "");
+  }
+
+  void normalModeForwardChar(String operator, int count, String registerKey) {
+    int currentIndex = getCaretIndex();
+    String currentTranslation = editor.getCurrentTranslation();
+    int length = currentTranslation.length();
+    int newIndex = (length - currentIndex >= count) ? currentIndex + count : length;
+    executeForwardAction(operator, MotionType.FORWARD_CHAR, currentTranslation, currentIndex, newIndex, registerKey);
+  }
+
+  void normalModeBackwardWord(String operator, String motion, int totalCount, String registerKey) {
+    int currentIndex = getCaretIndex();
+    if (currentIndex == 0) {
+      return;
+    }
+    String currentTranslation = editor.getCurrentTranslation();
+
+    int newIndex = getBackwardWordIndex(currentIndex, totalCount, motion, currentTranslation);
+
+    executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
+  }
+
+  void normalModeBackwardWordEnd(String operator, String motion, int totalCount, String registerKey) {
+    int currentIndex = getCaretIndex();
+    if (currentIndex == 0) {
+      return;
+    }
+    String currentTranslation = editor.getCurrentTranslation();
+
+    int newIndex = getBackwardWordEndIndex(currentIndex, totalCount, motion, currentTranslation);
+
+    // Add one to current index if not already at segment marker,
+    // since ge/gE actions are inclusive
+    if (currentIndex != currentTranslation.length()) {
+      currentIndex += 1;
+    }
+    executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
+  }
+
+  void normalModeBackwardChar(int count) {
+    normalModeBackwardChar("", count, "");
+  }
+
+  void normalModeBackwardChar(String operator, int count, String registerKey) {
+    int currentIndex = getCaretIndex();
+    int newIndex = (currentIndex >= count) ? currentIndex - count : 0;
+    String currentTranslation = editor.getCurrentTranslation();
+    executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
+  }
+
+  void normalModeTab() {
+    if (editor.getSettings().isUseTabForAdvance()) {
+      goToNextSegment();
+    }
+  }
+
+  void normalModeShiftTab() {
+    if (editor.getSettings().isUseTabForAdvance()) {
+      goToPrevSegment();
+    }
   }
 
   void activateSearch(int count, String operator, String searchOperator,
@@ -802,68 +1063,6 @@ class Actions {
     }
   }
 
-  void visualModeTextObjectSelection(String selector, String delimiter) {
-    int currentIndex = getCaretIndex();
-    String currentTranslation = editor.getCurrentTranslation();
-    int endIndex = currentIndex;
-    int startIndex = currentIndex;
-
-    ObjectType objectType;
-    if (delimiter.toLowerCase().equals("w")) {
-      objectType = getObjectType(currentIndex, currentTranslation);
-    } else {
-      objectType = ObjectType.OTHER;
-    }
-    EndIndexResult endIndexResult = getObjectEndIndex(currentIndex, currentTranslation, objectType, selector,
-        delimiter);
-    endIndex = endIndexResult.endIndex;
-    boolean isEndIndexExpanded = endIndexResult.isEndIndexExpanded;
-    startIndex = getObjectStartIndex(currentIndex, currentTranslation, objectType, selector, delimiter,
-        isEndIndexExpanded);
-
-    MarkOrientation markOrientation = VimishVisualMarker.getMarkOrientation();
-    boolean isSelectionSingleChar = VimishVisualMarker.getMarkStart() + 1 == VimishVisualMarker.getMarkEnd();
-    if (isSelectionSingleChar) {
-      // If there is no visually marked text before selection, mark will
-      // be in the forward direction
-      VimishVisualMarker.setMarkStart(startIndex);
-      VimishVisualMarker.setMarkEnd(endIndex + 1);
-      editor.remarkOneMarker(VimishVisualMarker.class.getName());
-      VimishVisualMarker.setMarkOrientation(MarkOrientation.RIGHT);
-      setCaretIndex(endIndex);
-    } else if (markOrientation == MarkOrientation.LEFT) {
-      VimishVisualMarker.setMarkStart(startIndex);
-      editor.remarkOneMarker(VimishVisualMarker.class.getName());
-      setCaretIndex(startIndex);
-    } else {
-      VimishVisualMarker.setMarkEnd(endIndex + 1);
-      editor.remarkOneMarker(VimishVisualMarker.class.getName());
-      setCaretIndex(endIndex);
-    }
-  }
-
-  void visualModeSwitchCase(String operator) {
-    Integer startIndex = VimishVisualMarker.getMarkStart();
-    Integer endIndex = VimishVisualMarker.getMarkEnd();
-    String currentTranslation = editor.getCurrentTranslation();
-    String selection = currentTranslation.substring(startIndex, endIndex);
-    switch (operator) {
-    case "U":
-      selection = selection.toUpperCase();
-      break;
-    case "u":
-      selection = selection.toLowerCase();
-      break;
-    case "":
-      selection = toggleCase(selection);
-      break;
-    }
-    editor.replacePartOfText(selection, startIndex, endIndex);
-    setCaretIndex(startIndex);
-    clearVisualMarks();
-    Mode.NORMAL.activate();
-  }
-
   String toggleCase(String selection) {
     String toggledSelection = "";
     String[] characters = selection.split("");
@@ -877,50 +1076,6 @@ class Actions {
     return toggledSelection;
   }
 
-  void normalModeToggleCase(int count) {
-    String currentTranslation = editor.getCurrentTranslation();
-    int startIndex = getCaretIndex();
-    int length = currentTranslation.length();
-    int endIndex = (startIndex + count > length - 1) ? length - 1 : startIndex + count;
-    String toggledString = "";
-    for (int i = startIndex; i < endIndex; i++) {
-      char character = currentTranslation.charAt(i);
-      if (Character.isLowerCase(character)) {
-        toggledString += Character.toString(character).toUpperCase();
-      } else {
-        toggledString += Character.toString(character).toLowerCase();
-      }
-    }
-    editor.replacePartOfText(toggledString, startIndex, endIndex);
-
-    // Move caret back one if it ends up past last index (on
-    // segment end marker)
-    if (endIndex == currentTranslation.length()) {
-      setCaretIndex(getCaretIndex() - 1);
-    }
-  }
-
-  void normalModeTextObjectSelection(String operator, String selector, String delimiter, String registerKey) {
-    int currentIndex = getCaretIndex();
-    String currentTranslation = editor.getCurrentTranslation();
-    int endIndex = currentIndex;
-    int startIndex = currentIndex;
-
-    ObjectType objectType;
-    if (delimiter.toLowerCase().equals("w")) {
-      objectType = getObjectType(currentIndex, currentTranslation);
-    } else {
-      objectType = ObjectType.OTHER;
-    }
-    EndIndexResult endIndexResult = getObjectEndIndex(currentIndex, currentTranslation, objectType, selector,
-        delimiter);
-    endIndex = endIndexResult.endIndex;
-    boolean isEndIndexExpanded = endIndexResult.isEndIndexExpanded;
-    startIndex = getObjectStartIndex(currentIndex, currentTranslation, objectType, selector, delimiter,
-        isEndIndexExpanded);
-    setCaretIndex(startIndex);
-    executeForwardAction(operator, MotionType.OTHER, currentTranslation, startIndex, endIndex + 1, registerKey);
-  }
 
   int getNextForwardSearchIndex(String currentTranslation, int currentIndex) {
     String textToEnd = currentTranslation.substring(currentIndex + 1);
@@ -1023,59 +1178,6 @@ class Actions {
     return newIndex;
   }
 
-  void visualModeGoToChar(int count, String motion, String character, RepeatType repeatType) {
-    // Store new executed find if this is not a repeat
-    if (repeatType == RepeatType.NONE) {
-      executedFind = new Find(character, motion);
-    }
-    int currentIndex = getCaretIndex();
-    String currentTranslation = editor.getCurrentTranslation();
-    // If motion is lowercase (f/t) and is repeated with a ";"
-    // or not repeated at all, or if it's uppercase and the
-    // motion is reversed (repeated with an ","), this is a
-    // forward motion
-    if ((Util.isLowerCase(motion) && repeatType != RepeatType.REVERSE) || (!Util.isLowerCase(motion) && repeatType == RepeatType.REVERSE)) {
-      int newIndex = getForwardToCharIndex(count, currentIndex, motion, character, currentTranslation, repeatType);
-      if (newIndex == -1) {
-        return;
-      }
-      visualModeForwardMove(currentIndex, newIndex);
-    } else {
-      int newIndex = getBackwardToCharIndex(count, currentIndex, motion, character, currentTranslation, repeatType);
-      if (newIndex == -1) {
-        return;
-      }
-      visualModeBackwardMove(currentIndex, newIndex);
-    }
-  }
-
-  void normalModeGoToChar(int count, String operator, String motion, String character,
-                          String registerKey, RepeatType repeatType) {
-    // Store new executed find if this is not a repeat
-    if (repeatType == RepeatType.NONE) {
-      executedFind = new Find(character, motion);
-    }
-    int currentIndex = getCaretIndex();
-    String currentTranslation = editor.getCurrentTranslation();
-    // If motion is lowercase (f/t) and is repeated with a ";"
-    // or not repeated at all, or if it's uppercase and the
-    // motion is reversed (repeated with an ","), this is a
-    // forward motion
-    if ((Util.isLowerCase(motion) && repeatType != RepeatType.REVERSE) || (!Util.isLowerCase(motion) && repeatType == RepeatType.REVERSE)) {
-      int newIndex = getForwardToCharIndex(count, currentIndex, motion, character, currentTranslation, repeatType);
-      if (newIndex == -1) {
-          return;
-      }
-      executeForwardAction(operator, MotionType.TO_OR_TILL, currentTranslation, currentIndex, newIndex + 1, registerKey);
-    } else {
-      int newIndex = getBackwardToCharIndex(count, currentIndex, motion, character, currentTranslation, repeatType);
-      if (newIndex == -1) {
-        return;
-      }
-      executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
-    }
-  }
-
   void repeatFind(int count, String repeatMotion, String operator, String registerKey) {
     if (executedFind == null || executedFind.findString.equals("")) {
       return;
@@ -1119,32 +1221,6 @@ class Actions {
     }
 
     return newIndex;
-  }
-
-  void normalModeForwardWord(String operator, String motion, int count, String registerKey) {
-    int currentIndex = getCaretIndex();
-    String currentTranslation = editor.getCurrentTranslation();
-    int length = currentTranslation.length();
-
-    int newIndex = getForwardWordIndex(currentIndex, motion, count, currentTranslation);
-
-    // If this is a "w" motion and new index lands on last
-    // character in segment and there is an operator, we need to
-    // change the algorithm we use to get the new index, to
-    // assure the selection endpoint is correct
-    if (!Util.isEmpty(operator) && newIndex == length - 1 && motion.toLowerCase().equals("w")) {
-      String newMotion = (motion.equals("w") ? "e" : "E");
-      normalModeForwardWord(operator, newMotion, count, registerKey);
-      return;
-    }
-
-    // For d/c/y operations with the "e" motion, we need to
-    // increment the new index by one to ensure selection is correct
-    if (!Util.isEmpty(operator) && motion.toLowerCase().equals("e")) {
-      newIndex++;
-    }
-
-    executeForwardAction(operator, MotionType.FORWARD_WORD, currentTranslation, currentIndex, newIndex, registerKey);
   }
 
   void storeYankedOrDeletedText(String yankedOrDeletedText, String operator, String registerKey) {
@@ -1245,18 +1321,6 @@ class Actions {
     adjustCaretBack(operator);
   }
 
-  void normalModeForwardChar(int count) {
-    normalModeForwardChar("", count, "");
-  }
-
-  void normalModeForwardChar(String operator, int count, String registerKey) {
-    int currentIndex = getCaretIndex();
-    String currentTranslation = editor.getCurrentTranslation();
-    int length = currentTranslation.length();
-    int newIndex = (length - currentIndex >= count) ? currentIndex + count : length;
-    executeForwardAction(operator, MotionType.FORWARD_CHAR, currentTranslation, currentIndex, newIndex, registerKey);
-  }
-
   int getBackwardWordIndex(int currentIndex, int count, String motion, String currentTranslation) {
     Pattern pattern = beginningOfWordBackPattern;
     if (motion.equals("B")) {
@@ -1298,58 +1362,6 @@ class Actions {
     return allMatchIndexes.isEmpty() ? currentIndex : allMatchIndexes.get(matchPosition);
   }
 
-  void normalModeBackwardWord(String operator, String motion, int totalCount, String registerKey) {
-    int currentIndex = getCaretIndex();
-    if (currentIndex == 0) {
-      return;
-    }
-    String currentTranslation = editor.getCurrentTranslation();
-
-    int newIndex = getBackwardWordIndex(currentIndex, totalCount, motion, currentTranslation);
-
-    executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
-  }
-
-  void normalModeBackwardWordEnd(String operator, String motion, int totalCount, String registerKey) {
-    int currentIndex = getCaretIndex();
-    if (currentIndex == 0) {
-      return;
-    }
-    String currentTranslation = editor.getCurrentTranslation();
-
-    int newIndex = getBackwardWordEndIndex(currentIndex, totalCount, motion, currentTranslation);
-
-    // Add one to current index if not already at segment marker,
-    // since ge/gE actions are inclusive
-    if (currentIndex != currentTranslation.length()) {
-      currentIndex += 1;
-    }
-    executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
-  }
-
-  void normalModeBackwardChar(int count) {
-    normalModeBackwardChar("", count, "");
-  }
-
-  void normalModeBackwardChar(String operator, int count, String registerKey) {
-    int currentIndex = getCaretIndex();
-    int newIndex = (currentIndex >= count) ? currentIndex - count : 0;
-    String currentTranslation = editor.getCurrentTranslation();
-    executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
-  }
-
-  void normalModeTab() {
-    if (editor.getSettings().isUseTabForAdvance()) {
-      goToNextSegment();
-    }
-  }
-
-  void normalModeShiftTab() {
-    if (editor.getSettings().isUseTabForAdvance()) {
-      goToPrevSegment();
-    }
-  }
-
   void executeEnter() {
     // TODO: When we start handling Ctrl key combinations, we
     // will also have to handle Ctrl-Enter. For now, that key
@@ -1358,18 +1370,6 @@ class Actions {
       mainWindow.showTimedStatusMessageRB("ETA_WARNING_TAB_ADVANCE");
     } else {
       goToNextSegment();
-    }
-  }
-
-  void visualModeTab() {
-    if (editor.getSettings().isUseTabForAdvance()) {
-      goToNextSegment();
-    }
-  }
-
-  void visualModeShiftTab() {
-    if (editor.getSettings().isUseTabForAdvance()) {
-      goToPrevSegment();
     }
   }
 
@@ -1478,11 +1478,6 @@ class Actions {
     setCaretIndex(newIndex);
   }
 
-  private void insertTextAtIndex(String text, int index) {
-    setCaretIndex(index);
-    editor.insertText(text);
-  }
-
   boolean isCaretPastLastIndex() {
     int currentIndex = getCaretIndex();
     int length = editor.getCurrentTranslation().length();
@@ -1553,5 +1548,10 @@ class Actions {
         clearVisualMarks();
       }
     });
+  }
+
+  private void insertTextAtIndex(String text, int index) {
+    setCaretIndex(index);
+    editor.insertText(text);
   }
 }
