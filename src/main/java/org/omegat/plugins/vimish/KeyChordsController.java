@@ -4,11 +4,8 @@ import java.awt.event.*;
 import javax.swing.Timer;
 import java.util.Set;
 import java.util.List;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
-
-import org.omegat.util.Log;
 
 class KeyChordsController {
   private List<String> keyChordUnderway = new ArrayList<String>();

@@ -4,10 +4,7 @@ import java.awt.event.*;
 import javax.swing.Timer;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.ArrayList;
-
-import org.omegat.util.Log;
 
 class KeyMappingsController {
   private List<String> keyMappingUnderway = new ArrayList<String>();

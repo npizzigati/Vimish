@@ -6,7 +6,6 @@ import org.omegat.gui.editor.IEditor.CaretPosition;
 import org.omegat.core.CoreEvents;
 import org.omegat.core.data.SourceTextEntry;
 import org.omegat.core.events.IEntryEventListener;
-import org.omegat.util.Log;
 
 import java.awt.Container;
 import java.util.regex.Pattern;

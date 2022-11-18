@@ -3,7 +3,6 @@ package org.omegat.plugins.vimish;
 import org.omegat.core.Core;
 import org.omegat.gui.editor.EditorController;
 import org.omegat.gui.main.MainWindow;
-import org.omegat.util.Log;
 
 import java.util.List;
 

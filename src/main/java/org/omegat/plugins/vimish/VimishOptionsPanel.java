@@ -1,7 +1,5 @@
 package org.omegat.plugins.vimish;
 
-import org.omegat.util.Log;
-
 import java.awt.Dimension;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;

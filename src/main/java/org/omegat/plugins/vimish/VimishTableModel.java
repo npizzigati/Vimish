@@ -1,7 +1,5 @@
 package org.omegat.plugins.vimish;
 
-import org.omegat.util.Log;
-
 import java.util.List;
 import java.util.Map;
 import java.util.LinkedHashMap;

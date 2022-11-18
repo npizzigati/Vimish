@@ -1,7 +1,6 @@
 package org.omegat.plugins.vimish;
 
 import java.util.Map;
-import java.util.HashMap;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 // This annotation will prevent the Jackson unmarshaller

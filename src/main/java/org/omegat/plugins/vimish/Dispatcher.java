@@ -6,7 +6,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.InputEvent;
 
 import org.omegat.gui.editor.EditorTextArea3;
-import org.omegat.util.Log;
 
 class Dispatcher {
   private PreRouter preRouter;
