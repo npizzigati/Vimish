@@ -879,8 +879,8 @@ class KeySequence {
 
   private String evaluateReplaceSequence() {
     String newSequence = sequence;
-    if (sequence.matches("^(\\u2732ESC\\u2732|\\u2732BACKSPACE\\u2732|\\u2732DEL\\u2732|\\u2732TAB\\u2732|\\u2732S-TAB\\u2732|\\u2732ENTER\\u2732|\\u2732LEFT\\u2732|\\u2732RIGHT\\u2732).*")) {
-      Matcher matcher = Pattern.compile("^(\\u2732ESC\\u2732|\\u2732BACKSPACE\\u2732|\\u2732DEL\\u2732|\\u2732TAB\\u2732|\\u2732S-TAB\\u2732|\\u2732ENTER\\u2732|\\u2732LEFT\\u2732|\\u2732RIGHT\\u2732)(.*)").matcher(sequence);
+    if (sequence.matches("^(\\u2732ESC\\u2732|\\u2732BACKSPACE\\u2732|\\u2732DEL\\u2732|\\u2732TAB\\u2732|\\u2732S-TAB\\u2732|\\u2732ENTER\\u2732|\\u2732LEFT\\u2732|\\u2732RIGHT\\u2732|\\u2732UP\\u2732|\\u2732DOWN\\u2732).*")) {
+      Matcher matcher = Pattern.compile("^(\\u2732ESC\\u2732|\\u2732BACKSPACE\\u2732|\\u2732DEL\\u2732|\\u2732TAB\\u2732|\\u2732S-TAB\\u2732|\\u2732ENTER\\u2732|\\u2732LEFT\\u2732|\\u2732RIGHT\\u2732|\\u2732UP\\u2732|\\u2732DOWN\\u2732)(.*)").matcher(sequence);
       matcher.find();
       String key = matcher.group(1);
       String remainder = matcher.group(2);
@@ -946,8 +946,8 @@ class KeySequence {
 
   private String evaluateInsertSequence() {
     String newSequence = sequence;
-    if (sequence.matches("^(\\u2732ESC\\u2732|\\u2732BACKSPACE\\u2732|\\u2732DEL\\u2732|\\u2732TAB\\u2732|\\u2732S-TAB\\u2732|\\u2732ENTER\\u2732|\\u2732LEFT\\u2732|\\u2732RIGHT\\u2732).*")) {
-      Matcher matcher = Pattern.compile("^(\\u2732ESC\\u2732|\\u2732BACKSPACE\\u2732|\\u2732DEL\\u2732|\\u2732TAB\\u2732|\\u2732S-TAB\\u2732|\\u2732ENTER\\u2732|\\u2732LEFT\\u2732|\\u2732RIGHT\\u2732)(.*)").matcher(sequence);
+    if (sequence.matches("^(\\u2732ESC\\u2732|\\u2732BACKSPACE\\u2732|\\u2732DEL\\u2732|\\u2732TAB\\u2732|\\u2732S-TAB\\u2732|\\u2732ENTER\\u2732|\\u2732LEFT\\u2732|\\u2732RIGHT\\u2732|\\u2732UP\\u2732|\\u2732DOWN\\u2732).*")) {
+      Matcher matcher = Pattern.compile("^(\\u2732ESC\\u2732|\\u2732BACKSPACE\\u2732|\\u2732DEL\\u2732|\\u2732TAB\\u2732|\\u2732S-TAB\\u2732|\\u2732ENTER\\u2732|\\u2732LEFT\\u2732|\\u2732RIGHT\\u2732|\\u2732UP\\u2732|\\u2732DOWN\\u2732)(.*)").matcher(sequence);
       matcher.find();
       String key = matcher.group(1);
       String remainder = matcher.group(2);
@@ -1018,8 +1018,8 @@ class KeySequence {
 
   private String evaluateSearchSequence() {
     String newSequence = sequence;
-    if (sequence.matches("^(\\u2732ESC\\u2732|\\u2732BACKSPACE\\u2732|\\u2732DEL\\u2732|\\u2732TAB\\u2732|\\u2732S-TAB\\u2732|\\u2732ENTER\\u2732).*")) {
-      Matcher matcher = Pattern.compile("^(\\u2732ESC\\u2732|\\u2732BACKSPACE\\u2732|\\u2732DEL\\u2732|\\u2732TAB\\u2732|\\u2732S-TAB\\u2732|\\u2732ENTER\\u2732)(.*)").matcher(sequence);
+    if (sequence.matches("^(\\u2732ESC\\u2732|\\u2732BACKSPACE\\u2732|\\u2732DEL\\u2732|\\u2732TAB\\u2732|\\u2732S-TAB\\u2732|\\u2732ENTER\\u2732|\\u2732UP\\u2732|\\u2732DOWN\\u2732|\\u2732LEFT\\u2732|\\u2732RIGHT\\u2732).*")) {
+      Matcher matcher = Pattern.compile("^(\\u2732ESC\\u2732|\\u2732BACKSPACE\\u2732|\\u2732DEL\\u2732|\\u2732TAB\\u2732|\\u2732S-TAB\\u2732|\\u2732ENTER\\u2732|\\u2732UP\\u2732|\\u2732DOWN\\u2732|\\u2732LEFT\\u2732|\\u2732RIGHT\\u2732)(.*)").matcher(sequence);
       matcher.find();
       String key = matcher.group(1);
       String remainder = matcher.group(2);
