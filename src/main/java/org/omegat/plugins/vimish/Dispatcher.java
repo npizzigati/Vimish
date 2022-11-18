@@ -49,7 +49,9 @@ class Dispatcher {
         if (event.isActionKey() && event.getID() == KeyEvent.KEY_PRESSED
             && event.getKeyCode() != KeyEvent.VK_INSERT
             && event.getKeyCode() != KeyEvent.VK_RIGHT
-            && event.getKeyCode() != KeyEvent.VK_LEFT) {
+            && event.getKeyCode() != KeyEvent.VK_LEFT
+            && event.getKeyCode() != KeyEvent.VK_UP
+            && event.getKeyCode() != KeyEvent.VK_DOWN) {
           return false;
         }
 
@@ -59,7 +61,9 @@ class Dispatcher {
         // an associated keyTyped event.
         if (event.getID() != KeyEvent.KEY_TYPED
             && event.getKeyCode() != KeyEvent.VK_RIGHT
-            && event.getKeyCode() != KeyEvent.VK_LEFT) {
+            && event.getKeyCode() != KeyEvent.VK_LEFT
+            && event.getKeyCode() != KeyEvent.VK_UP
+            && event.getKeyCode() != KeyEvent.VK_DOWN) {
           return true;
         }
 
@@ -94,6 +98,10 @@ class Dispatcher {
       keyString = "\u2732LEFT\u2732";
     } else if (keyCode == KeyEvent.VK_RIGHT) {
       keyString = "\u2732RIGHT\u2732";
+    } else if (keyCode == KeyEvent.VK_UP) {
+      keyString = "\u2732UP\u2732";
+    } else if (keyCode == KeyEvent.VK_DOWN) {
+      keyString = "\u2732DOWN\u2732";
     } else {
       switch((int)keyChar) {
       case KeyEvent.VK_ESCAPE:
