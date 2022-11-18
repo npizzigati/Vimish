@@ -1032,6 +1032,10 @@ class Actions {
   }
 
   void visualModeGoToChar(int count, String motion, String character, RepeatType repeatType) {
+    // Store new executed find if this is not a repeat
+    if (repeatType == RepeatType.NONE) {
+      executedFind = new Find(character, motion);
+    }
     int currentIndex = getCaretIndex();
     String currentTranslation = editor.getCurrentTranslation();
     // If motion is lowercase (f/t) and is repeated with a ";"
@@ -1051,14 +1055,14 @@ class Actions {
       }
       visualModeBackwardMove(currentIndex, newIndex);
     }
-    // Store new executed find if this is not a repeat
-    if (repeatType == RepeatType.NONE) {
-      executedFind = new Find(character, motion);
-    }
   }
 
   void normalModeGoToChar(int count, String operator, String motion, String character,
                           String registerKey, RepeatType repeatType) {
+    // Store new executed find if this is not a repeat
+    if (repeatType == RepeatType.NONE) {
+      executedFind = new Find(character, motion);
+    }
     int currentIndex = getCaretIndex();
     String currentTranslation = editor.getCurrentTranslation();
     // If motion is lowercase (f/t) and is repeated with a ";"
@@ -1077,10 +1081,6 @@ class Actions {
         return;
       }
       executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
-    }
-    // Store new executed find if this is not a repeat
-    if (repeatType == RepeatType.NONE) {
-      executedFind = new Find(character, motion);
     }
   }
 
