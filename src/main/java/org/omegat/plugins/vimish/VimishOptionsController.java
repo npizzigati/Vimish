@@ -204,16 +204,6 @@ class VimishOptionsController extends BasePreferencesController {
     return VIEW_NAME;
   };
 
-
-  /**
-   * Get the parent view in the view tree. Implementors should override this to
-   * return the class of the desired parent; by default this is the Plugins view.
-   */
-  // @Override
-  // public Class<? extends IPreferencesController> getParentViewClass() {
-  //   return null;
-  // }
-
   /**
    * Commit changes.
    */

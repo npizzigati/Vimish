@@ -69,7 +69,6 @@ class Dispatcher {
 
         String keyString = determineKeyString(event);
 
-        // keyChordController.process(keyString);
         preRouter.process(keyString);
 
         // consume key event

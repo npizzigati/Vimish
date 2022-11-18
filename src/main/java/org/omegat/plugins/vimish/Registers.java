@@ -1,7 +1,5 @@
 package org.omegat.plugins.vimish;
 
-// import org.omegat.util.Log;
-
 import java.util.HashMap;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;

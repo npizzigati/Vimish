@@ -101,12 +101,6 @@ class KeyChordsController {
     return false;
   }
 
-  // private static HashMap<String, String> getKeyChordsHash() {
-  //   HashMap<String, String> keyChordsHash = new HashMap<String, String>();
-  //   keyChordsHash.put("ie", "<ESC>");
-  //   return keyChordsHash;
-  // }
-
   void refreshKeyChordsHash() {
     KeyChords allKeyChords = getAllKeyChords();
     Map<String, String> userKeyChordsHash;

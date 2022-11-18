@@ -21,8 +21,6 @@ class Actions {
   private Search executedSearch;
   private Find executedFind;
   private Configuration configuration;
-  // private JFrame searchPopup;
-  // private JLabel searchPopupLabel;
   private Pattern beginningOfWordPattern = Pattern.compile("(^[\\p{L}\\d\\p{P}])|((?<=[^\\p{L}\\d])[\\p{L}\\d])|(?<=[\\p{L}\\d\\s])([^\\p{L}\\d\\s])|(.$)");
   private Pattern beginningOfWordBigWPattern = Pattern.compile("((?<=[\\s])[\\p{L}\\d\\p{P}])|(.$)");
   private Pattern beginningOfWordBackPattern = Pattern.compile("(^[\\p{L}\\d\\p{P}])|((?<=[^\\p{L}\\d])[\\p{L}\\d])|(?<=[\\p{L}\\d\\s])([^\\p{L}\\d\\s])");

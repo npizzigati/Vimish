@@ -84,9 +84,6 @@ class Configuration {
   }
 
   KeyChords getKeyChords() {
-    // TODO: Downcase all special keys for use here
-    // (e.g., <ESC> -> <esc>) so that they are
-    // case insensitive
     KeyChords keyChords = configurationData.keyChords;
     if (keyChords == null) {
       keyChords = DEFAULT_KEY_CHORDS;

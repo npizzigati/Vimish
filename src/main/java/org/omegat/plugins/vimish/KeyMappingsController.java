@@ -19,9 +19,6 @@ class KeyMappingsController {
 
   KeyMappingsController(PreRouter preRouter) {
     this.preRouter = preRouter;
-    // KeyMappings allKeyMappings = getAllKeyMappings();
-    // // Set to normal mode key mappings to start
-    // keyMappings = allKeyMappings.normalModeKeyMappings;
     refreshKeyMappings();
   }
 

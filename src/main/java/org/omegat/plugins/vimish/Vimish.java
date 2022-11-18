@@ -15,10 +15,6 @@ import org.omegat.util.Log;
 import org.omegat.gui.preferences.PreferencesControllers;
 
 
-// TODO: options: - integrate system and vim clipboards
-//                - position of cursor on entering insert mode
-//                  (whether to adjust position by one)
-//                - key or chord for escape
 public class Vimish {
   static boolean isFirstLoad = true;
   /**

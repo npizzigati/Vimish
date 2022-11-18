@@ -17,10 +17,6 @@ public class VimishTableModel extends AbstractTableModel {
     this.keyValuePairs = getKeyValuePairs(keyTable);
   }
 
-  // public VimishTableModel(List<String[]> keyValuePairs) {
-  //   this.keyValuePairs = keyValuePairs;
-  // }
-
   public Object getValueAt(int rowIndex, int columnIndex) {
     String[] row = keyValuePairs.get(rowIndex);
     return row[columnIndex];

@@ -441,8 +441,6 @@ class KeySequence {
         lastChange = new LastChange(lastChangeSequence, registerKey, totalCount, null);
       }
       return remainder;
-
-      // return sequence.replaceFirst(entireMatchString, "");
     }
 
     // Backspace
@@ -556,7 +554,6 @@ class KeySequence {
       }
     }
 
-    // TODO: also need to account for ";" and "," (single char)
     return "";
   }
 
@@ -570,7 +567,6 @@ class KeySequence {
      * The order of subsequent regexes shouldn't matter
      **/
     // To or till
-    // matcher = Pattern.compile("^(\\d*)([fFTt])([^\\u2732])(.*)").matcher(sequence);
     matcher = getVisualMatcher("^(\\d*)([fFTt])([^\\u2732])(.*)", sequence);
     if (matcher.find()) {
       String countString = matcher.group(1);
@@ -771,10 +767,6 @@ class KeySequence {
         actions.visualModeBackwardWordEnd(motion, count);
       }
       return remainder;
-      // We are currently ignoring motion keys j/k and uppercase
-      // H/L/J/K, since these are not particularly useful for
-      // translation segments (which contain no newlines)
-      // NOTE: H/M/L (high/middle/low) may be useful for long segments
     }
 
     // Backspace
@@ -994,11 +986,6 @@ class KeySequence {
 
     return newSequence;
   }
-
-  // private String removeEvaluatedPart(String sequence, String entireMatchString)
-  // {
-  // return sequence.replaceFirst(entireMatchString, "");
-  // }
 
   private String evaluateSearchSequence() {
     String newSequence = sequence;

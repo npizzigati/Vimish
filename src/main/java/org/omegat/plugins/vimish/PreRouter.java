@@ -34,7 +34,6 @@ class PreRouter {
       configuration.flagKeyTablesRefreshNotified();
       keyMappingsController.refreshKeyMappings();
       keyChordsController.refreshKeyChordsHash();
-      // TODO: refresh data in abbreviation and chord controllers
     }
 
     keyChordsController.process(keyString);
