@@ -6,7 +6,7 @@
 
 Copy the [plugin jar file](https://github.com/npizzigati/Vimish/releases/download/v0.1/Vimish-0.1.jar) to your OmegaT plugin directory.
 
-The next time you start OmegaT, the plugin will be active.
+The next time you start OmegaT, the translation editor will be in Vimish mode.
 
 ### Building from source
 
