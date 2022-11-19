@@ -3,7 +3,7 @@
 > Vim mode for the OmegaT computer-aided translation tool
 
 ### Install and run
-Download the [Vimish jar file](https://github.com/npizzigati/Vimish/releases/download/v0.1/Vimish-0.1.jar) and copy it to your OmegaT plugin directory.
+Download the [Vimish jar file](https://github.com/npizzigati/Vimish/releases/download/v0.1/Vimish-0.1.1.jar) and copy it to your OmegaT plugin directory.
 
 The next time you start OmegaT, the translation editor will be in Vim mode.
 
