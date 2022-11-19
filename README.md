@@ -4,9 +4,11 @@
 
 ### Installation and running
 
-Copy the [plugin jar file](https://github.com/npizzigati/Vimish/releases/download/v0.1/Vimish-0.1.jar) to your OmegaT plugin directory.
+Download the [Vimish jar file](https://github.com/npizzigati/Vimish/releases/download/v0.1/Vimish-0.1.jar) and copy it to your OmegaT plugin directory.
 
-The next time you start OmegaT, the translation editor will be in Vimish mode.
+The next time you start OmegaT, the translation editor will be in Vim mode.
+
+To uninstall, simply remove the jar file from the plugin directory.
 
 ### Building from source
 
