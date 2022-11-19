@@ -1,6 +1,6 @@
-![Screenshot from 2022-11-19 05-15-13](https://user-images.githubusercontent.com/54257961/202847974-e528c541-736c-4722-a16a-274cea40f380.png)
+![vimish-logo-smallest](https://user-images.githubusercontent.com/54257961/202854465-e35f6d86-a77d-4397-b8be-4699b79e7fbb.png)
 
-### Vim-style modal editing for the OmegaT translation tool
+> Vim-style modal editing for the OmegaT translation tool
 
 ### Installation and running
 
