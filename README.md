@@ -1,4 +1,4 @@
-## Vimish
+![Vimish](https://user-images.githubusercontent.com/54257961/202832810-e74c749a-31a8-47b9-bfc5-fd2b39348465.png)
 
 ### Vim-style modal editing for the OmegaT translation tool
 
