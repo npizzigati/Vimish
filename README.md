@@ -2,7 +2,13 @@
 
 ### Vim-style modal editing for the OmegaT translation tool
 
-### Building and installing:
+### Installation and running
+
+Copy the [plugin jar file](https://github.com/npizzigati/Vimish/releases/download/v0.1/Vimish-0.1.jar) to your OmegaT plugin directory.
+
+The next time you start OmegaT, the plugin will be active.
+
+### Building from source
 
 Clone repo, then execute:
 
@@ -14,6 +20,6 @@ or
 
 from the base directory `Vimish`.
 
-The plugin file will be created in the `Vimish/build/libs/` directory.
+The plugin jar file will be created in the `Vimish/build/libs/` directory.
 
-Copy this file to the directory where you put your OmegaT plugins.
+Copy this file to your OmegaT plugin directory.
