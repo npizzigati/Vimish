@@ -40,9 +40,7 @@ The keys in key chord combos must be pressed simultaneously for their mappings t
 5. Click on the `Ok` button at the bottom of the dialog to confirm.
 
 ### Limitations
-Since OmegaT segments have no newlines, line-wise movements (like moving up and down with the arrow keys or j and k) are not available. Just as you would with a long wrapped line in Vim, in Vimish you can navigate quickly inside a segment using word-wise motions and search/find.
-
-
+Since OmegaT segments have no newlines, line-wise movements (like moving up and down with the arrow keys or j and k) are not available. Just as you would with a long wrapped line in Vim, in Vimish you can navigate quickly inside a segment using word-wise/left-right motions and search/find.
 
 ### Development 
 #### Building from source
