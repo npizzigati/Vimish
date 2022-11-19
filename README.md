@@ -3,9 +3,9 @@
 > Vim mode for the OmegaT computer-aided translation tool
 
 ### Install and run
-Download the [Vimish jar file](https://github.com/npizzigati/Vimish/releases/download/v0.1/Vimish-0.1.1.jar) and copy it to your OmegaT plugin directory.
+Download the [latest release](https://github.com/npizzigati/Vimish/releases/tag/v0.1.1) and copy it to your OmegaT plugin directory.
 
-The next time you start OmegaT, the translation editor will be in Vim mode.
+The next time you start OmegaT, the translation editor pane will be in Vim mode.
 
 To uninstall, simply remove the jar file from the plugin directory.
 
@@ -13,7 +13,7 @@ To uninstall, simply remove the jar file from the plugin directory.
 Vimish implements a large subset of Vim's features, including:
 - Normal, insert, visual and replace modes.
 - Character-wise, word-wise and text-object movement/deletion/changes.
-- Yanking and putting using system clipboard or Vimish registers.
+- Yanking and putting using system clipboard or registers.
 - Repeating searches, finds and changes.
 - Key mappings.
 
@@ -23,12 +23,12 @@ It also implements key chords (mapping two simultaneous key presses to a Vim seq
 
 
 ### Recipes
-
 #### Use the key chord `j` `k` to exit insert mode
 1. Go to the Vimish options menu: `Options -> Preferences -> Vimish` (`Vimish` is under the `Plugins` subheading in the left-hand pane).
-2. In the `Key Chords` section, click on the `Add` button to the right.
-3. Type `jk` under the `Keys` heading, and `<Esc>` under the `Mapped to` heading.
-4. Click on the `Ok` button at the bottom of the dialog to confirm.
+2. In the `Key Chords` section, choose `Insert` from the `Mode` dropdown menu.
+3. click on the `Add` button to the right.
+4. Type `jk` under the `Keys` heading, and `<Esc>` under the `Mapped to` heading, like so:
+5. Click on the `Ok` button at the bottom of the dialog to confirm.
 
 ### Build from source
 
