@@ -16,7 +16,7 @@ class KeyChordsController {
 
   KeyChordsController(PreRouter preRouter) {
     this.preRouter = preRouter;
-    refreshKeyChordsHash();
+    refreshKeyChords();
   }
 
   void reset() {
@@ -98,7 +98,7 @@ class KeyChordsController {
     return false;
   }
 
-  void refreshKeyChordsHash() {
+  void refreshKeyChords() {
     KeyChords allKeyChords = getAllKeyChords();
     Map<String, String> userKeyChordsHash;
     if (Mode.NORMAL.isActive()) {

@@ -32,7 +32,7 @@ class PreRouter {
     if (configuration.keyTablesNeedRefreshing()) {
       configuration.flagKeyTablesRefreshNotified();
       keyMappingsController.refreshKeyMappings();
-      keyChordsController.refreshKeyChordsHash();
+      keyChordsController.refreshKeyChords();
     }
 
     keyChordsController.process(keyString);
