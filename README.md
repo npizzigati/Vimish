@@ -25,10 +25,10 @@ It also implements key chords (mapping two simultaneous key presses to a Vim seq
 ### Recipes
 
 #### Use the key chord `j` `k` to exit insert mode
-1. Go to the Vimish options menu: `Options -> Preferences -> Plugins -> Vimish`.
+1. Go to the Vimish options menu: `Options -> Preferences -> Vimish` (`Vimish` is under the `Plugins` subheading in the left-hand pane).
 2. In the `Key Chords` section, click on the `Add` button to the right.
 3. Type `jk` under the `Keys` heading, and `<Esc>` under the `Mapped to` heading.
-4. Click on the `Ok` button at the bottom of the dialog to confirm. 
+4. Click on the `Ok` button at the bottom of the dialog to confirm.
 
 ### Build from source
 
