@@ -69,6 +69,7 @@ class VimishOptionsPanel extends JPanel {
     JPanel keyMappingsModeSelectorBox = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
     keyMappingsTable = new JTable();
+    keyMappingsTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
     TitledBorder keyMappingsTitle = BorderFactory.createTitledBorder("Key Mappings");
     keyMappingsPanel.setBorder(keyMappingsTitle);
 
@@ -98,6 +99,7 @@ class VimishOptionsPanel extends JPanel {
     JPanel keyChordsModeSelectorBox = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
     keyChordsTable = new JTable();
+    keyChordsTable.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
     TitledBorder keyChordsTitle = BorderFactory.createTitledBorder("Key Chords");
     keyChordsPanel.setBorder(keyChordsTitle);
 
