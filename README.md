@@ -1,4 +1,4 @@
-![Screenshot from 2022-11-18 23-07-20](https://user-images.githubusercontent.com/54257961/202835312-9095986f-c5f2-4588-ae34-51b9ff2f5a7d.png)
+![Screenshot from 2022-11-19 05-15-13](https://user-images.githubusercontent.com/54257961/202847974-e528c541-736c-4722-a16a-274cea40f380.png)
 
 ### Vim-style modal editing for the OmegaT translation tool
 
