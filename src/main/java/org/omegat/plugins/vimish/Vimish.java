@@ -1,6 +1,6 @@
 /**
  * Vimish
- * Vim-style editing for OmegaT
+ * Vim mode for OmegaT
  * 
  * @author Nick Pizzigati
  */
