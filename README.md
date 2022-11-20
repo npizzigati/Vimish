@@ -23,9 +23,9 @@ It also implements key chords (mapping two simultaneous key presses to a Vim seq
 General settings, key mappings and key chords can be viewed and changed in the Vimish options menu, `Options -> Preferences -> Plugins -> Vimish` (`Vimish` is under the `Plugins` subheading in the left-hand pane).
 ![Screenshot from 2022-11-19 15-49-32](https://user-images.githubusercontent.com/54257961/202873015-c68e3637-8683-4c3f-9146-7e83e84b78a0.png)
 
-Key maps are equivalent to Vim's noremap mappings (they do not map recursively). Key combos and their respective mappings can be of any length. Any word or punctuation character, as well as the special keys `<Esc>`, `<CR>`, `<BS>`, `<Del>`, `<Tab>`, `<S-Tab>`, `<Left>`, `<Right>`, `<Up>` and `<Down>`, can be used as part of the key combo or its mapping. 
+Key maps are equivalent to Vim's noremap mappings (they do not map recursively). Key combos and their respective mappings can be of any length. Any word or punctuation character, as well as the special keys `<Esc>`, `<CR>`, `<BS>`, `<Del>`, `<Tab>`, `<S-Tab>`, `<Left>`, `<Right>`, `<Up>` and `<Down>`, can be used as part of the key combo or its mapping.
 
-Key chords are two-key combinations that can map to key sequences of any length. Key chord combos cannot contain special characters, but the mapping they trigger can. For example, we can map the key chord `jk` to `<Esc>`. 
+Key chords are two-key combinations that can map to key sequences of any length. Key chord combos cannot contain special characters, but the mapping they trigger can. For example, we can map the key chord `jk` to `<Esc>`.
 
 The keys in key chord combos must be pressed simultaneously for their mappings to trigger.
 
@@ -48,7 +48,9 @@ The keys in key chord combos must be pressed simultaneously for their mappings t
 ### Limitations
 Visual line movements (like moving up and down with the arrow keys in OmegaT or Vim's `gj` and `gk` movements) are not available. But, just as you might do with a long wrapped line in Vim, in Vimish you can navigate quickly inside a segment using word-wise/left-right motions and search/find.
 
-### Development 
+Also, Vim control-key combinations are not implemented. On the one hand, this makes things less complicated because all the OmegaT ctrl-key shortcuts will work as expected. On the other, I expect that some users will miss certain Vim ctrl-key functions. In a future version, the user will be able to optionally enable Vim control keys.
+
+### Development
 #### Building from source
 Clone repository, then execute:
 
