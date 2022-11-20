@@ -20,7 +20,7 @@ Vimish implements a large subset of Vim's features, including:
 It also implements key chords (mapping two simultaneous key presses to a Vim sequence). Among other things, this lets you map the key combination `j` `k` in insert mode to `<Esc>` (to switch to normal mode). [Here's how](#recipes).
 
 ### Settings
-General settings, key mappings and key chords can be viewed and changed in the Vimish options menu, `Options -> Preferences -> Vimish` (`Vimish` is under the `Plugins` subheading in the left-hand pane).
+General settings, key mappings and key chords can be viewed and changed in the Vimish options menu, `Options -> Preferences -> Plugins -> Vimish` (`Vimish` is under the `Plugins` subheading in the left-hand pane).
 ![Screenshot from 2022-11-19 15-49-32](https://user-images.githubusercontent.com/54257961/202873015-c68e3637-8683-4c3f-9146-7e83e84b78a0.png)
 
 Key maps are equivalent to Vim's noremap mappings (they do not map recursively). Key combos and their respective mappings can be of any length. Any word or punctuation character, as well as the special keys `<Esc>`, `<CR>`, `<BS>`, `<Del>`, `<Tab>`, `<S-Tab>`, `<Left>`, `<Right>`, `<Up>` and `<Down>`, can be used as part of the key combo or its mapping. 
@@ -31,7 +31,7 @@ The keys in key chord combos must be pressed simultaneously for their mappings t
 
 ### Recipes
 #### Use the key chord `j` `k` to exit insert mode
-1. Go to the Vimish options menu: `Options -> Preferences -> Vimish` ([Help me find it](#Settings)).
+1. Go to the Vimish options menu: `Options -> Preferences -> Plugins -> Vimish` ([Help me find it](#Settings)).
 2. In the `Key Chords` section, choose `Insert` from the `Mode` dropdown menu.
 3. Click on the `Add` button to the right.
 4. Type `jk` under the `Keys` heading, and `<Esc>` under the `Mapped to` heading, like so:
