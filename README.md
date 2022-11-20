@@ -38,7 +38,7 @@ The keys in key chord combos must be pressed simultaneously for their mappings t
 ![Screenshot from 2022-11-19 15-42-00](https://user-images.githubusercontent.com/54257961/202872736-9007c772-1c7a-4f53-89b5-4f8b6840fc4d.png)
 5. Click on the `Ok` button at the bottom of the dialog to confirm.
 
-#### Search and replace (words)
+#### Search for and replace words inside segment
 1. In the editor window, type `/` or `?` to begin a forward/backward search, enter the word to search for (or a unique part of it) and press return to go to the word.
 2. Type `ciw` (mnemonic: **c**hange **i**n **w**ord), type your replacement word, and hit the `<Esc>` key to return to normal mode.
 3. Repeat the search by pressing the `n` key (or `N` to repeat the search in the opposite direction).
