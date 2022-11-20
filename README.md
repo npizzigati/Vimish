@@ -31,22 +31,22 @@ The keys in key chord combos must be pressed simultaneously for their mappings t
 
 ### Recipes
 #### Use the key chord `j` `k` to exit insert mode
-1. Go to the Vimish options menu: `Options -> Preferences -> Vimish` ([Help me find it](#Settings).
+1. Go to the Vimish options menu: `Options -> Preferences -> Vimish` ([Help me find it](#Settings)).
 2. In the `Key Chords` section, choose `Insert` from the `Mode` dropdown menu.
-3. click on the `Add` button to the right.
+3. Click on the `Add` button to the right.
 4. Type `jk` under the `Keys` heading, and `<Esc>` under the `Mapped to` heading, like so:
 ![Screenshot from 2022-11-19 15-42-00](https://user-images.githubusercontent.com/54257961/202872736-9007c772-1c7a-4f53-89b5-4f8b6840fc4d.png)
 5. Click on the `Ok` button at the bottom of the dialog to confirm.
 
 #### Search and replace (words)
-1. Type `/` or `?` to begin a forward/backward search, enter the word to search for (or a unique part of it) and press return to go to the word.
-2. Type `ciw` (mnemonic: **c**hange **i**n **w**ord), type your replacement word, and hit <Esc> to return to normal mode.
-3. Repeat the search by pressing the `n` key (or `N` to repeat the search in the opposite direction.
-4. Hit the period/dot key `.` to repeat the last change.
+1. In the editor window, type `/` or `?` to begin a forward/backward search, enter the word to search for (or a unique part of it) and press return to go to the word.
+2. Type `ciw` (mnemonic: **c**hange **i**n **w**ord), type your replacement word, and hit the `<Esc>` key to return to normal mode.
+3. Repeat the search by pressing the `n` key (or `N` to repeat the search in the opposite direction).
+4. Hit the period/dot key (`.`) to repeat the last change.
 5. Repeat steps 3 and 4 until done.
 
 ### Limitations
-Visual line movements (like moving up and down with the arrow keys in OmegaT or Vim's `gj` and `gk` key combos) are not available. But, just as you might do with a long wrapped line in Vim, in Vimish you can navigate quickly inside a segment using word-wise/left-right motions and search/find.
+Visual line movements (like moving up and down with the arrow keys in OmegaT or Vim's `gj` and `gk` movements) are not available. But, just as you might do with a long wrapped line in Vim, in Vimish you can navigate quickly inside a segment using word-wise/left-right motions and search/find.
 
 ### Development 
 #### Building from source
