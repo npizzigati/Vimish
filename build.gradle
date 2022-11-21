@@ -47,6 +47,7 @@ jar {
   manifest {
     from 'MANIFEST.MF'
   }
+  duplicatesStrategy = DuplicatesStrategy.EXCLUDE
   // Create fat jar, excluding provided configuration
   from {
     (configurations.runtimeClasspath - configurations.provided).collect { it.isDirectory() ? it : zipTree(it) }
