@@ -1,7 +1,9 @@
 Manifest-Version: 1.0
 Plugin-Name: Vimish
 Plugin-Author: Nick Pizzigati
-OmegaT-Plugins: org.omegat.plugins.vimish.Vimish
 Plugin-Description: Vim mode for OmegaT
+Plugin-Category: miscellaneous
+Plugin-License: GPL v3
 Plugin-Version: 0.1.1
 Plugin-Link: https://github.com/npizzigati/vimish
+OmegaT-Plugins: org.omegat.plugins.vimish.Vimish
