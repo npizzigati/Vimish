@@ -46,9 +46,7 @@ The keys in key chord combos must be pressed simultaneously for their mappings t
 5. Repeat steps 3 and 4 until done.
 
 ### Limitations
-Visual line movements (like moving up and down with the arrow keys in OmegaT or Vim's `gj` and `gk` movements) are not available. But, just as you might do with a long wrapped line in Vim, in Vimish you can navigate quickly inside a segment using word-wise/left-right motions and search/find.
-
-Also, Vim control-key combinations are not implemented. On the one hand, this makes things less complicated because all the OmegaT ctrl-key shortcuts will work as expected. On the other, I expect that some users will miss certain Vim ctrl-key functions. In a future version, the user will be able to optionally enable Vim control keys.
+Vim control-key combinations are not implemented. On the one hand, this makes things less complicated because all the OmegaT ctrl-key shortcuts will work as expected. On the other, I expect that some users will miss certain Vim ctrl-key functions. In a future version, the user will be able to optionally enable Vim control keys.
 
 ### Development
 #### Building from source
