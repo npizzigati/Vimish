@@ -414,9 +414,9 @@ class KeySequence {
       return remainder;
     }
 
-    // Character-wise and word-wise h/l/w/W/e/E/b/B/ge/gE motions
+    // Character-wise and word-wise h/l/j/k/gj/gk/w/W/e/E/b/B/ge/gE motions
     // with no operator or with d/c/y operators
-    matcher = getNormalMatcher("^(\"([\\w\\-\"*+]))?(\\d*)([dcy]?)(\\d*)([hlwWeEbB]|ge|gE)(.*)", sequence);
+    matcher = getNormalMatcher("^(\"([\\w\\-\"*+]))?(\\d*)([dcy]?)(\\d*)([hljkwWeEbB]|ge|gE|gj|gk)(.*)", sequence);
     if (matcher.find()) {
       String registerKey = matcher.group(2);
       String countString1 = matcher.group(3);
@@ -429,6 +429,10 @@ class KeySequence {
         actions.normalModeBackwardChar(operator, totalCount, registerKey);
       } else if (motion.equals("l")) {
         actions.normalModeForwardChar(operator, totalCount, registerKey);
+      } else if (motion.equals("j") || motion.equals("gj")) {
+        actions.normalModeVisualLineDown(operator, totalCount, registerKey);
+      } else if (motion.equals("k") || motion.equals("gk")) {
+        actions.normalModeVisualLineUp(operator, totalCount, registerKey);
       } else if (motion.toLowerCase().equals("w") || motion.toLowerCase().equals("e")) {
         actions.normalModeForwardWord(operator, motion, totalCount, registerKey);
       } else if (motion.toLowerCase().equals("b")) {
@@ -453,7 +457,7 @@ class KeySequence {
       return remainder;
     }
 
-    // Left
+    // Left Arrow
     matcher = getNormalMatcher("^(\\d*)\\u2732LEFT\\u2732(.*)", sequence);
     if (matcher.find()) {
       String countString = matcher.group(1);
@@ -463,13 +467,33 @@ class KeySequence {
       return remainder;
     }
 
-    // Right
+    // Right Arrow
     matcher = getNormalMatcher("^(\\d*)\\u2732RIGHT\\u2732(.*)", sequence);
     if (matcher.find()) {
       String countString = matcher.group(1);
       String remainder = matcher.group(2);
       int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
       actions.normalModeForwardChar(count);
+      return remainder;
+    }
+
+    // Up Arrow
+    matcher = getNormalMatcher("^(\\d*)\\u2732UP\\u2732(.*)", sequence);
+    if (matcher.find()) {
+      String countString = matcher.group(1);
+      String remainder = matcher.group(2);
+      int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
+      actions.normalModeVisualLineUp(count);
+      return remainder;
+    }
+
+    // Down Arrow
+    matcher = getNormalMatcher("^(\\d*)\\u2732DOWN\\u2732(.*)", sequence);
+    if (matcher.find()) {
+      String countString = matcher.group(1);
+      String remainder = matcher.group(2);
+      int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
+      actions.normalModeVisualLineDown(count);
       return remainder;
     }
 
@@ -747,9 +771,8 @@ class KeySequence {
       return remainder;
     }
 
-
     // Character-wise and word-wise motions
-    matcher = getVisualMatcher("^(\\d*)([hlwWeEbB]|ge|gE)(.*)", sequence);
+    matcher = getVisualMatcher("^(\\d*)([hljkwWeEbB]|ge|gE|gk|gj)(.*)", sequence);
     if (matcher.find()) {
       String countString = matcher.group(1);
       String motion = matcher.group(2);
@@ -761,6 +784,10 @@ class KeySequence {
         actions.visualModeForwardChar(count);
       } else if (motion.toLowerCase().equals("w") || motion.toLowerCase().equals("e")) {
         actions.visualModeForwardWord(motion, count);
+      } else if (motion.equals("k") || motion.equals("gk")) {
+        actions.visualModeVisualLineUp(count);
+      } else if (motion.equals("j") || motion.equals("gj")) {
+        actions.visualModeVisualLineDown(count);
       } else if (motion.toLowerCase().equals("b")) {
         actions.visualModeBackwardWord(motion, count);
       } else if (motion.toLowerCase().equals("ge")) {
@@ -796,6 +823,26 @@ class KeySequence {
       String remainder = matcher.group(2);
       int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
       actions.visualModeForwardChar(count);
+      return remainder;
+    }
+
+    // Up
+    matcher = getVisualMatcher("^(\\d*)\\u2732UP\\u2732(.*)", sequence);
+    if (matcher.find()) {
+      String countString = matcher.group(1);
+      String remainder = matcher.group(2);
+      int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
+      actions.visualModeVisualLineUp(count);
+      return remainder;
+    }
+
+    // Down
+    matcher = getVisualMatcher("^(\\d*)\\u2732DOWN\\u2732(.*)", sequence);
+    if (matcher.find()) {
+      String countString = matcher.group(1);
+      String remainder = matcher.group(2);
+      int count = (countString.equals("") || countString == null) ? 1 : Integer.parseInt(countString, 10);
+      actions.visualModeVisualLineDown(count);
       return remainder;
     }
 
@@ -904,6 +951,18 @@ class KeySequence {
             lastChange.arrowKeyReset();
           }
           break;
+        case "\u2732UP\u2732":
+          actions.insertModeVisualLineUp();
+          if (lastChange != null) {
+            lastChange.arrowKeyReset();
+          }
+          break;
+        case "\u2732DOWN\u2732":
+          actions.insertModeVisualLineDown();
+          if (lastChange != null) {
+            lastChange.arrowKeyReset();
+          }
+          break;
         case "\u2732DEL\u2732":
           actions.replaceModeDelete();
           if (lastChange != null) {
@@ -962,6 +1021,18 @@ class KeySequence {
           break;
         case "\u2732RIGHT\u2732":
           actions.insertModeForwardChar(1);
+          if (lastChange != null) {
+            lastChange.arrowKeyReset();
+          }
+          break;
+        case "\u2732UP\u2732":
+          actions.insertModeVisualLineUp();
+          if (lastChange != null) {
+            lastChange.arrowKeyReset();
+          }
+          break;
+        case "\u2732DOWN\u2732":
+          actions.insertModeVisualLineDown();
           if (lastChange != null) {
             lastChange.arrowKeyReset();
           }

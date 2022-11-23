@@ -6,15 +6,20 @@ import org.omegat.gui.editor.IEditor.CaretPosition;
 import org.omegat.core.CoreEvents;
 import org.omegat.core.data.SourceTextEntry;
 import org.omegat.core.events.IEntryEventListener;
+import org.omegat.util.Log;
 
 import java.awt.Container;
+import java.awt.Point;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.ArrayList;
 import java.lang.Character;
+import javax.swing.text.JTextComponent;
+import javax.swing.text.DefaultCaret;
 
 class Actions {
   private EditorController editor;
+  private JTextComponent storedEditingArea;
   private MainWindow mainWindow;
   private Search pendingSearch;
   private Search executedSearch;
@@ -34,6 +39,11 @@ class Actions {
     FORWARD_WORD,
     FORWARD_CHAR,
     OTHER
+  }
+
+  private enum Direction {
+    UP,
+    DOWN
   }
 
   private enum ObjectType {
@@ -246,6 +256,53 @@ class Actions {
     }
     int newIndex = (count < length - currentIndex) ? currentIndex + count : length - 1;
     visualModeForwardMove(currentIndex, newIndex);
+  }
+
+  void visualModeVisualLineDown(int count) {
+    Integer markStart = VimishVisualMarker.getMarkStart();
+    Integer markEnd = VimishVisualMarker.getMarkEnd();
+    MarkOrientation markOrientation = VimishVisualMarker.getMarkOrientation();
+    int currentIndex;
+    if (markOrientation == MarkOrientation.LEFT) {
+      currentIndex = markStart;
+    } else {
+      currentIndex = markEnd - 1;
+    }
+    int length = editor.getCurrentTranslation().length();
+    // Do nothing if already at last index
+    if (currentIndex == length - 1) {
+      return;
+    }
+    int newIndex = getNewVisualLineIndex(count, Direction.DOWN);
+    if (newIndex == -1) {
+      return;
+    }
+    // If new index is on segment end tag, move it back one
+    if (newIndex == length) {
+      newIndex -= 1;
+    }
+    visualModeForwardMove(currentIndex, newIndex);
+  }
+
+  void visualModeVisualLineUp(int count) {
+    Integer markStart = VimishVisualMarker.getMarkStart();
+    Integer markEnd = VimishVisualMarker.getMarkEnd();
+    MarkOrientation markOrientation = VimishVisualMarker.getMarkOrientation();
+    int currentIndex;
+    if (markOrientation == MarkOrientation.LEFT) {
+      currentIndex = markStart;
+    } else {
+      currentIndex = markEnd - 1;
+    }
+    // Do nothing if already at last index
+    if (currentIndex == 0) {
+      return;
+    }
+    int newIndex = getNewVisualLineIndex(count, Direction.UP);
+    if (newIndex == -1) {
+      return;
+    }
+    visualModeBackwardMove(currentIndex, newIndex);
   }
 
   void visualModeBackwardWord(String motion, int totalCount) {
@@ -653,6 +710,41 @@ class Actions {
     int length = currentTranslation.length();
     int newIndex = (length - currentIndex >= count) ? currentIndex + count : length;
     executeForwardAction(operator, MotionType.FORWARD_CHAR, currentTranslation, currentIndex, newIndex, registerKey);
+  }
+
+  void normalModeVisualLineDown(int count) {
+    normalModeVisualLineDown("", count, "");
+  }
+
+
+  void normalModeVisualLineDown(String operator, int count, String registerKey) {
+    int currentIndex = getCaretIndex();
+    String currentTranslation = editor.getCurrentTranslation();
+    if (currentIndex == currentTranslation.length() - 1) {
+      return;
+    }
+    int newIndex = getNewVisualLineIndex(count, Direction.DOWN);
+    if (newIndex == -1) {
+      return;
+    }
+    executeForwardAction(operator, MotionType.OTHER, currentTranslation, currentIndex, newIndex, registerKey);
+  }
+
+  void normalModeVisualLineUp(int count) {
+    normalModeVisualLineUp("", count, "");
+  }
+
+  void normalModeVisualLineUp(String operator, int count, String registerKey) {
+    int currentIndex = getCaretIndex();
+    if (currentIndex == 0) {
+      return;
+    }
+    String currentTranslation = editor.getCurrentTranslation();
+    int newIndex = getNewVisualLineIndex(count, Direction.UP);
+    if (newIndex == -1) {
+      return;
+    }
+    executeBackwardAction(operator, currentTranslation, currentIndex, newIndex, registerKey);
   }
 
   void normalModeBackwardWord(String operator, String motion, int totalCount, String registerKey) {
@@ -1456,6 +1548,22 @@ class Actions {
     setCaretIndex(newIndex);
   }
 
+  void insertModeVisualLineDown () {
+    int newIndex = getNewVisualLineIndex(1, Direction.DOWN);
+    if (newIndex == -1) {
+      return;
+    }
+    setCaretIndex(newIndex);
+  }
+
+  void insertModeVisualLineUp () {
+    int newIndex = getNewVisualLineIndex(1, Direction.UP);
+    if (newIndex == -1) {
+      return;
+    }
+    setCaretIndex(newIndex);
+  }
+
   boolean isCaretPastLastIndex() {
     int currentIndex = getCaretIndex();
     int length = editor.getCurrentTranslation().length();
@@ -1531,5 +1639,43 @@ class Actions {
   private void insertTextAtIndex(String text, int index) {
     setCaretIndex(index);
     editor.insertText(text);
+  }
+
+  private int getNewVisualLineIndex(int count, Direction direction) {
+    JTextComponent editingArea = getStoredEditingArea();
+    if (editingArea == null) {
+      Log.log("Unable to move caret up/down due to Java reflexion restrictions");
+      return -1;
+    }
+    DefaultCaret caret = (DefaultCaret) editingArea.getCaret();
+    Point currentPos = caret.getMagicCaretPosition();
+    int currentX = (int) currentPos.getX();
+    int currentY = (int) currentPos.getY();
+    int lineHeight = editingArea.getFontMetrics(editingArea.getFont()).getHeight();
+    int newY;
+    if (direction == Direction.UP) {
+      newY = currentY - (count * lineHeight);
+    } else {
+      newY = currentY + (count * lineHeight);
+    }
+    // viewToModel is deprecated in Java 9 in favor of
+    // viewToModel2D, but for Java 8 we need to use it. In the
+    // event it is removed in a future release, catch the error
+    int newPosInEditorDocument;
+    try {
+      newPosInEditorDocument = editingArea.viewToModel(new Point(currentX, newY));
+    } catch (NoSuchMethodError nsme) {
+      Log.log(nsme);
+      return -1;
+    }
+    return editor.getPositionInEntryTranslation(newPosInEditorDocument);
+  }
+
+
+  private JTextComponent getStoredEditingArea() {
+    if (storedEditingArea == null) {
+      storedEditingArea = Util.getEditingArea();
+    }
+    return storedEditingArea;
   }
 }
