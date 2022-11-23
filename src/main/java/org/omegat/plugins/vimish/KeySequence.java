@@ -563,6 +563,19 @@ class KeySequence {
         lastChange.baseSequence + "\u2732ESC\u2732" + remainder;
     }
 
+    // Next/prev segment with JK
+    matcher = getNormalMatcher("^([JK])(.*)", sequence);
+    if (matcher.find()) {
+      String motion = matcher.group(1);
+      String remainder = matcher.group(2);
+      if (motion.equals("J")) {
+        actions.goToNextSegment();
+      } else if (motion.equals("K")) {
+        actions.goToPrevSegment();
+      }
+      return remainder;
+    }
+
     if (sequence.matches(".*\\u2732ESC\\u2732\\u2732ESC\\u2732")) {
       return "";
     }
@@ -889,6 +902,20 @@ class KeySequence {
       actions.executeEnter();
       return remainder;
     }
+
+    // Next/prev segment with JK
+    matcher = getNormalMatcher("^([JK])(.*)", sequence);
+    if (matcher.find()) {
+      String motion = matcher.group(1);
+      String remainder = matcher.group(2);
+      if (motion.equals("J")) {
+        actions.goToNextSegment();
+      } else if (motion.equals("K")) {
+        actions.goToPrevSegment();
+      }
+      return remainder;
+    }
+
 
     // Two successive escapes
     if (sequence.matches(".*\\u2732ESC\\u2732\\u2732ESC\\u2732")) {
