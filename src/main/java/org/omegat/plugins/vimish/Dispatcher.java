@@ -5,13 +5,20 @@ import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
 import java.awt.event.InputEvent;
 
+import org.omegat.core.Core;
+import org.omegat.gui.editor.EditorController;
+import org.omegat.gui.editor.autocompleter.AutoCompleter;
 import org.omegat.gui.editor.EditorTextArea3;
 
 class Dispatcher {
+  private EditorController editor;
+  private AutoCompleter autoCompleter;
   private PreRouter preRouter;
 
   Dispatcher() {
     preRouter = new PreRouter();
+    editor = (EditorController) Core.getEditor();
+    autoCompleter = (AutoCompleter) editor.getAutoCompleter();
   }
 
   void installKeyEventDispatcher() {
@@ -22,7 +29,8 @@ class Dispatcher {
       public boolean dispatchKeyEvent(KeyEvent event) {
 
         // Don't consume keys entered outside main editing area
-        if (isOutsideMainEditingArea(event)) {
+        // or if autocompleter popup is visible
+        if (isOutsideMainEditingArea(event) || autoCompleter.isVisible()) {
           return false;
         }
 
