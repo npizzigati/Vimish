@@ -4,6 +4,6 @@ Plugin-Author: Nick Pizzigati
 Plugin-Description: Vim mode for OmegaT
 Plugin-Category: miscellaneous
 Plugin-License: GPL v3
-Plugin-Version: 0.2.1
+Plugin-Version: 0.2.2
 Plugin-Link: https://github.com/npizzigati/vimish
 OmegaT-Plugins: org.omegat.plugins.vimish.Vimish
