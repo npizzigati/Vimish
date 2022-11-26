@@ -14,11 +14,13 @@ class Dispatcher {
   private EditorController editor;
   private AutoCompleter autoCompleter;
   private PreRouter preRouter;
+  private boolean wasAutoCompleterJustClosed;
 
   Dispatcher() {
     preRouter = new PreRouter();
     editor = (EditorController) Core.getEditor();
     autoCompleter = (AutoCompleter) editor.getAutoCompleter();
+    wasAutoCompleterJustClosed = false;
   }
 
   void installKeyEventDispatcher() {
@@ -29,9 +31,35 @@ class Dispatcher {
       public boolean dispatchKeyEvent(KeyEvent event) {
 
         // Don't consume keys entered outside main editing area
-        // or if autocompleter popup is visible
-        if (isOutsideMainEditingArea(event) || autoCompleter.isVisible()) {
+        if (isOutsideMainEditingArea(event)) {
           return false;
+        }
+
+        // Don't consume Enter/Up/Down/Esc keys if autocomplete popup
+        // is visible
+        if (autoCompleter.isVisible() &&
+            (event.getKeyCode() == KeyEvent.VK_UP ||
+             event.getKeyCode() == KeyEvent.VK_DOWN ||
+             (int) event.getKeyChar() == KeyEvent.VK_ENTER ||
+             (int) event.getKeyChar() == KeyEvent.VK_ESCAPE)) {
+          wasAutoCompleterJustClosed = true;
+          return false;
+        }
+
+        // We need to consume the (key-typed) Enter/Esc event
+        // if the autocompleter was just closed (the above
+        // autoCompleter.isVisible() check only consumes the key-pressed
+        // event, and the key-typed event fires immediately
+        // afterwards, passing through the check because the
+        // autocompleter is no longer visible; this causes,
+        // e.g., a single Enter key press to close the popup and
+        // advance the segment)
+        if (wasAutoCompleterJustClosed) {
+          if ((int) event.getKeyChar() == KeyEvent.VK_ENTER ||
+              (int) event.getKeyChar() == KeyEvent.VK_ESCAPE) {
+            wasAutoCompleterJustClosed = false;
+            return true;
+          }
         }
 
         // Don't consume events with ALT or CTRL modifiers
