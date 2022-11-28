@@ -53,7 +53,7 @@ class VimishCaret extends DefaultCaret {
     return instance;
   }
 
-  static void processModeChange() {
+  static void refreshCaret() {
     getVimishCaret().repaint();
   }
 

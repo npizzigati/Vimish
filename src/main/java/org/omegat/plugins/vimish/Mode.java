@@ -20,7 +20,7 @@ enum Mode {
     }
 
     this.active = true;
-    VimishCaret.processModeChange();
+    VimishCaret.refreshCaret();
 
     // Flag for KeySequenceController to change the
     // mappings/chords/abbreviations to the correct mode
