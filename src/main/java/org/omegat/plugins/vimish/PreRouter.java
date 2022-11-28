@@ -21,6 +21,7 @@ class PreRouter {
     keyMappingsController = new KeyMappingsController(this);
     keyChordsController = new KeyChordsController(this);
     configuration = Configuration.getConfiguration();
+    VimishCaret.refreshCaret();
     actions.wiggleCaret();
   }
 
