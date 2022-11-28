@@ -41,7 +41,6 @@ class VimishCaret extends DefaultCaret {
       VimishCaret caret = getVimishCaret();
       caret.setBlinkRate(editingArea.getCaret().getBlinkRate());
       editingArea.setCaret(caret);
-      processCaret();
     } else {
       Log.log("Unable to set Vimish modal caret. Will use standard OmegaT caret");
     }
@@ -54,79 +53,57 @@ class VimishCaret extends DefaultCaret {
     return instance;
   }
 
-  static void processCaret() {
-    // Invoking modelToView on the event dispatch thread, as
-    // recommended by Java documentation for DefaultCaret
-
-    // Do nothing if editingArea not accessible (e.g., if access
-    // attempted to protected EditorTextArea3 member was denied)
-    if (editingArea == null) {
-      Log.log("Access to protected member EditorTextArea3 denied. Caret will not be able to change shape depending on mode.");
-      return;
-    }
-
-    SwingUtilities.invokeLater(new Runnable() {
-        public void run() {
-          if (Mode.NORMAL.isActive() || Mode.VISUAL.isActive() || Mode.SEARCH.isActive()) {
-            // Change the caret shape, width and color
-            editingArea.setCaretColor(Styles.EditorColor.COLOR_BACKGROUND.getColor());
-            editingArea.putClientProperty("caretWidth", getCaretWidth());
-
-            // We need to force the caret damage to have the rectangle to correctly show up,
-            // otherwise half of the caret is shown.
-            try {
-              VimishCaret caret = getVimishCaret();
-
-              Rectangle r = Java8Compat.modelToView(editingArea, caret.getDot());
-              caret.damage(r);
-            } catch (BadLocationException e) {
-              e.printStackTrace();
-            }
-          } else {
-            // reset to default insertMode caret
-            editingArea.setCaretColor(Styles.EditorColor.COLOR_FOREGROUND.getColor());
-            editingArea.putClientProperty("caretWidth", 1);
-          }
-        }
-      });
-  }
-
-  /** Get the caret width from the size of the current letter. */
-  public static int getCaretWidth() {
-    FontMetrics fm = editingArea.getFontMetrics(editingArea.getFont());
-    int carWidth = 1;
-    try {
-      carWidth = fm.stringWidth(editingArea.getText(editingArea.getCaretPosition(), 1));
-    } catch (BadLocationException e) {
-      /* empty */
-    }
-    return carWidth;
+  static void processModeChange() {
+    getVimishCaret().repaint();
   }
 
   @Override
   public void paint(Graphics g) {
+    int dot = getDot();
+    Rectangle r = null;
+    char dotChar;
+    try {
+      r = Java8Compat.modelToView(editingArea, dot);
+      if (r == null) {
+        return;
+      }
+      dotChar = editingArea.getText(dot, 1).charAt(0);
+    } catch (BadLocationException e) {
+      return;
+    }
+    if (x != r.x || y != r.y) {
+      repaint();
+      x = r.x;
+      y = r.y;
+      height = r.height;
+    }
+
+    editingArea.setCaretColor(Styles.EditorColor.COLOR_BACKGROUND.getColor());
+    g.setColor(editingArea.getCaretColor());
+    g.setXORMode(Styles.EditorColor.COLOR_FOREGROUND.getColor());
     if (Mode.NORMAL.isActive() || Mode.VISUAL.isActive() || Mode.SEARCH.isActive()) {
-      int caretWidth = getCaretWidth();
-      editingArea.putClientProperty("caretWidth", caretWidth);
-      g.setXORMode(Styles.EditorColor.COLOR_FOREGROUND.getColor());
-      g.translate(caretWidth / 2, 0);
-      super.paint(g);
+      width = g.getFontMetrics().charWidth(dotChar);
     } else {
-      super.paint(g);
+      width = 1;
+    }
+    if (isVisible()) {
+      g.fillRect(r.x, r.y, width, r.height);
     }
   }
 
   @Override
   protected synchronized void damage(Rectangle r) {
+    if (r == null) {
+      return;
+    }
     if (Mode.NORMAL.isActive() || Mode.VISUAL.isActive() || Mode.SEARCH.isActive()) {
-      if (r != null) {
-        int damageWidth = getCaretWidth();
-        x = r.x - 4 - (damageWidth / 2);
-        y = r.y;
-        width = 9 + 3 * damageWidth / 2;
-        height = r.height;
-        repaint();
+      x = r.x;
+      y = r.y;
+      height = r.height;
+      if (width <= 0) {
+        width = getComponent().getWidth();
       }
+      repaint();
     } else {
       super.damage(r);
     }
