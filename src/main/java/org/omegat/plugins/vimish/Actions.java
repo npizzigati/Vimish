@@ -1657,16 +1657,7 @@ class Actions {
     } else {
       newY = currentY + (count * lineHeight);
     }
-    // viewToModel is deprecated in Java 9 in favor of
-    // viewToModel2D, but for Java 8 we need to use it. In the
-    // event it is removed in a future release, catch the error
-    int newPosInEditorDocument;
-    try {
-      newPosInEditorDocument = editingArea.viewToModel(new Point(currentX, newY));
-    } catch (NoSuchMethodError nsme) {
-      Log.log(nsme);
-      return -1;
-    }
+    int newPosInEditorDocument = Java8Compat.viewToModel(editingArea, new Point(currentX, newY));
     return editor.getPositionInEntryTranslation(newPosInEditorDocument);
   }
 
