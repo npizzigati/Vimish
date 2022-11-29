@@ -1643,7 +1643,7 @@ class Actions {
   private int getNewVisualLineIndex(int count, Direction direction) {
     JTextComponent editingArea = getStoredEditingArea();
     if (editingArea == null) {
-      Log.log("Unable to move caret up/down due to Java reflexion restrictions");
+      Log.log("Unable to move caret up/down due to Java reflection restrictions");
       return -1;
     }
     DefaultCaret caret = (DefaultCaret) editingArea.getCaret();
