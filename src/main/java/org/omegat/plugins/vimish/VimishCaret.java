@@ -1,11 +1,9 @@
 package org.omegat.plugins.vimish;
 
 import javax.swing.text.DefaultCaret;
-import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 
-import java.awt.FontMetrics;
 import java.awt.Rectangle;
 import java.awt.Graphics;
 
