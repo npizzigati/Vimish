@@ -70,6 +70,9 @@ class VimishCaret extends DefaultCaret {
     } catch (BadLocationException e) {
       return;
     }
+
+    // Do cleanup if paint() has been called directly, without
+    // prior call to damage(), i.e., when component is resized
     if (x != r.x || y != r.y) {
       repaint();
       x = r.x;
