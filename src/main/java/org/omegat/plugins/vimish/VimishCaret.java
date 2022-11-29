@@ -88,10 +88,6 @@ class VimishCaret extends DefaultCaret {
     if (dotChar == '\n') {
       int diam = r.height;
       width = diam / 2 + 2;
-      // if (isVisible()) {
-      //   g.fillRect(r.x, r.y, width, r.height);
-      //   return;
-      // }
     }
     // Handle tab character
     else if (dotChar == '\t') {
@@ -99,10 +95,6 @@ class VimishCaret extends DefaultCaret {
         Rectangle nextr = Java8Compat.modelToView(component, dot + 1);
         if ((r.y == nextr.y) && (r.x < nextr.x)) {
           width = nextr.x - r.x;
-          // if (isVisible()) {
-          //   g.fillRect(r.x, r.y, width, r.height);
-          //   return;
-          // }
         } else {
           dotChar = ' ';
         }
