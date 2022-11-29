@@ -22,9 +22,6 @@ import org.omegat.util.Log;
  *
  * If it can't due to restrictions on reflection, the regular 
  * OmegaT caret will be used.
- *
- * Caret drawing logic has been taken from
- * OmegaT's OvertypeCaret class with minor modifications
  */
 class VimishCaret extends DefaultCaret {
   private static VimishCaret instance;
