@@ -83,11 +83,42 @@ class VimishCaret extends DefaultCaret {
     component.setCaretColor(Styles.EditorColor.COLOR_BACKGROUND.getColor());
     g.setColor(component.getCaretColor());
     g.setXORMode(Styles.EditorColor.COLOR_FOREGROUND.getColor());
-    if (Mode.NORMAL.isActive() || Mode.VISUAL.isActive() || Mode.SEARCH.isActive()) {
+
+    // Handle newline character
+    if (dotChar == '\n') {
+      int diam = r.height;
+      width = diam / 2 + 2;
+      // if (isVisible()) {
+      //   g.fillRect(r.x, r.y, width, r.height);
+      //   return;
+      // }
+    }
+    // Handle tab character
+    else if (dotChar == '\t') {
+      try {
+        Rectangle nextr = Java8Compat.modelToView(component, dot + 1);
+        if ((r.y == nextr.y) && (r.x < nextr.x)) {
+          width = nextr.x - r.x;
+          // if (isVisible()) {
+          //   g.fillRect(r.x, r.y, width, r.height);
+          //   return;
+          // }
+        } else {
+          dotChar = ' ';
+        }
+      } catch (BadLocationException e) {
+        dotChar = ' ';
+      }
+    }
+    // Vimish block caret
+    else if (Mode.NORMAL.isActive() || Mode.VISUAL.isActive() || Mode.SEARCH.isActive()) {
       width = g.getFontMetrics().charWidth(dotChar);
-    } else {
+    }
+    // Vimish insert (thin) caret
+    else {
       width = 1;
     }
+
     if (isVisible()) {
       g.fillRect(r.x, r.y, width, r.height);
     }
