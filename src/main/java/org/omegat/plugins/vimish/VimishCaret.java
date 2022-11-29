@@ -57,15 +57,16 @@ class VimishCaret extends DefaultCaret {
 
   @Override
   public void paint(Graphics g) {
+    JTextComponent component = getComponent();
     int dot = getDot();
     Rectangle r = null;
     char dotChar;
     try {
-      r = Java8Compat.modelToView(editingArea, dot);
+      r = Java8Compat.modelToView(component, dot);
       if (r == null) {
         return;
       }
-      dotChar = editingArea.getText(dot, 1).charAt(0);
+      dotChar = component.getText(dot, 1).charAt(0);
     } catch (BadLocationException e) {
       return;
     }
@@ -76,8 +77,8 @@ class VimishCaret extends DefaultCaret {
       height = r.height;
     }
 
-    editingArea.setCaretColor(Styles.EditorColor.COLOR_BACKGROUND.getColor());
-    g.setColor(editingArea.getCaretColor());
+    component.setCaretColor(Styles.EditorColor.COLOR_BACKGROUND.getColor());
+    g.setColor(component.getCaretColor());
     g.setXORMode(Styles.EditorColor.COLOR_FOREGROUND.getColor());
     if (Mode.NORMAL.isActive() || Mode.VISUAL.isActive() || Mode.SEARCH.isActive()) {
       width = g.getFontMetrics().charWidth(dotChar);
