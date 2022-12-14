@@ -62,9 +62,10 @@ class Dispatcher {
           }
         }
 
-        // Don't consume events with ALT or CTRL modifiers
+        // Don't consume events with ALT, CTRL or CMD key modifiers
         int extModifierMask = event.getModifiersEx();
         if ((extModifierMask & InputEvent.ALT_DOWN_MASK) != 0 ||
+            (extModifierMask & InputEvent.META_DOWN_MASK) != 0 ||
             (extModifierMask & InputEvent.CTRL_DOWN_MASK) != 0) {
           return false;
         }
