@@ -8,7 +8,6 @@ import java.awt.Rectangle;
 import java.awt.Graphics;
 
 import org.omegat.util.gui.Styles;
-import org.omegat.util.Java8Compat;
 import org.omegat.util.Log;
 
 @SuppressWarnings("serial")
@@ -59,7 +58,7 @@ class VimishCaret extends DefaultCaret {
     Rectangle r = null;
     char dotChar;
     try {
-      r = Java8Compat.modelToView(component, dot);
+      r = component.modelToView2D(dot).getBounds();
       if (r == null) {
         return;
       }
@@ -89,7 +88,7 @@ class VimishCaret extends DefaultCaret {
     // Handle tab character
     else if (dotChar == '\t') {
       try {
-        Rectangle nextr = Java8Compat.modelToView(component, dot + 1);
+        Rectangle nextr = component.modelToView2D(dot + 1).getBounds();
         if ((r.y == nextr.y) && (r.x < nextr.x)) {
           width = nextr.x - r.x;
         } else {

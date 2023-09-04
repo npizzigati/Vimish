@@ -6,7 +6,6 @@ import org.omegat.gui.editor.IEditor.CaretPosition;
 import org.omegat.core.CoreEvents;
 import org.omegat.core.data.SourceTextEntry;
 import org.omegat.core.events.IEntryEventListener;
-import org.omegat.util.Java8Compat;
 import org.omegat.util.Log;
 
 import java.awt.Container;
@@ -1658,7 +1657,7 @@ class Actions {
     } else {
       newY = currentY + (count * lineHeight);
     }
-    int newPosInEditorDocument = Java8Compat.viewToModel(editingArea, new Point(currentX, newY));
+    int newPosInEditorDocument = editingArea.viewToModel2D(new Point(currentX, newY));
     return editor.getPositionInEntryTranslation(newPosInEditorDocument);
   }
 
